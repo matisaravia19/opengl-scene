@@ -23,9 +23,15 @@ set(imgui_sources
 )
 
 set(sources
-        main.cpp
         ${imgui_sources}
         ${glad_sources}
+        src/main.cpp
+        src/core/entity.cpp
+        src/core/component.cpp
+        src/core/scene.cpp
+        src/core/window.cpp
+        src/rendering/renderer.cpp
+        src/core/input.cpp
 )
 
 add_executable(opengl_scene ${sources})
