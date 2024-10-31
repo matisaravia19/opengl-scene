@@ -9,3 +9,11 @@ MeshRenderer::MeshRenderer(Mesh mesh) {
 void MeshRenderer::render() {
 
 }
+
+void MeshRenderer::init() {
+    this->renderer->registerRenderable(this);
+}
+
+MeshRenderer::~MeshRenderer() {
+    this->renderer->removeRenderable(this);
+}

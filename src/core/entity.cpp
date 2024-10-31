@@ -10,3 +10,9 @@ void Entity::update() {
         component->update();
     }
 }
+
+void Entity::init() {
+    for (auto &component : components) {
+        component->init();
+    }
+}

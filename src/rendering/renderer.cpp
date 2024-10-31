@@ -18,3 +18,11 @@ void Renderer::render() {
 void Renderer::registerRenderable(Renderable *renderable) {
     renderables.insert(renderable);
 }
+
+void Renderer::removeRenderable(Renderable *renderable) {
+    renderables.erase(renderable);
+}
+
+void Renderable::setRenderer(Renderer *renderer) {
+    this->renderer = renderer;
+}

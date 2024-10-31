@@ -10,5 +10,6 @@ private:
 public:
     void addComponent(Component* component);
 
+    void init();
     void update();
 };

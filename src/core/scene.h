@@ -17,5 +17,6 @@ public:
     void load();
     void open();
 
+    Scene();
     ~Scene();
 };
