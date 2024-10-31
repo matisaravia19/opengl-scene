@@ -2,6 +2,14 @@
 
 #include <iostream>
 
+Entity *Component::getEntity() {
+    return entity;
+}
+
+void Component::setEntity(Entity *entity) {
+    this->entity = entity;
+}
+
 void Component::init() {
 
 }

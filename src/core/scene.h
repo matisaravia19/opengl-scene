@@ -8,7 +8,7 @@
 
 class Scene {
 private:
-    std::vector<Entity> entities;
+    std::vector<Entity *> entities;
     Window *window;
     Renderer *renderer;
     Input *input;

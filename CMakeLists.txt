@@ -35,6 +35,7 @@ set(sources
         src/data/importer.cpp
         src/rendering/mesh.cpp
         src/rendering/meshRenderer.cpp
+        src/core/transform.cpp
 )
 
 add_executable(opengl_scene ${sources})

@@ -11,13 +11,10 @@ private:
     std::string path;
     Assimp::Importer importer;
     const aiScene *scene;
-    std::vector<Entity> entities;
+    std::vector<Entity*> entities;
 
-    static Vertex readVertex(aiMesh *mesh, int index);
-    static Mesh readMesh(aiMesh *mesh);
-
-    void loadMeshEntities(aiNode *node);
-    void loadEntities(aiNode *node);
+    void loadMeshes(aiNode *node, Entity *entity);
+    void loadEntities(aiNode *node, Transform *parent);
 
 public:
     explicit Importer(std::string path);
