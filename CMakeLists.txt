@@ -32,6 +32,9 @@ set(sources
         src/core/window.cpp
         src/rendering/renderer.cpp
         src/core/input.cpp
+        src/data/importer.cpp
+        src/rendering/mesh.cpp
+        src/rendering/meshRenderer.cpp
 )
 
 add_executable(opengl_scene ${sources})
