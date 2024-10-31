@@ -19,6 +19,14 @@ Transform::Transform(glm::vec3 position, glm::quat rotation, glm::vec3 scale) {
     parent = nullptr;
 }
 
+Transform::Transform(glm::vec3 position, glm::vec3 lookAt, glm::vec3 up) {
+    this->position = position;
+    rotation = glm::quatLookAt(glm::normalize(lookAt - position), up);
+    scale = glm::vec3(1.0f);
+
+    parent = nullptr;
+}
+
 void Transform::addChild(Transform *child) {
     children.push_back(child);
     child->parent = this;

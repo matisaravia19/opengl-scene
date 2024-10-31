@@ -13,8 +13,12 @@ private:
     const aiScene *scene;
     std::vector<Entity*> entities;
 
+    Entity *getEntity(const std::string& name);
+
+    void loadNodes(aiNode *node, Transform *parent = nullptr);
     void loadMeshes(aiNode *node, Entity *entity);
-    void loadEntities(aiNode *node, Transform *parent);
+    void loadCameras();
+    void loadLights();
 
 public:
     explicit Importer(std::string path);

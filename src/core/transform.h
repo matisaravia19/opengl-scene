@@ -17,6 +17,7 @@ private:
 public:
     Transform();
     Transform(glm::vec3 position, glm::quat rotation, glm::vec3 scale);
+    Transform(glm::vec3 position, glm::vec3 lookAt, glm::vec3 up);
 
     void addChild(Transform *child);
     void removeChild(Transform *child);
