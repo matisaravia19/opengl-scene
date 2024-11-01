@@ -38,6 +38,9 @@ set(sources
         src/core/transform.cpp
         src/rendering/camera.cpp
         src/rendering/light.cpp
+        src/rendering/shader.cpp
+        src/rendering/material.cpp
+        src/rendering/texture.cpp
 )
 
 add_executable(opengl_scene ${sources})

@@ -14,7 +14,13 @@ struct Mesh {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
-    Mesh() = default;
+    unsigned int vao;
+    unsigned int vbo;
+    unsigned int ebo;
 
+    Mesh() = default;
     Mesh(unsigned int numVertices, unsigned int numIndices);
+    ~Mesh();
+
+    void upload();
 };

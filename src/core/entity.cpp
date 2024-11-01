@@ -19,14 +19,3 @@ void Entity::update() {
         component->update();
     }
 }
-
-template<class C>
-C *Entity::getComponent() {
-    for (auto &component: components) {
-        auto c = dynamic_cast<C *>(component);
-        if (c) {
-            return c;
-        }
-    }
-    return nullptr;
-}
