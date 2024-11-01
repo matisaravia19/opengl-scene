@@ -11,6 +11,7 @@ private:
 
 public:
     explicit MeshRenderer(Mesh *mesh);
+    ~MeshRenderer() override;
 
     void init() override;
     void render() override;

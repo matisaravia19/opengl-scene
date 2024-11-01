@@ -9,5 +9,10 @@ void MeshRenderer::render() {
 }
 
 void MeshRenderer::init() {
+    this->renderer->registerRenderable(this);
     mesh->upload();
+}
+
+MeshRenderer::~MeshRenderer() {
+    this->renderer->removeRenderable(this);
 }
