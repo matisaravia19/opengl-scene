@@ -7,10 +7,11 @@
 
 class MeshRenderer : public Component, public Renderable {
 private:
-    Mesh mesh;
+    Mesh *mesh;
 
 public:
-    explicit MeshRenderer(Mesh mesh);
+    explicit MeshRenderer(Mesh *mesh);
 
+    void init() override;
     void render() override;
 };

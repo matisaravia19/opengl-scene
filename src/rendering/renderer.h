@@ -3,6 +3,7 @@
 
 #include <unordered_set>
 #include "../core/window.h"
+#include "camera.h"
 
 
 class Renderable {
@@ -13,11 +14,12 @@ public:
 class Renderer {
 private:
     Window *window;
-    std::unordered_set<Renderable*> renderables;
+    Camera *camera;
+    std::unordered_set<Renderable *> renderables;
 
 public:
     explicit Renderer(Window *window);
-    void render();
 
+    void render();
     void registerRenderable(Renderable *renderable);
 };

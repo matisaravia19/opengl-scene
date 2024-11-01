@@ -9,10 +9,12 @@ class Entity {
 private:
     std::string name;
     std::vector<Component *> components;
+    bool active = false;
 
 public:
     Entity() = default;
     explicit Entity(std::string name);
+    ~Entity();
 
     std::string getName();
 
@@ -22,6 +24,7 @@ public:
 
     Transform *getTransform() { return getComponent<Transform>(); }
 
+    void spawn();
     void update();
 };
 

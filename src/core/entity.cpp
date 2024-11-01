@@ -11,11 +11,33 @@ std::string Entity::getName() {
 void Entity::addComponent(Component *component) {
     components.push_back(component);
     component->setEntity(this);
-    component->init();
+
+    if (active) {
+        component->init();
+    }
+}
+
+void Entity::spawn() {
+    if (active) {
+        return;
+    }
+
+    active = true;
+
+    for (auto &component: components) {
+        component->init();
+    }
 }
 
 void Entity::update() {
     for (auto &component: components) {
         component->update();
+    }
+}
+
+Entity::~Entity() {
+    for (auto &component: components) {
+        component->remove();
+        delete component;
     }
 }
