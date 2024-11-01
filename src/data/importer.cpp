@@ -43,18 +43,18 @@ static Vertex readVertex(aiMesh *mesh, int index) {
     return vertex;
 }
 
-static Mesh readMesh(aiMesh *mesh) {
-    auto result = Mesh(mesh->mNumVertices, mesh->mNumFaces * 3);
+static Mesh *readMesh(aiMesh *mesh) {
+    auto result = new Mesh(mesh->mNumVertices, mesh->mNumFaces * 3);
 
     for (int i = 0; i < mesh->mNumVertices; i++) {
         Vertex vertex = readVertex(mesh, i);
-        result.vertices.push_back(vertex);
+        result->vertices.push_back(vertex);
     }
 
     for (int i = 0; i < mesh->mNumFaces; i++) {
         auto face = mesh->mFaces[i];
         for (int j = 0; j < face.mNumIndices; j++) {
-            result.indices.push_back(face.mIndices[j]);
+            result->indices.push_back(face.mIndices[j]);
         }
     }
 
@@ -68,15 +68,25 @@ static Light *readLight(aiLight *light) {
 
     switch (light->mType) {
         case aiLightSourceType::aiLightSource_DIRECTIONAL:
-            return new DirectionalLight(color, intensity, toVec3(light->mDirection));
+            return new DirectionalLight(
+                    color,
+                    intensity,
+                    toVec3(light->mDirection)
+            );
         case aiLightSourceType::aiLightSource_SPOT:
-            return new SpotLight(color, intensity, toVec3(light->mDirection), light->mAngleInnerCone, light->mAngleOuterCone);
+            return new SpotLight(
+                    color,
+                    intensity,
+                    toVec3(light->mDirection),
+                    light->mAngleInnerCone,
+                    light->mAngleOuterCone
+            );
         default:
             return new PointLight(color, intensity);
     }
 }
 
-Entity *Importer::getEntity(const std::string& name) {
+Entity *Importer::getEntity(const std::string &name) {
     for (auto &entity: entities) {
         if (entity->getName() == name) {
             return entity;
@@ -120,11 +130,19 @@ void Importer::loadCameras() {
         auto entity = getEntity(camera->mName.C_Str());
         if (!entity) {
             entity = new Entity(camera->mName.C_Str());
-            entity->addComponent(new Transform(toVec3(camera->mPosition), toVec3(camera->mLookAt), toVec3(camera->mUp)));
+            entity->addComponent(new Transform(
+                    toVec3(camera->mPosition),
+                    toVec3(camera->mLookAt),
+                    toVec3(camera->mUp)
+            ));
             entities.push_back(entity);
         }
 
-        entity->addComponent(new Camera(camera->mAspect, camera->mHorizontalFOV, camera->mClipPlaneNear, camera->mClipPlaneFar));
+        entity->addComponent(new Camera(
+                camera->mHorizontalFOV,
+                camera->mClipPlaneNear,
+                camera->mClipPlaneFar
+        ));
     }
 }
 
@@ -135,7 +153,11 @@ void Importer::loadLights() {
         auto entity = getEntity(light->mName.C_Str());
         if (!entity) {
             entity = new Entity(light->mName.C_Str());
-            entity->addComponent(new Transform(toVec3(light->mPosition), toVec3(light->mDirection), toVec3(light->mUp)));
+            entity->addComponent(new Transform(
+                    toVec3(light->mPosition),
+                    toVec3(light->mDirection),
+                    toVec3(light->mUp)
+            ));
             entities.push_back(entity);
         }
 
@@ -143,9 +165,13 @@ void Importer::loadLights() {
     }
 }
 
-void Importer::import() {
+void Importer::load() {
     scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate);
     loadNodes(scene->mRootNode);
     loadCameras();
     loadLights();
+}
+
+std::vector<Entity *> Importer::getEntities() {
+    return entities;
 }

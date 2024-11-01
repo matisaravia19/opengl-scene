@@ -11,9 +11,9 @@ private:
     std::string path;
     Assimp::Importer importer;
     const aiScene *scene;
-    std::vector<Entity*> entities;
+    std::vector<Entity *> entities;
 
-    Entity *getEntity(const std::string& name);
+    Entity *getEntity(const std::string &name);
 
     void loadNodes(aiNode *node, Transform *parent = nullptr);
     void loadMeshes(aiNode *node, Entity *entity);
@@ -22,5 +22,7 @@ private:
 
 public:
     explicit Importer(std::string path);
-    void import();
+
+    void load();
+    std::vector<Entity *> getEntities();
 };

@@ -13,10 +13,19 @@ private:
     Renderer *renderer;
     Input *input;
 
-public:
-    void load();
-    void open();
+    static Scene *active;
 
+public:
     Scene();
     ~Scene();
+
+    void open();
+    void load();
+
+    void spawn(Entity *entity);
+
+    static Scene *getActive();
+    Window *getWindow();
+    Renderer *getRenderer();
+    Input *getInput();
 };

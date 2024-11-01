@@ -7,6 +7,8 @@ private:
     Entity *entity = nullptr;
 
 public:
+    virtual ~Component() = default;
+
     Entity *getEntity();
     void setEntity(Entity *entity);
 

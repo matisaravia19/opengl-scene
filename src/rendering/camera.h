@@ -15,10 +15,13 @@ private:
     float near;
     float far;
 
+    void updateProjection();
+
 public:
-    Camera(float fov, float aspect, float near, float far);
+    Camera(float fov, float near, float far);
 
     void init() override;
+    void update() override;
 
     glm::mat4 getProjection() const;
     glm::mat4 getView() const;

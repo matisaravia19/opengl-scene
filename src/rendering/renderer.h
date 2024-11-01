@@ -8,13 +8,10 @@
 class Renderer;
 
 class Renderable {
-protected:
-    Renderer* renderer;
 public:
     virtual ~Renderable() = default;
 
     virtual void render() = 0;
-    void setRenderer(Renderer* renderer);
 };
 
 class Renderer {
@@ -29,4 +26,8 @@ public:
     void render();
     void registerRenderable(Renderable *renderable);
     void removeRenderable(Renderable *renderable);
+    void setCamera(Camera *camera);
+
+    static Renderer *getActive();
+    Camera *getCamera();
 };

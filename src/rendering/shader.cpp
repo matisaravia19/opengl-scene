@@ -52,3 +52,20 @@ Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 }
+
+Shader::~Shader() {
+    glDeleteProgram(program);
+}
+
+void Shader::use() const {
+    glUseProgram(program);
+}
+
+void Shader::disable() const {
+    glUseProgram(0);
+}
+
+void Shader::setUniform(const std::string &name, glm::mat4 value) const {
+    auto location = glGetUniformLocation(program, name.c_str());
+    glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+}
