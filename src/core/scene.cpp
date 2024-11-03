@@ -18,8 +18,9 @@ void Scene::open() {
     active = this;
 
     window->open();
+    input->init();
 
-    Importer importer("C:\\Users\\matis\\OneDrive\\Documentos\\Fing\\CGA\\opengl-scene\\test.glb");
+    Importer importer("..\\test.glb");
     importer.load();
     for (auto &entity: importer.getEntities()) {
         spawn(entity);

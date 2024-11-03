@@ -4,8 +4,7 @@
 
 MeshRenderer::MeshRenderer(Mesh *mesh) {
     this->mesh = mesh;
-    shader = new Shader("C:\\Users\\matis\\OneDrive\\Documentos\\Fing\\CGA\\opengl-scene\\src\\shaders\\test.vert",
-                        "C:\\Users\\matis\\OneDrive\\Documentos\\Fing\\CGA\\opengl-scene\\src\\shaders\\test.frag");
+    shader = new Shader("..\\src\\shaders\\test.vert", "..\\src\\shaders\\test.frag");
 }
 
 void MeshRenderer::render() {

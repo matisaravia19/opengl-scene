@@ -9,5 +9,6 @@ private:
 
 public:
     Input(Window *window);
+    void init();
     void poll();
 };
