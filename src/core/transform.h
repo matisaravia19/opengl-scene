@@ -30,4 +30,5 @@ public:
     void setScale(const glm::vec3 &scale);
 
     glm::mat4 getModelMatrix();
+    void fromModelMatrix(const glm::mat4& tf_matrix);
 };

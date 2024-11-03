@@ -1,5 +1,6 @@
 #include "importer.h"
 
+#include "../core/input.h"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "../rendering/meshRenderer.h"
@@ -29,7 +30,7 @@ static inline Transform *toTransform(aiMatrix4x4 aiMatrix) {
     return new Transform(toVec3(position), toQuat(rotation), toVec3(scaling));
 }
 
-Importer::Importer(std::string path) {
+Importer::Importer(std::string path, Input *input) : input(input) {
     this->path = std::move(path);
 }
 
@@ -124,10 +125,11 @@ void Importer::loadMeshes(aiNode *node, Entity *entity) {
 }
 
 void Importer::loadCameras() {
+    Entity *entity = nullptr;
     for (int i = 0; i < scene->mNumCameras; i++) {
         auto camera = scene->mCameras[i];
 
-        auto entity = getEntity(camera->mName.C_Str());
+        entity = getEntity(camera->mName.C_Str());
         if (!entity) {
             entity = new Entity(camera->mName.C_Str());
             entity->addComponent(new Transform(
@@ -144,6 +146,8 @@ void Importer::loadCameras() {
                 camera->mClipPlaneFar
         ));
     }
+    if (!entity) return;
+    entity->addComponent(new Controllable(input));
 }
 
 void Importer::loadLights() {

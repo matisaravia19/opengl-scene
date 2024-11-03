@@ -1,6 +1,6 @@
 #include "transform.h"
 
-#include "glm/ext/matrix_transform.hpp"
+#include <glm/ext/matrix_transform.hpp>
 #include "constants.h"
 
 Transform::Transform() {
@@ -72,3 +72,24 @@ glm::mat4 Transform::getModelMatrix() {
         return translationMatrix * rotationMatrix * scaleMatrix;
     }
 }
+
+void Transform::fromModelMatrix(const glm::mat4& tf_matrix) {
+    // Extract position from the last column
+    position = glm::vec3(tf_matrix[3]);
+
+    // Extract scale by getting length of each axis vector
+    scale.x = length(glm::vec3(tf_matrix[0]));
+    scale.y = length(glm::vec3(tf_matrix[1]));
+    scale.z = length(glm::vec3(tf_matrix[2]));
+
+    // Create rotation matrix by normalizing axis vectors
+    const glm::mat3 rotationMat(
+        glm::vec3(tf_matrix[0]) / scale.x,  // Right vector
+        glm::vec3(tf_matrix[1]) / scale.y,  // Up vector
+        glm::vec3(tf_matrix[2]) / scale.z   // Forward vector
+    );
+
+    // Convert rotation matrix to quaternion
+    rotation = quat_cast(rotationMat);
+}
+
