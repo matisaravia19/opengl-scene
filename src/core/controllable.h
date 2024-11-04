@@ -15,13 +15,13 @@ class Controllable : public Component {
     double bobFactor;
 
     void processKeyboard(long keymap, double delta_time);
-    void processMouse(glm::vec2 mouse_displacement);
+    void processMouse(glm::vec2 mouse_displacement, double delta_time);
 public:
     explicit Controllable(Input *input)
         : input(input)
         , transform(nullptr)
         , runSpeed(5.f)
-        , mouseSens(0.01f)
+        , mouseSens(0.5f)
         , cameraTime(0.f)
         , bobFactor(0.007f)
     {};
