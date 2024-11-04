@@ -24,8 +24,10 @@ public:
 
     glm::vec3 getPosition() const;
     void setPosition(const glm::vec3 &position);
+    // In degrees.
     glm::vec3 getRotation() const;
-    void setRotation(const glm::vec3 &rotation);
+    void setRotation(const glm::vec3 &rotation_in_degrees);
+
     glm::vec3 getScale() const;
     void setScale(const glm::vec3 &scale);
 

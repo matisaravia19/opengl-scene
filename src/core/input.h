@@ -7,20 +7,27 @@
 #include "transform.h"
 #include "window.h"
 
+enum Keycodes {
+    KeyW = 1,
+    KeyA = 2,
+    KeyS = 4,
+    KeyD = 8,
+    KeyEsc = 16,
+};
+
 class Input {
 private:
     Window *window;
 
     double deltaTime;
-    double run_speed;
 
-    glm::mat4 currentTransform;
+    long pressedKeys;
+    glm::vec2 mouseDisplacement;
 
     struct {
         bool first;
         double lastX;
         double lastY;
-        double sens;
     } mouse;
 
     void updateTransformAngle(const glm::vec3& rotation);
@@ -28,21 +35,10 @@ public:
     explicit Input(Window *window);
     void init();
     void poll();
-    void setTransform(const glm::mat4& tf);
+
+    [[nodiscard]] long getKeysDown() const;
+    [[nodiscard]] glm::vec2 consumeMouseDisplacement();
+    [[nodiscard]] double getDeltaTime() const;
     void processMouseMovement(double xpos, double ypos);
-
-    [[nodiscard]] glm::mat4 getTransformMatrix() const;
-    void processKeyboardInput();
-};
-
-// Component that allows communication between Input and Camera
-class Controllable : public Component {
-    Input *input;
-    Transform *transform; // Parent Entity transform
-
-public:
-    explicit Controllable(Input *input) : input(input), transform(nullptr) {};
-    void init() override;
-    void update() override;
-    void remove() override {};
+    void processKeyboardInput(int key, int _scancode, int action, int _mods);
 };

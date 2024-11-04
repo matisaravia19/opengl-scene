@@ -10,12 +10,17 @@ void mouseCallback(GLFWwindow* window, double xpos, double ypos) {
     handler->processMouseMovement(xpos, ypos);
 }
 
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    auto *handler = static_cast<Input*>(glfwGetWindowUserPointer(window));
+    handler->processKeyboardInput(key, scancode, action, mods);
+}
+
 Input::Input(Window *window)
-     : window(window)
-     , deltaTime(0.f)
-     , run_speed(0.03f)
-     , currentTransform(1.f)
-     , mouse{true, 0.f, 0.f, 0.03f}
+    : window(window)
+    , deltaTime(0.f)
+    , pressedKeys(0.f)
+    , mouseDisplacement(0.f)
+    , mouse{true, 0.f, 0.f}
 {}
 
 void Input::init() {
@@ -26,6 +31,9 @@ void Input::init() {
     glfwSetInputMode(window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetWindowUserPointer(window->getWindow(), this);
     glfwSetCursorPosCallback(window->getWindow(), mouseCallback);
+
+    /* Configure KB input */
+    glfwSetKeyCallback(window->getWindow(), keyCallback);
 }
 
 void Input::poll() {
@@ -36,19 +44,34 @@ void Input::poll() {
     glfwPollEvents();
 }
 
-void Input::updateTransformAngle(const glm::vec3& rotation) {
-    // Create rotation quaternion from euler angles
-    auto rotQuat = glm::quat(rotation);
+void Input::processKeyboardInput(const int key, int _scancode, const int action, int _mods) {
+    if (const auto window = this->window->getWindow();
+        glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
 
-    // Extract current position
-    auto position = glm::vec3(currentTransform[3]);
+    // Process movement keys down
+    if (key ==  GLFW_KEY_W && action == GLFW_PRESS)
+        pressedKeys |= KeyW;
+    if (key ==  GLFW_KEY_A && action == GLFW_PRESS)
+        pressedKeys |= KeyA;
+    if (key ==  GLFW_KEY_S && action == GLFW_PRESS)
+        pressedKeys |= KeyS;
+    if (key ==  GLFW_KEY_D && action == GLFW_PRESS)
+        pressedKeys |= KeyD;
 
-    // Create new transformation matrix
-    this->currentTransform = mat4_cast(rotQuat);
-    this->currentTransform[3] = glm::vec4(position, 1.0f);
+    // Process movement keys up
+    if (key ==  GLFW_KEY_W && action == GLFW_RELEASE)
+        pressedKeys &= ~KeyW;
+    if (key ==  GLFW_KEY_A && action == GLFW_RELEASE)
+        pressedKeys &= ~KeyA;
+    if (key ==  GLFW_KEY_S && action == GLFW_RELEASE)
+        pressedKeys &= ~KeyS;
+    if (key ==  GLFW_KEY_D && action == GLFW_RELEASE)
+        pressedKeys &= ~KeyD;
 }
 
-void Input::processMouseMovement(double xpos, double ypos) {
+void Input::processMouseMovement(const double xpos, const double ypos) {
     if (mouse.first) {
         mouse.lastX = xpos;
         mouse.lastY = ypos;
@@ -56,76 +79,24 @@ void Input::processMouseMovement(double xpos, double ypos) {
         return;
     }
 
-    double xoffset = (mouse.lastX - xpos) * mouse.sens;
-    double yoffset = (mouse.lastY - ypos) * mouse.sens;
+    const double xoffset = mouse.lastX - xpos;
+    const double yoffset = mouse.lastY - ypos;
     mouse.lastX = xpos;
     mouse.lastY = ypos;
 
-    // Convert current transformation to rotation angles
-    glm::vec3 currentRotation = eulerAngles(quat_cast(currentTransform));
-
-    // Update rotation angles
-    currentRotation.y += static_cast<float>(glm::radians(xoffset)); // Yaw (Y-axis)
-    currentRotation.x += static_cast<float>(glm::radians(yoffset)); // Pitch (X-axis)
-
-    // Constrain pitch
-    currentRotation.x = glm::clamp(currentRotation.x,
-        glm::radians(-89.0f), glm::radians(89.0f));
-
-    updateTransformAngle(currentRotation);
+    mouseDisplacement = glm::vec2(xoffset, yoffset);
 }
 
-void Input::processKeyboardInput() {
-    const auto window = this->window->getWindow();
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-
-    const auto velocity = static_cast<float>(run_speed * deltaTime);
-
-    // Extract right, up, and forward vectors from transformation matrix
-    const auto right = glm::vec3(currentTransform[0]);
-    const auto up = glm::vec3(currentTransform[1]);
-    const auto forward = -glm::vec3(currentTransform[2]); // Negative Z is forward
-
-    auto position = glm::vec3(currentTransform[3]);
-
-    // Process movement
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        position += forward * velocity;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        position -= forward * velocity;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        position -= right * velocity;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        position += right * velocity;
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        position += up * velocity;
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        position -= up * velocity;
-
-    // Update position in transformation matrix
-    currentTransform[3] = glm::vec4(position, 1.0f);
+long Input::getKeysDown() const {
+    return pressedKeys;
 }
 
-glm::mat4 Input::getTransformMatrix() const {
-    return currentTransform;
+glm::vec2 Input::consumeMouseDisplacement() {
+    const auto md = mouseDisplacement;
+    mouseDisplacement = glm::vec2(0.f, 0.f);
+    return md;
 }
 
-void Input::setTransform(const glm::mat4& tf) {
-    currentTransform = tf;
-};
-
-/* Controllable methods */
-
-void Controllable::init() {
-    transform = getEntity()->getComponent<Transform>();
-    input->setTransform(transform->getModelMatrix());
-}
-
-void Controllable::update() {
-    input->processKeyboardInput();
-    const auto tf_matrix = input->getTransformMatrix();
-    transform->fromModelMatrix(tf_matrix);
+double Input::getDeltaTime() const {
+    return deltaTime;
 }

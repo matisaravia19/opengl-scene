@@ -49,8 +49,8 @@ glm::vec3 Transform::getRotation() const {
     return glm::degrees(glm::eulerAngles(rotation));
 }
 
-void Transform::setRotation(const glm::vec3 &rotation) {
-    this->rotation = glm::quat(glm::radians(rotation));
+void Transform::setRotation(const glm::vec3 &rotation_in_degrees) {
+    this->rotation = glm::quat(glm::radians(rotation_in_degrees));
 }
 
 glm::vec3 Transform::getScale() const {

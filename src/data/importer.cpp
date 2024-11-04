@@ -1,6 +1,7 @@
 #include "importer.h"
 
 #include "../core/input.h"
+#include "../core/controllable.h"
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "../rendering/meshRenderer.h"
