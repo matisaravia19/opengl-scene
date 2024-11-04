@@ -1,26 +1,25 @@
 #include "meshRenderer.h"
 
+#include <utility>
 #include "../core/entity.h"
 
-MeshRenderer::MeshRenderer(Mesh *mesh) {
-    this->mesh = mesh;
-    shader = new Shader("C:\\Users\\matis\\OneDrive\\Documentos\\Fing\\CGA\\opengl-scene\\src\\shaders\\test.vert",
-                        "C:\\Users\\matis\\OneDrive\\Documentos\\Fing\\CGA\\opengl-scene\\src\\shaders\\test.frag");
+MeshRenderer::MeshRenderer(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) {
+    this->mesh = std::move(mesh);
+    this->material = std::move(material);
 }
 
 void MeshRenderer::render() {
-    shader->use();
-    glBindVertexArray(mesh->vao);
+    material->bind();
 
+    auto shader = material->getShader();
     auto camera = Renderer::getActive()->getCamera();
     shader->setUniform("model", transform->getModelMatrix());
     shader->setUniform("view", camera->getView());
     shader->setUniform("projection", camera->getProjection());
 
+    glBindVertexArray(mesh->vao);
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, nullptr);
-
     glBindVertexArray(0);
-    shader->disable();
 }
 
 void MeshRenderer::init() {
@@ -28,6 +27,7 @@ void MeshRenderer::init() {
 
     Renderer::getActive()->registerRenderable(this);
     mesh->upload();
+    material->upload();
 }
 
 void MeshRenderer::remove() {

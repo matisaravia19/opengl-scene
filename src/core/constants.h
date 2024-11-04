@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include "glm/glm.hpp"
 
 #define VEC3_UP glm::vec3(0.0f, 1.0f, 0.0f)
@@ -15,3 +16,5 @@
 #define VEC3_UNIT_Z glm::vec3(0.0f, 0.0f, 1.0f)
 
 #define VEC4_UNIT_W glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+
+#define RESOURCES_PATH std::filesystem::path("../resources")
