@@ -40,6 +40,7 @@ void Input::poll() {
     const double current_frame = glfwGetTime();
     static double last_frame = 0.0f;
     this->deltaTime = current_frame - last_frame;
+    last_frame = current_frame;
 
     glfwPollEvents();
 }

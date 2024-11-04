@@ -18,8 +18,8 @@ public:
     explicit Controllable(Input *input)
         : input(input)
         , transform(nullptr)
-        , runSpeed(0.05f)
-        , mouseSens(0.1f){};
+        , runSpeed(5.f)
+        , mouseSens(0.25f){};
     void init() override;
     void update() override;
     void remove() override {};
