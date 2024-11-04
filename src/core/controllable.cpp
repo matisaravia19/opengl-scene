@@ -21,12 +21,13 @@ void Controllable::processMouse(glm::vec2 mouse_displacement) {
     glm::vec3 currentRotation = transform->getRotation();
 
     mouse_displacement *= mouseSens;
-    // Update rotation angles
-    currentRotation.y += mouse_displacement.x; // Yaw (Y-axis)
-    currentRotation.x += mouse_displacement.y; // Pitch (X-axis)
+    // Update rotation angles.
+    // We transform the world negative to the mouse displacement
+    currentRotation.y += -mouse_displacement.x; // Yaw (Y-axis)
+    currentRotation.x += -mouse_displacement.y; // Pitch (X-axis)
 
     //Constrain pitch
-    currentRotation.x = glm::clamp(currentRotation.x, -89.f, 89.f);
+    //currentRotation.x = glm::clamp(currentRotation.x, -89.f, 89.f);
 
     transform->setRotation(currentRotation);
 }

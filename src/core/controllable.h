@@ -21,7 +21,7 @@ public:
         : input(input)
         , transform(nullptr)
         , runSpeed(5.f)
-        , mouseSens(0.25f)
+        , mouseSens(0.01f)
         , cameraTime(0.f)
         , bobFactor(0.007f)
     {};

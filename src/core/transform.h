@@ -8,7 +8,7 @@
 class Transform : public Component {
 private:
     glm::vec3 position;
-    glm::quat rotation;
+    glm::vec3 rotation;
     glm::vec3 scale;
 
     Transform *parent;
@@ -32,5 +32,4 @@ public:
     void setScale(const glm::vec3 &scale);
 
     glm::mat4 getModelMatrix();
-    void fromModelMatrix(const glm::mat4& tf_matrix);
 };

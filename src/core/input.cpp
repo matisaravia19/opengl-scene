@@ -80,10 +80,13 @@ void Input::processMouseMovement(const double xpos, const double ypos) {
         return;
     }
 
-    const double xoffset = mouse.lastX - xpos;
-    const double yoffset = mouse.lastY - ypos;
+    const double xoffset = xpos - mouse.lastX;
+    const double yoffset = ypos - mouse.lastY;
     mouse.lastX = xpos;
     mouse.lastY = ypos;
+
+    std::cout << "offset: " << xoffset << ' ' << yoffset << '\n';
+
 
     mouseDisplacement = glm::vec2(xoffset, yoffset);
 }
