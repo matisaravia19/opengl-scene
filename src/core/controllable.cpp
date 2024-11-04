@@ -37,6 +37,7 @@ void Controllable::processKeyboard(const long keymap, const double delta_time) {
     // Extract right, up, and forward vectors from transformation matrix
     const auto currentTransform = transform->getModelMatrix();
     const auto right = glm::vec3(currentTransform[0]);
+    const auto up = glm::vec3(currentTransform[1]);
     const auto forward = -glm::vec3(currentTransform[2]); // Negative Z is forward
 
     auto position = glm::vec3(currentTransform[3]);
@@ -49,6 +50,15 @@ void Controllable::processKeyboard(const long keymap, const double delta_time) {
         position -= right * velocity;
     if (keymap & KeyD)
         position += right * velocity;
+
+    // Add view bobbing
+    cameraTime = keymap ? cameraTime + delta_time : 0.f;
+    const double offset_factor = sin(runSpeed * cameraTime) * bobFactor;
+    position += up * static_cast<float>(offset_factor);
+
+    // Note: This could be improved by slowly lowering the camera if
+    // a movement key is released while the camera isn't at its lowest
+    // offset.
 
     transform->setPosition(position);
 }
