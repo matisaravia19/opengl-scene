@@ -13,6 +13,8 @@ private:
     std::shared_ptr<Material> material;
     Transform *transform;
 
+    void setUniforms();
+
 public:
     explicit MeshRenderer(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material);
 

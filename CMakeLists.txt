@@ -10,6 +10,7 @@ set(bullet3_dir ${PROJECT_SOURCE_DIR}/lib/bullet3)
 set(glad_dir ${PROJECT_SOURCE_DIR}/lib/glad)
 set(imgui_dir ${PROJECT_SOURCE_DIR}/lib/imgui)
 set(stb_dir ${PROJECT_SOURCE_DIR}/lib/stb)
+set(shadinclude_dir ${PROJECT_SOURCE_DIR}/lib/shadinclude)
 
 set(glad_sources
         ${glad_dir}/src/gl.c
@@ -53,6 +54,7 @@ include_directories(
         ${glfw_dir}/include
         ${assimp_dir}/include
         ${stb_dir}
+        ${shadinclude_dir}
 )
 
 add_subdirectory(${glfw_dir})

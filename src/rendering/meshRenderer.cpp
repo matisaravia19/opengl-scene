@@ -8,14 +8,25 @@ MeshRenderer::MeshRenderer(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material>
     this->material = std::move(material);
 }
 
+void MeshRenderer::setUniforms() {
+    auto shader = material->getShader();
+
+    auto modelMatrix = transform->getModelMatrix();
+    shader->setUniform("modelMatrix", modelMatrix);
+
+    auto normalMatrix = glm::mat3(glm::transpose(glm::inverse(modelMatrix)));
+    shader->setUniform("normalMatrix", normalMatrix);
+
+    auto camera = Renderer::getActive()->getCamera();
+    shader->setUniform("viewMatrix", camera->getView());
+    shader->setUniform("projectionMatrix", camera->getProjection());
+    shader->setUniform("cameraPosition", camera->getEntity()->getTransform()->getPosition());
+}
+
 void MeshRenderer::render() {
     material->bind();
 
-    auto shader = material->getShader();
-    auto camera = Renderer::getActive()->getCamera();
-    shader->setUniform("model", transform->getModelMatrix());
-    shader->setUniform("view", camera->getView());
-    shader->setUniform("projection", camera->getProjection());
+    setUniforms();
 
     glBindVertexArray(mesh->vao);
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, nullptr);

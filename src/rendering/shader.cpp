@@ -2,12 +2,12 @@
 
 #include <fstream>
 #include "glad/gl.h"
+#include "shadinclude.hpp"
 #include "../core/util.h"
 #include "../core/constants.h"
 
 static std::string readFile(const std::filesystem::path &path) {
-    std::ifstream file(path);
-    return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    return Shadinclude::load(path.string());
 }
 
 static unsigned int loadShader(const std::filesystem::path &path, unsigned int type) {
@@ -46,7 +46,7 @@ static unsigned int createProgram(unsigned int vertexShader, unsigned int fragme
     return program;
 }
 
-Shader *Shader::PBR = new Shader("shaders/pbr.vert", "shaders/pbr.frag");
+Shader *Shader::PBR = new Shader("shaders/standard.vert", "shaders/pbr.frag");
 
 Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
     this->vertexPath = RESOURCES_PATH / vertexPath;
@@ -63,6 +63,16 @@ void Shader::bind() const {
 
 void Shader::unbind() const {
     glUseProgram(0);
+}
+
+void Shader::setUniform(const std::string &name, glm::vec3 value) const {
+    auto location = glGetUniformLocation(program, name.c_str());
+    glUniform3fv(location, 1, &value[0]);
+}
+
+void Shader::setUniform(const std::string &name, glm::mat3 value) const {
+    auto location = glGetUniformLocation(program, name.c_str());
+    glUniformMatrix3fv(location, 1, GL_FALSE, &value[0][0]);
 }
 
 void Shader::setUniform(const std::string &name, glm::mat4 value) const {
