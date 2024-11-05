@@ -30,6 +30,7 @@ set(sources
         src/core/component.cpp
         src/core/scene.cpp
         src/core/window.cpp
+        src/core/controllable.cpp
         src/rendering/renderer.cpp
         src/core/input.cpp
         src/data/importer.cpp

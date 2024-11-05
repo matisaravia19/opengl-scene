@@ -20,7 +20,7 @@ void Scene::open() {
     window->open();
     input->init();
 
-    Importer importer("..\\test.glb");
+    Importer importer("../test.glb", input);
     importer.load();
     for (auto &entity: importer.getEntities()) {
         spawn(entity);

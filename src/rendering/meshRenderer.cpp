@@ -4,7 +4,8 @@
 
 MeshRenderer::MeshRenderer(Mesh *mesh) {
     this->mesh = mesh;
-    shader = new Shader("..\\src\\shaders\\test.vert", "..\\src\\shaders\\test.frag");
+    shader = new Shader(R"(..\src\shaders\test.vert)",
+                        R"(..\src\shaders\test.frag)");
 }
 
 void MeshRenderer::render() {
