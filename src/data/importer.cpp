@@ -6,6 +6,7 @@
 #include "../rendering/meshRenderer.h"
 #include "../rendering/light.h"
 #include "../core/util.h"
+#include "../core/controllable.h"
 
 static inline glm::vec2 toVec2(aiVector3D aiVector) {
     return glm::vec2(aiVector.x, aiVector.y);
@@ -206,16 +207,19 @@ void Importer::loadNodes(aiNode *node, Transform *parent) {
 }
 
 void Importer::loadCameras() {
+    Entity *entity = nullptr;
     for (int i = 0; i < scene->mNumCameras; i++) {
         auto camera = scene->mCameras[i];
 
-        auto entity = getEntity(camera);
+        entity = getEntity(camera);
         entity->addComponent(new Camera(
                 camera->mHorizontalFOV,
                 camera->mClipPlaneNear,
                 camera->mClipPlaneFar
         ));
     }
+    if (!entity) return;
+    entity->addComponent(new Controllable(input));
 }
 
 void Importer::loadLights() {

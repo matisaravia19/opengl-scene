@@ -18,6 +18,7 @@ void Scene::open() {
     active = this;
 
     window->open();
+    input->init();
 
     Importer importer("..\\resources\\test.gltf");
     importer.load();

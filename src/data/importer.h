@@ -7,6 +7,8 @@
 #include "../rendering/mesh.h"
 #include "../rendering/material.h"
 
+class Input;
+
 class Importer {
 private:
     std::string path;
@@ -16,6 +18,9 @@ private:
     std::vector<std::shared_ptr<Material>> materials;
     std::vector<std::shared_ptr<Mesh>> meshes;
     std::vector<Entity *> entities;
+
+    // For the camera's Controllable component
+    Input *input;
 
     Entity *getEntity(const std::string &name);
     Entity *getEntity(const aiCamera *camera);
@@ -30,7 +35,7 @@ private:
     void loadLights();
 
 public:
-    explicit Importer(std::string path);
+    explicit Importer(std::string path, Input *input);
 
     void load();
     std::vector<Entity *> getEntities();
