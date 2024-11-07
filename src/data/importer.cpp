@@ -207,19 +207,17 @@ void Importer::loadNodes(aiNode *node, Transform *parent) {
 }
 
 void Importer::loadCameras() {
-    Entity *entity = nullptr;
     for (int i = 0; i < scene->mNumCameras; i++) {
         auto camera = scene->mCameras[i];
 
-        entity = getEntity(camera);
+        auto entity = getEntity(camera);
         entity->addComponent(new Camera(
                 camera->mHorizontalFOV,
                 camera->mClipPlaneNear,
                 camera->mClipPlaneFar
         ));
+        entity->addComponent(new Controllable());
     }
-    if (!entity) return;
-    entity->addComponent(new Controllable(input));
 }
 
 void Importer::loadLights() {

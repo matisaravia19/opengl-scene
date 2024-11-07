@@ -1,64 +1,46 @@
-// ReSharper disable CppMemberFunctionMayBeConst
 #include "controllable.h"
 
-#include <iostream>
-
+#include "./time.h"
 
 void Controllable::init() {
-    transform = getEntity()->getComponent<Transform>();
+    input = Input::getActive();
+    transform = getEntity()->getTransform();
 }
 
 void Controllable::update() {
-    const auto key_map = input->getKeysDown();
-    const auto mouse_displacement = input->consumeMouseDisplacement();
-    const auto delta_time = input->getDeltaTime();
-
-    processKeyboard(key_map, delta_time);
-    processMouse(mouse_displacement, delta_time);
+    rotateCamera();
+    movePlayer();
 }
 
-void Controllable::processMouse(glm::vec2 mouse_displacement, const double delta_time) {
-    glm::vec3 currentRotation = transform->getRotation();
+void Controllable::rotateCamera() {
+    auto eulerAngles = transform->getEulerAngles();
 
-    mouse_displacement *= mouseSens * delta_time;
-    // We transform the world negative to the mouse displacement
-    currentRotation.y += -mouse_displacement.x; // Yaw (Y-axis)
-    currentRotation.x += -mouse_displacement.y; // Pitch (X-axis)
+    const auto mouseDisplacement = input->getMouseDisplacement();
+    const auto delta = -mouseDisplacement * mouseSensitivity * Time::getDeltaTime();
 
-    //Constrain pitch
-    currentRotation.x = glm::clamp(currentRotation.x, -89.f, 89.f);
+    eulerAngles.x = glm::clamp(eulerAngles.x + delta.y, -3.0, 3.0);
+    eulerAngles.y += delta.x;
 
-    transform->setRotation(currentRotation);
+    transform->setEulerAngles(eulerAngles);
 }
 
-void Controllable::processKeyboard(const long keymap, const double delta_time) {
-    const auto velocity = static_cast<float>(runSpeed * delta_time);
+void Controllable::movePlayer() {
+    auto movementInput = glm::vec2(0);
+    if (input->isKeyDown(KeyCode::W)) movementInput.x += 1;
+    if (input->isKeyDown(KeyCode::S)) movementInput.x -= 1;
+    if (input->isKeyDown(KeyCode::A)) movementInput.y -= 1;
+    if (input->isKeyDown(KeyCode::D)) movementInput.y += 1;
 
-    // Extract right, up, and forward vectors from transformation matrix
-    const auto currentTransform = transform->getModelMatrix();
-    const auto right = glm::vec3(currentTransform[0]);
-    const auto up = glm::vec3(currentTransform[1]);
-    const auto forward = -glm::vec3(currentTransform[2]); // Negative Z is forward
+    movementInput *= runSpeed * Time::getDeltaTime();
 
-    auto position = glm::vec3(currentTransform[3]);
+    auto movement = transform->getForward() * movementInput.x + transform->getRight() * movementInput.y;
+    transform->translate(movement);
 
-    if (keymap & KeyW)
-        position += forward * velocity;
-    if (keymap & KeyS)
-        position -= forward * velocity;
-    if (keymap & KeyA)
-        position -= right * velocity;
-    if (keymap & KeyD)
-        position += right * velocity;
-
-    // Add view bobbing
-    cameraTime = keymap ? cameraTime + delta_time : 0.f;
-    const double offset_factor = sin(runSpeed * cameraTime) * bobFactor;
-    position += up * static_cast<float>(offset_factor);
-
-    // Note: This could be improved by slowly lowering the camera if
-    // a movement key is released while the camera isn't at its lowest
-    // offset.
-
-    transform->setPosition(position);
+    if (glm::dot(movement, movement) > 0) {
+        cameraTime = cameraTime + Time::getDeltaTime();
+        auto bob = sin(runSpeed * cameraTime) * bobFactor;
+        transform->translate(transform->getUp() * (float) bob);
+    } else {
+        cameraTime = 0;
+    }
 }

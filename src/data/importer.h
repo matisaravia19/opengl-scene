@@ -19,9 +19,6 @@ private:
     std::vector<std::shared_ptr<Mesh>> meshes;
     std::vector<Entity *> entities;
 
-    // For the camera's Controllable component
-    Input *input;
-
     Entity *getEntity(const std::string &name);
     Entity *getEntity(const aiCamera *camera);
     Entity *getEntity(const aiLight *light);
@@ -35,7 +32,7 @@ private:
     void loadLights();
 
 public:
-    explicit Importer(std::string path, Input *input);
+    explicit Importer(std::string path);
 
     void load();
     std::vector<Entity *> getEntities();

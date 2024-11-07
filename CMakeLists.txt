@@ -44,6 +44,7 @@ set(sources
         src/rendering/shader.cpp
         src/rendering/material.cpp
         src/rendering/texture.cpp
+        src/core/time.cpp
 )
 
 add_executable(opengl_scene ${sources})

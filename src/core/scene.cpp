@@ -2,6 +2,7 @@
 #include "window.h"
 #include "../data/importer.h"
 #include "../rendering/meshRenderer.h"
+#include "./time.h"
 
 Scene *Scene::active = nullptr;
 
@@ -34,6 +35,8 @@ void Scene::open() {
         }
 
         renderer->render();
+
+        Time::endFrame();
     }
 
     window->close();
