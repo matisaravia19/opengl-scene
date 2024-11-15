@@ -2,6 +2,7 @@
 #include "window.h"
 #include "../data/importer.h"
 #include "../rendering/meshRenderer.h"
+#include "physicsComponent.h"
 
 Scene *Scene::active = nullptr;
 
@@ -12,6 +13,8 @@ Scene::Scene() {
 }
 
 void Scene::load() {
+    physicsWorld = PhysicsWorld::getInstance();
+    dynamicsWorld = physicsWorld->getDynamicsWorld();
 }
 
 void Scene::open() {
@@ -29,6 +32,7 @@ void Scene::open() {
     while (!window->shouldClose()) {
         input->poll();
 
+        updateWorld();
         for (auto &entity: this->entities) {
             entity->update();
         }
@@ -48,6 +52,14 @@ Scene::~Scene() {
     }
 
     active = nullptr;
+}
+
+void Scene::updateWorld() {
+    const double current_frame = glfwGetTime();
+    static double last_frame = 0.0f;
+
+    dynamicsWorld->stepSimulation(current_frame - last_frame, 10);
+    last_frame = current_frame;
 }
 
 Scene *Scene::getActive() {

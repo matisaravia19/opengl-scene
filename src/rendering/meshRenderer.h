@@ -18,4 +18,6 @@ public:
     void init() override;
     void render() override;
     void remove() override;
+
+    Mesh *getMesh() { return mesh; }
 };

@@ -42,6 +42,10 @@ set(sources
         src/rendering/shader.cpp
         src/rendering/material.cpp
         src/rendering/texture.cpp
+        src/core/physicsComponent.cpp
+        src/core/physicsComponent.h
+        src/core/physicsWorld.cpp
+        src/core/physicsWorld.h
 )
 
 add_executable(opengl_scene ${sources})

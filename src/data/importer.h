@@ -22,6 +22,7 @@ private:
 
     void loadNodes(aiNode *node, Transform *parent = nullptr);
     void loadMeshes(aiNode *node, Entity *entity);
+    void loadPhysics(aiNode *node, Entity *entity);
     void loadCameras();
     void loadLights();
 
