@@ -56,6 +56,7 @@ include_directories(
         ${glm_dir}
         ${glfw_dir}/include
         ${assimp_dir}/include
+        ${bullet3_dir}/src
 )
 
 add_subdirectory(${glfw_dir})

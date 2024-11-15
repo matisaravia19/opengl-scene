@@ -1,5 +1,5 @@
 #pragma once
-#include "../../lib/bullet3/src/btBulletDynamicsCommon.h"
+#include <btBulletDynamicsCommon.h>
 
 class PhysicsWorld {
 private:

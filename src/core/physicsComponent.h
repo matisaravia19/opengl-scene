@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.h"
-#include "../../lib/bullet3/src/btBulletDynamicsCommon.h"
+#include <btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 #include "entity.h"
 
