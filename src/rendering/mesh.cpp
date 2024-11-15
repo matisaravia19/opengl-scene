@@ -41,6 +41,18 @@ Mesh::~Mesh() {
     glDeleteVertexArrays(1, &vao);
 }
 
+glm::vec3 Mesh::getBoundingBox() {
+    auto bb = glm::vec3(0);
+
+    for (const auto &vertex : vertices) {
+        bb.x = std::max(bb.x, std::abs(vertex.position.x));
+        bb.y = std::max(bb.y, std::abs(vertex.position.y));
+        bb.z = std::max(bb.z, std::abs(vertex.position.z));
+    }
+
+    return bb;
+}
+
 bool Mesh::isUploaded() const {
     return vao != 0;
 }
