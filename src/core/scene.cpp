@@ -10,15 +10,17 @@ Scene::Scene() {
     window = new Window(800, 600, "OpenGL scene");
     renderer = new Renderer(window);
     input = new Input(window);
+    settings = new Settings();
+    settings->subscribe(window);
 }
 
 void Scene::load() {
 }
 
 void Scene::initGui() {
-    auto gui = new Entity("gui");
+    gui = new Entity("gui");
 
-    auto gui_rend = new GuiRenderer(window, input);
+    const auto gui_rend = new GuiRenderer(window, input, settings);
     gui->addComponent(gui_rend);
 
     spawn(gui);
@@ -53,6 +55,8 @@ void Scene::open() {
 Scene::~Scene() {
     delete window;
     delete renderer;
+    delete input;
+    delete gui;
 
     for (auto &entity: entities) {
         delete entity;

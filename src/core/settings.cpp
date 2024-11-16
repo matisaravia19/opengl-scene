@@ -13,3 +13,9 @@ void Settings::notify() {
         observer->notify(this);
     }
 }
+
+void Settings::setFullscreen(const bool fs) {
+    const bool changed = settingsData.full_screen != fs;
+    settingsData.full_screen = fs;
+    if (changed) notify();
+}

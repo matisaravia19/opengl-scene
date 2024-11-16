@@ -4,7 +4,13 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-GuiRenderer::GuiRenderer(Window *window, Input *input) : window(window), visible(false), input(input) {
+GuiRenderer::GuiRenderer(Window *window, Input *input, Settings *settings)
+    : window(window)
+    , input(input)
+    , settings(settings)
+    , visible(false)
+    , full_screen(false)
+{
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -19,13 +25,23 @@ void GuiRenderer::init() {
     Renderer::getActive()->registerRenderable(this);
 }
 
+void GuiRenderer::showSettingsWindow() {
+    ImGui::Begin("Settings");
+
+    ImGui::Checkbox("Fullscreen", &full_screen);
+
+    ImGui::End();
+}
+
 void GuiRenderer::render() {
     if (!visible) return;
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow(); // Show demo window! :)
+
+    //ImGui::ShowDemoWindow();
+    showSettingsWindow();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -43,11 +59,22 @@ void GuiRenderer::update() {
     } else { // debounce is reset only when the key is released
         debounce = false;
     }
+
+    if (full_screen) {
+        settings->setFullscreen(true);
+    } else {
+        settings->setFullscreen(false);
+    }
 }
 
-void GuiRenderer::remove()
-{
+GuiRenderer::~GuiRenderer() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    delete settings;
+}
+
+void GuiRenderer::remove() {
+    Renderer::getActive()->removeRenderable(this);
 }

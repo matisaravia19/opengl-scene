@@ -7,7 +7,7 @@
 #include "GLFW/glfw3.h"
 #include "glm/vec2.hpp"
 
-class Window : SettingsObserver {
+class Window : public SettingsObserver {
 private:
     int width;
     int height;

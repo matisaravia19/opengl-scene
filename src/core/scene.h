@@ -12,6 +12,8 @@ private:
     Window *window;
     Renderer *renderer;
     Input *input;
+    Entity *gui;
+    Settings *settings;
 
     static Scene *active;
 

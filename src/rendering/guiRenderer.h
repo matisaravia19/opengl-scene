@@ -9,10 +9,15 @@
 class GuiRenderer : public Component, public Renderable {
     Window *window;
     Input *input;
+    Settings *settings;
 
     bool visible;
+    bool full_screen;
+
+    void showSettingsWindow();
 public:
-    explicit GuiRenderer(Window *window, Input *input);
+    explicit GuiRenderer(Window *window, Input *input, Settings *settings);
+    ~GuiRenderer() override;
 
     void init() override;
     void render() override;
