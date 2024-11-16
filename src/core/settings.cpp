@@ -10,6 +10,6 @@ void Settings::unsubscribe(SettingsObserver* observer) {
 
 void Settings::notify() {
     for (const auto observer : subscribers) {
-        observer->update(this);
+        observer->notify(this);
     }
 }

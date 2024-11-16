@@ -61,6 +61,14 @@ glm::vec2 Window::getSize() const {
     return glm::vec2(width, height);
 }
 
+void Window::notify(Settings* settings) {
+    if (settings->getSettingsData().full_screen) {
+        glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, width, height, GLFW_DONT_CARE);
+    } else {
+        glfwSetWindowMonitor(window, nullptr, 0, 0, width, height, GLFW_DONT_CARE);
+    }
+}
+
 void Window::resizeCallback(GLFWwindow *glfWwindow, int width, int height) {
     auto window = windows[glfWwindow];
     window->width = width;

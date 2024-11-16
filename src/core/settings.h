@@ -25,5 +25,5 @@ public:
 class SettingsObserver {
 public:
   virtual ~SettingsObserver() = default;
-  virtual void update(Settings* settings) = 0;
+  virtual void notify(Settings* settings) = 0;
 };

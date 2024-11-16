@@ -33,11 +33,5 @@ public:
     glm::vec2 getSize() const;
     float getAspectRatio() const;
 
-    void update(Settings* settings) override {
-        if (settings->getSettingsData().full_screen) {
-            glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, width, height, GLFW_DONT_CARE);
-        } else {
-            glfwSetWindowMonitor(window, nullptr, 0, 0, width, height, GLFW_DONT_CARE);
-        }
-    }
+    void notify(Settings* settings) override;
 };
