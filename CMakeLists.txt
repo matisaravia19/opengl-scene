@@ -23,7 +23,6 @@ set(imgui_sources
         ${imgui_dir}/backends/imgui_impl_glfw.cpp
         ${imgui_dir}/backends/imgui_impl_opengl3.cpp
         ${imgui_dir}/misc/cpp/imgui_stdlib.cpp
-
 )
 
 set(sources
@@ -48,6 +47,10 @@ set(sources
         src/rendering/texture.cpp
         src/rendering/guiRenderer.cpp
         src/core/settings.cpp
+        src/core/physicsComponent.cpp
+        src/core/physicsComponent.h
+        src/core/physicsWorld.cpp
+        src/core/physicsWorld.h
 )
 
 add_executable(opengl_scene ${sources})
@@ -58,6 +61,7 @@ include_directories(
         ${glm_dir}
         ${glfw_dir}/include
         ${assimp_dir}/include
+        ${bullet3_dir}/src
 )
 
 add_subdirectory(${glfw_dir})
