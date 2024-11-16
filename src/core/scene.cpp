@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "window.h"
 #include "../data/importer.h"
+#include "../rendering/guiRenderer.h"
 #include "../rendering/meshRenderer.h"
 
 Scene *Scene::active = nullptr;
@@ -14,11 +15,21 @@ Scene::Scene() {
 void Scene::load() {
 }
 
+void Scene::initGui() {
+    auto gui = new Entity("gui");
+
+    auto gui_rend = new GuiRenderer(window, input);
+    gui->addComponent(gui_rend);
+
+    spawn(gui);
+}
+
 void Scene::open() {
     active = this;
 
     window->open();
     input->init();
+    initGui();
 
     Importer importer("../test.glb", input);
     importer.load();

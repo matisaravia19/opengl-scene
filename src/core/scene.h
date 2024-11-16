@@ -15,6 +15,8 @@ private:
 
     static Scene *active;
 
+    void initGui();
+
 public:
     Scene();
     ~Scene();

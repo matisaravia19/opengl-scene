@@ -17,9 +17,13 @@ set(glad_sources
 set(imgui_sources
         ${imgui_dir}/imgui.cpp
         ${imgui_dir}/imgui_draw.cpp
+        ${imgui_dir}/imgui_demo.cpp
         ${imgui_dir}/imgui_widgets.cpp
         ${imgui_dir}/imgui_tables.cpp
         ${imgui_dir}/backends/imgui_impl_glfw.cpp
+        ${imgui_dir}/backends/imgui_impl_opengl3.cpp
+        ${imgui_dir}/misc/cpp/imgui_stdlib.cpp
+
 )
 
 set(sources
@@ -42,6 +46,8 @@ set(sources
         src/rendering/shader.cpp
         src/rendering/material.cpp
         src/rendering/texture.cpp
+        src/rendering/guiRenderer.cpp
+        src/core/settings.cpp
 )
 
 add_executable(opengl_scene ${sources})

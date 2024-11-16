@@ -1,11 +1,13 @@
 #pragma once
 
 #include <string>
+
+#include "settings.h"
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 #include "glm/vec2.hpp"
 
-class Window {
+class Window : SettingsObserver {
 private:
     int width;
     int height;
@@ -30,4 +32,12 @@ public:
     GLFWwindow *getWindow() const;
     glm::vec2 getSize() const;
     float getAspectRatio() const;
+
+    void update(Settings* settings) override {
+        if (settings->getSettingsData().full_screen) {
+            glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, width, height, GLFW_DONT_CARE);
+        } else {
+            glfwSetWindowMonitor(window, nullptr, 0, 0, width, height, GLFW_DONT_CARE);
+        }
+    }
 };

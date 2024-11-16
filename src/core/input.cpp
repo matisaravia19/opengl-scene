@@ -18,6 +18,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 Input::Input(Window *window)
     : window(window)
     , deltaTime(0.f)
+    , paused(false)
     , pressedKeys(0.f)
     , mouseDisplacement(0.f)
     , mouse{true, 0.f, 0.f}
@@ -47,11 +48,11 @@ void Input::poll() {
 
 void Input::processKeyboardInput(const int key, int _scancode, const int action, int _mods) {
     if (const auto window = this->window->getWindow();
-        glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 
-    // Process movement keys down
+    // Process keys down
     if (key ==  GLFW_KEY_W && action == GLFW_PRESS)
         pressedKeys |= KeyW;
     if (key ==  GLFW_KEY_A && action == GLFW_PRESS)
@@ -60,8 +61,10 @@ void Input::processKeyboardInput(const int key, int _scancode, const int action,
         pressedKeys |= KeyS;
     if (key ==  GLFW_KEY_D && action == GLFW_PRESS)
         pressedKeys |= KeyD;
+    if (key ==  GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        pressedKeys |= KeyEsc;
 
-    // Process movement keys up
+    // Process keys up
     if (key ==  GLFW_KEY_W && action == GLFW_RELEASE)
         pressedKeys &= ~KeyW;
     if (key ==  GLFW_KEY_A && action == GLFW_RELEASE)
@@ -70,7 +73,18 @@ void Input::processKeyboardInput(const int key, int _scancode, const int action,
         pressedKeys &= ~KeyS;
     if (key ==  GLFW_KEY_D && action == GLFW_RELEASE)
         pressedKeys &= ~KeyD;
+    if (key ==  GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+        pressedKeys &= ~KeyEsc;
 }
+
+void Input::togglePause() {
+    paused = !paused;
+    if (paused)
+        glfwSetInputMode(window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    else
+        glfwSetInputMode(window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
 
 void Input::processMouseMovement(const double xpos, const double ypos) {
     if (mouse.first) {
@@ -89,13 +103,16 @@ void Input::processMouseMovement(const double xpos, const double ypos) {
 }
 
 long Input::getKeysDown() const {
+    if (paused)
+        return pressedKeys & KeyEsc;
+
     return pressedKeys;
 }
 
 glm::vec2 Input::consumeMouseDisplacement() {
     const auto md = mouseDisplacement;
     mouseDisplacement = glm::vec2(0.f, 0.f);
-    return md;
+    return !paused ? md : glm::vec2(0.f, 0.f);
 }
 
 double Input::getDeltaTime() const {
