@@ -35,6 +35,8 @@ static Vertex readVertex(aiMesh *mesh, int index) {
     Vertex vertex{};
     vertex.position = toVec3(mesh->mVertices[index]);
     vertex.normal = toVec3(mesh->mNormals[index]);
+    vertex.tangent = toVec3(mesh->mTangents[index]);
+    vertex.bitangent = toVec3(mesh->mBitangents[index]);
     if (mesh->mTextureCoords[0]) {
         vertex.texCoords = toVec2(mesh->mTextureCoords[0][index]);
     }
@@ -61,8 +63,11 @@ static Mesh *readMesh(aiMesh *mesh) {
 
 static std::shared_ptr<Texture> readTexture(aiMaterial *material, aiTextureType type, unsigned int index) {
     aiString path;
-    material->GetTexture(type, index, &path);
-    return std::make_shared<ImageTexture>(ImageTexture(path.C_Str()));
+    if (material->GetTexture(type, index, &path) == aiReturn_SUCCESS) {
+        return std::make_shared<ImageTexture>(ImageTexture(path.C_Str()));
+    } else {
+        return std::make_shared<ColorTexture>(ColorTexture(glm::vec3(1.0f)));
+    }
 }
 
 static PbrMaterial *readPbrMaterial(aiMaterial *materialData) {
@@ -71,10 +76,9 @@ static PbrMaterial *readPbrMaterial(aiMaterial *materialData) {
 
     auto material = new PbrMaterial(name.C_Str());
     material->setAlbedo(readTexture(materialData, aiTextureType_DIFFUSE, 0));
-
-    float shininess;
-    materialData->Get<float>(AI_MATKEY_SHININESS, shininess);
-    material->setRoughness(std::shared_ptr<Texture>(new ColorTexture(shininess)));
+    material->setNormal(readTexture(materialData, aiTextureType_NORMALS, 0));
+    material->setMetallicRoughness(readTexture(materialData, aiTextureType_METALNESS, 0));
+    material->setAO(readTexture(materialData, aiTextureType_AMBIENT_OCCLUSION, 0));
 
     return material;
 }
@@ -230,7 +234,7 @@ void Importer::loadLights() {
 }
 
 void Importer::load() {
-    scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate);
+    scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
     loadMaterials();
     loadMeshes();

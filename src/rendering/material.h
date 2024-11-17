@@ -26,8 +26,7 @@ class PbrMaterial : public Material {
 private:
     std::shared_ptr<Texture> albedo;
     std::shared_ptr<Texture> normal;
-    std::shared_ptr<Texture> metallic;
-    std::shared_ptr<Texture> roughness;
+    std::shared_ptr<Texture> metallicRoughness;
     std::shared_ptr<Texture> ao;
 
 public:
@@ -38,7 +37,6 @@ public:
 
     void setAlbedo(std::shared_ptr<Texture> albedo);
     void setNormal(std::shared_ptr<Texture> normal);
-    void setMetallic(std::shared_ptr<Texture> metallic);
-    void setRoughness(std::shared_ptr<Texture> roughness);
+    void setMetallicRoughness(std::shared_ptr<Texture> metallicRoughness);
     void setAO(std::shared_ptr<Texture> ao);
 };

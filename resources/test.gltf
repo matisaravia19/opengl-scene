@@ -124,12 +124,17 @@
 		{
 			"doubleSided":true,
 			"name":"TestMaterial",
+			"normalTexture":{
+				"index":0,
+				"scale":10
+			},
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":0
+					"index":1
 				},
-				"metallicFactor":0,
-				"roughnessFactor":0
+				"metallicRoughnessTexture":{
+					"index":2
+				}
 			}
 		}
 	],
@@ -181,13 +186,31 @@
 		{
 			"sampler":0,
 			"source":0
+		},
+		{
+			"sampler":0,
+			"source":1
+		},
+		{
+			"sampler":0,
+			"source":2
 		}
 	],
 	"images":[
 		{
+			"mimeType":"image/jpeg",
+			"name":"Corrugated_Metal_Sheet_teendf3q_2K_Normal",
+			"uri":"textures/Corrugated_Metal_Sheet_teendf3q_2K_Normal.jpg"
+		},
+		{
+			"mimeType":"image/jpeg",
+			"name":"Corrugated_Metal_Sheet_teendf3q_2K_Diffuse",
+			"uri":"textures/Corrugated_Metal_Sheet_teendf3q_2K_Diffuse.jpg"
+		},
+		{
 			"mimeType":"image/png",
-			"name":"TestTexture",
-			"uri":"textures/TestTexture.png"
+			"name":"Corrugated_Metal_Sheet_teendf3q_2K_Metalness-Corrugated_Metal_Sheet_teendf3q_2K_Roughness",
+			"uri":"textures/Corrugated_Metal_Sheet_teendf3q_2K_Metalness-Corrugated_Metal_Sheet_teendf3q_2K_Roughness.png"
 		}
 	],
 	"accessors":[

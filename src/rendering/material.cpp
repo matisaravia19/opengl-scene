@@ -27,6 +27,18 @@ void PbrMaterial::upload() {
         albedo->upload();
     }
 
+    if (normal) {
+        normal->upload();
+    }
+
+    if (metallicRoughness) {
+        metallicRoughness->upload();
+    }
+
+    if (ao) {
+        ao->upload();
+    }
+
     uploaded = true;
 }
 
@@ -35,6 +47,18 @@ void PbrMaterial::bind() {
 
     if (albedo) {
         albedo->bind(0);
+    }
+
+    if (normal) {
+        normal->bind(1);
+    }
+    
+    if (metallicRoughness) {
+        metallicRoughness->bind(2);
+    }
+
+    if (ao) {
+        ao->bind(3);
     }
 }
 
@@ -46,12 +70,8 @@ void PbrMaterial::setNormal(std::shared_ptr<Texture> normal) {
     this->normal = std::move(normal);
 }
 
-void PbrMaterial::setMetallic(std::shared_ptr<Texture> metallic) {
-    this->metallic = std::move(metallic);
-}
-
-void PbrMaterial::setRoughness(std::shared_ptr<Texture> roughness) {
-    this->roughness = std::move(roughness);
+void PbrMaterial::setMetallicRoughness(std::shared_ptr<Texture> metallicRoughness) {
+    this->metallicRoughness = std::move(metallicRoughness);
 }
 
 void PbrMaterial::setAO(std::shared_ptr<Texture> ao) {
