@@ -12,6 +12,7 @@ enum Keycodes {
     KeyA = 2,
     KeyS = 4,
     KeyD = 8,
+    MovementMask = 15,
     KeyEsc = 16,
 };
 
@@ -20,10 +21,10 @@ private:
     Window *window;
 
     double deltaTime;
+    bool paused;
 
     long pressedKeys;
     glm::vec2 mouseDisplacement;
-
     struct {
         bool first;
         double lastX;
@@ -35,6 +36,7 @@ public:
     explicit Input(Window *window);
     void init();
     void poll();
+    void togglePause();
 
     [[nodiscard]] long getKeysDown() const;
     [[nodiscard]] glm::vec2 consumeMouseDisplacement();

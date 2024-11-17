@@ -1,11 +1,13 @@
 #pragma once
 
 #include <string>
+
+#include "settings.h"
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 #include "glm/vec2.hpp"
 
-class Window {
+class Window : public SettingsObserver {
 private:
     int width;
     int height;
@@ -30,4 +32,6 @@ public:
     GLFWwindow *getWindow() const;
     glm::vec2 getSize() const;
     float getAspectRatio() const;
+
+    void notify(Settings* settings) override;
 };

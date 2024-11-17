@@ -52,7 +52,7 @@ void Controllable::processKeyboard(const long keymap, const double delta_time) {
         position += right * velocity;
 
     // Add view bobbing
-    cameraTime = keymap ? cameraTime + delta_time : 0.f;
+    cameraTime = (keymap & MovementMask) ? cameraTime + delta_time : 0.f;
     const double offset_factor = sin(runSpeed * cameraTime) * bobFactor;
     position += up * static_cast<float>(offset_factor);
 
