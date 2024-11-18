@@ -24,6 +24,7 @@ struct Mesh {
     Mesh(unsigned int numVertices, unsigned int numIndices);
     ~Mesh();
 
+    glm::vec3 getBoundingBox();
     void upload();
     bool isUploaded() const;
 };

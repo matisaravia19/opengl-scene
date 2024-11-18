@@ -7,6 +7,7 @@
 #include "../rendering/light.h"
 #include "../core/util.h"
 #include "../core/controllable.h"
+#include "../core/physicsComponent.h"
 
 static inline glm::vec2 toVec2(aiVector3D aiVector) {
     return glm::vec2(aiVector.x, aiVector.y);
@@ -192,6 +193,13 @@ void Importer::addMeshRenderers(Entity *entity, aiNode *node) {
     }
 }
 
+void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
+    if (node->mNumMeshes == 0) return; // TODO: habria que traer info sobre que usa fisicas y que no desde el .glb
+
+    auto *physicsComponent = new PhysicsComponent(10, true);
+    entity->addComponent(physicsComponent);
+}
+
 void Importer::loadNodes(aiNode *node, Transform *parent) {
     auto entity = new Entity(node->mName.C_Str());
     entities.push_back(entity);
@@ -204,6 +212,7 @@ void Importer::loadNodes(aiNode *node, Transform *parent) {
     }
 
     addMeshRenderers(entity, node);
+    addPhysicsComponents(node, entity);
 
     for (int i = 0; i < node->mNumChildren; i++) {
         loadNodes(node->mChildren[i], transform);

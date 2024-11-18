@@ -5,6 +5,7 @@
 #include "window.h"
 #include "../rendering/renderer.h"
 #include "input.h"
+#include "physicsWorld.h"
 
 class Scene {
 private:
@@ -12,8 +13,14 @@ private:
     Window *window;
     Renderer *renderer;
     Input *input;
+    Entity *gui;
+    Settings *settings;
+    PhysicsWorld *physicsWorld;
+    btDiscreteDynamicsWorld *dynamicsWorld;
 
     static Scene *active;
+
+    void initGui();
 
 public:
     Scene();
@@ -23,6 +30,7 @@ public:
     void load();
 
     void spawn(Entity *entity);
+    void updateWorld();
 
     static Scene *getActive();
     Window *getWindow();

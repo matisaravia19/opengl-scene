@@ -7,14 +7,6 @@
 #include "transform.h"
 #include "window.h"
 
-enum Keycodes {
-    KeyW = 1,
-    KeyA = 2,
-    KeyS = 4,
-    KeyD = 8,
-    KeyEsc = 16,
-};
-
 enum KeyCode {
     A = GLFW_KEY_A,
     B = GLFW_KEY_B,
@@ -65,18 +57,24 @@ private:
     void clear();
 
     void initKeyboard();
+
     void initMouse();
 
     void processMouseMovement(double x, double y);
+
     void processKeyboardInput(int key, int action);
+
 public:
     explicit Input(Window *window);
 
     void init();
+
     void poll();
 
     bool isKeyDown(KeyCode key) const;
+
     bool wasKeyPressed(KeyCode key) const;
+
     bool wasKeyReleased(KeyCode key) const;
 
     glm::vec<2, double> getMouseDisplacement();

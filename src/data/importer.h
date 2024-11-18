@@ -20,20 +20,29 @@ private:
     std::vector<Entity *> entities;
 
     Entity *getEntity(const std::string &name);
+
     Entity *getEntity(const aiCamera *camera);
+
     Entity *getEntity(const aiLight *light);
 
     void addMeshRenderers(Entity *entity, aiNode *node);
 
+    void addPhysicsComponents(aiNode *node, Entity *entity);
+
     void loadMaterials();
+
     void loadMeshes();
+
     void loadNodes(aiNode *node, Transform *parent = nullptr);
+
     void loadCameras();
+
     void loadLights();
 
 public:
     explicit Importer(std::string path);
 
     void load();
+
     std::vector<Entity *> getEntities();
 };
