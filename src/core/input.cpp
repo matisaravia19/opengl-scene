@@ -61,12 +61,7 @@ void Input::processMouseMovement(const double x, const double y) {
 
 void Input::poll() {
     clear();
-
     glfwPollEvents();
-
-    if (wasKeyPressed(KeyCode::Escape)) {
-        glfwSetWindowShouldClose(window->getWindow(), true);
-    }
 }
 
 void Input::clear() {
@@ -97,4 +92,8 @@ glm::vec<2, double> Input::getMouseDisplacement() {
 
 Input *Input::getActive() {
     return Scene::getActive()->getInput();
+}
+
+void Input::setCursorVisibility(bool visible) {
+    glfwSetInputMode(window->getWindow(), GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }

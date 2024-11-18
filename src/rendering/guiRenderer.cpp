@@ -51,6 +51,7 @@ void GuiRenderer::update() {
             visible = !visible;
             debounce = true;
             Time::setTimeScale(visible ? 0 : 1);
+            input->setCursorVisibility(visible);
         }
     } else { // debounce is reset only when the key is released
         debounce = false;

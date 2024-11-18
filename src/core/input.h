@@ -79,5 +79,7 @@ public:
 
     glm::vec<2, double> getMouseDisplacement();
 
+    void setCursorVisibility(bool visible);
+
     static Input *getActive();
 };
