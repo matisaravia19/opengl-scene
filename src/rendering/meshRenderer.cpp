@@ -1,26 +1,36 @@
 #include "meshRenderer.h"
 
+#include <utility>
 #include "../core/entity.h"
 
-MeshRenderer::MeshRenderer(Mesh *mesh) {
-    this->mesh = mesh;
-    shader = new Shader(R"(..\src\shaders\test.vert)",
-                        R"(..\src\shaders\test.frag)");
+MeshRenderer::MeshRenderer(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) {
+    this->mesh = std::move(mesh);
+    this->material = std::move(material);
+}
+
+void MeshRenderer::setUniforms() {
+    auto shader = material->getShader();
+
+    auto modelMatrix = transform->getModelMatrix();
+    shader->setUniform("modelMatrix", modelMatrix);
+
+    auto normalMatrix = glm::mat3(glm::transpose(glm::inverse(modelMatrix)));
+    shader->setUniform("normalMatrix", normalMatrix);
+
+    auto camera = Renderer::getActive()->getCamera();
+    shader->setUniform("viewMatrix", camera->getView());
+    shader->setUniform("projectionMatrix", camera->getProjection());
+    shader->setUniform("cameraPosition", camera->getEntity()->getTransform()->getPosition());
 }
 
 void MeshRenderer::render() {
-    shader->use();
+    material->bind();
+
+    setUniforms();
+
     glBindVertexArray(mesh->vao);
-
-    auto camera = Renderer::getActive()->getCamera();
-    shader->setUniform("model", transform->getModelMatrix());
-    shader->setUniform("view", camera->getView());
-    shader->setUniform("projection", camera->getProjection());
-
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, nullptr);
-
     glBindVertexArray(0);
-    shader->disable();
 }
 
 void MeshRenderer::init() {
@@ -28,6 +38,7 @@ void MeshRenderer::init() {
 
     Renderer::getActive()->registerRenderable(this);
     mesh->upload();
+    material->upload();
 }
 
 void MeshRenderer::remove() {

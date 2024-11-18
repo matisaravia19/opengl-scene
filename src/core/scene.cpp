@@ -3,6 +3,7 @@
 #include "../data/importer.h"
 #include "../rendering/guiRenderer.h"
 #include "../rendering/meshRenderer.h"
+#include "./time.h"
 #include "physicsComponent.h"
 
 Scene *Scene::active = nullptr;
@@ -36,7 +37,7 @@ void Scene::open() {
     input->init();
     initGui();
 
-    Importer importer("../test.glb", input);
+    Importer importer("..\\resources\\test.gltf");
     importer.load();
     for (auto &entity: importer.getEntities()) {
         spawn(entity);
@@ -51,6 +52,8 @@ void Scene::open() {
         }
 
         renderer->render();
+
+        Time::endFrame();
     }
 
     window->close();

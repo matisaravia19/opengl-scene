@@ -1,19 +1,15 @@
 #include "guiRenderer.h"
+#include "../core/time.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
 GuiRenderer::GuiRenderer(Window *window, Input *input, Settings *settings)
-    : window(window)
-    , input(input)
-    , settings(settings)
-    , visible(false)
-    , full_screen(false)
-{
+        : window(window), input(input), settings(settings), visible(false), full_screen(false) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 
     // Setup Platform/Renderer backends
@@ -50,11 +46,11 @@ void GuiRenderer::render() {
 void GuiRenderer::update() {
     static bool debounce = false;
 
-    if (input->getKeysDown() & KeyEsc) {
+    if (input->wasKeyPressed(KeyCode::Escape)) {
         if (!debounce) {
             visible = !visible;
             debounce = true;
-            input->togglePause();
+            Time::setTimeScale(visible ? 0 : 1);
         }
     } else { // debounce is reset only when the key is released
         debounce = false;

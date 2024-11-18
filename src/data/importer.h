@@ -5,6 +5,7 @@
 #include "assimp/scene.h"
 #include "../core/entity.h"
 #include "../rendering/mesh.h"
+#include "../rendering/material.h"
 
 class Input;
 
@@ -13,22 +14,35 @@ private:
     std::string path;
     Assimp::Importer importer;
     const aiScene *scene;
-    std::vector<Entity *> entities;
 
-    // For the camera's Controllable component
-    Input *input;
+    std::vector<std::shared_ptr<Material>> materials;
+    std::vector<std::shared_ptr<Mesh>> meshes;
+    std::vector<Entity *> entities;
 
     Entity *getEntity(const std::string &name);
 
+    Entity *getEntity(const aiCamera *camera);
+
+    Entity *getEntity(const aiLight *light);
+
+    void addMeshRenderers(Entity *entity, aiNode *node);
+
+    void addPhysicsComponents(aiNode *node, Entity *entity);
+
+    void loadMaterials();
+
+    void loadMeshes();
+
     void loadNodes(aiNode *node, Transform *parent = nullptr);
-    void loadMeshes(aiNode *node, Entity *entity);
-    void loadPhysics(aiNode *node, Entity *entity);
+
     void loadCameras();
+
     void loadLights();
 
 public:
-    explicit Importer(std::string path, Input *input);
+    explicit Importer(std::string path);
 
     void load();
+
     std::vector<Entity *> getEntities();
 };

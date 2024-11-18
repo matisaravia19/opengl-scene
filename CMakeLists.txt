@@ -9,6 +9,8 @@ set(assimp_dir ${PROJECT_SOURCE_DIR}/lib/assimp)
 set(bullet3_dir ${PROJECT_SOURCE_DIR}/lib/bullet3)
 set(glad_dir ${PROJECT_SOURCE_DIR}/lib/glad)
 set(imgui_dir ${PROJECT_SOURCE_DIR}/lib/imgui)
+set(stb_dir ${PROJECT_SOURCE_DIR}/lib/stb)
+set(shadinclude_dir ${PROJECT_SOURCE_DIR}/lib/shadinclude)
 
 set(glad_sources
         ${glad_dir}/src/gl.c
@@ -45,6 +47,7 @@ set(sources
         src/rendering/shader.cpp
         src/rendering/material.cpp
         src/rendering/texture.cpp
+        src/core/time.cpp
         src/rendering/guiRenderer.cpp
         src/core/settings.cpp
         src/core/physicsComponent.cpp
@@ -61,12 +64,16 @@ include_directories(
         ${glm_dir}
         ${glfw_dir}/include
         ${assimp_dir}/include
+        ${stb_dir}
+        ${shadinclude_dir}
         ${bullet3_dir}/src
 )
 
 add_subdirectory(${glfw_dir})
 add_subdirectory(${assimp_dir})
 add_subdirectory(${bullet3_dir})
+
+add_compile_definitions(STB_IMAGE_IMPLEMENTATION)
 
 target_link_libraries(opengl_scene glfw)
 target_link_libraries(opengl_scene assimp)

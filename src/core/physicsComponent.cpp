@@ -4,11 +4,7 @@
 #include "../rendering/MeshRenderer.h"
 
 PhysicsComponent::PhysicsComponent(float mass, bool isDynamic)
-        : mass(mass)
-        , isDynamic(isDynamic)
-        , rigidBody(nullptr)
-        , collisionShape(nullptr)
-        , motionState(nullptr) {
+        : mass(mass), isDynamic(isDynamic), rigidBody(nullptr), collisionShape(nullptr), motionState(nullptr) {
 }
 
 PhysicsComponent::~PhysicsComponent() {
@@ -39,7 +35,7 @@ void PhysicsComponent::init() {
 
     glm::vec3 position = transform->getPosition();
     glm::vec3 scale = transform->getScale();
-    glm::vec3 rotation = transform->getRotation();
+    glm::vec3 rotation = transform->getEulerAngles();
 
     glm::vec3 boundingBox = mesh->getBoundingBox();
     collisionShape = new btBoxShape(btVector3(boundingBox.x, boundingBox.y, boundingBox.z));
@@ -84,19 +80,19 @@ void PhysicsComponent::remove() {
     cleanup();
 }
 
-void PhysicsComponent::setLinearVelocity(const glm::vec3& velocity) {
+void PhysicsComponent::setLinearVelocity(const glm::vec3 &velocity) {
     if (rigidBody) {
         rigidBody->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
     }
 }
 
-void PhysicsComponent::setAngularVelocity(const glm::vec3& velocity) {
+void PhysicsComponent::setAngularVelocity(const glm::vec3 &velocity) {
     if (rigidBody) {
         rigidBody->setAngularVelocity(btVector3(velocity.x, velocity.y, velocity.z));
     }
 }
 
-void PhysicsComponent::applyForce(const glm::vec3& force, const glm::vec3& relativePos) {
+void PhysicsComponent::applyForce(const glm::vec3 &force, const glm::vec3 &relativePos) {
     if (rigidBody) {
         rigidBody->applyForce(
                 btVector3(force.x, force.y, force.z),
@@ -105,7 +101,7 @@ void PhysicsComponent::applyForce(const glm::vec3& force, const glm::vec3& relat
     }
 }
 
-void PhysicsComponent::applyImpulse(const glm::vec3& impulse, const glm::vec3& relativePos) {
+void PhysicsComponent::applyImpulse(const glm::vec3 &impulse, const glm::vec3 &relativePos) {
     if (rigidBody) {
         rigidBody->applyImpulse(
                 btVector3(impulse.x, impulse.y, impulse.z),
