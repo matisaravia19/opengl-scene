@@ -3,6 +3,7 @@
 #include "../data/importer.h"
 #include "../rendering/guiRenderer.h"
 #include "../rendering/meshRenderer.h"
+#include "../rendering/dayCycle.h"
 #include "./time.h"
 #include "physicsComponent.h"
 
@@ -30,12 +31,23 @@ void Scene::initGui() {
     spawn(gui);
 }
 
+void Scene::initSky() {
+    auto sky = new Entity("sky");
+
+    const auto cycle = new DayCycle();
+    gui->addComponent(cycle);
+    // TODO: add skybox
+
+    spawn(sky);
+}
+
 void Scene::open() {
     active = this;
 
     window->open();
     input->init();
     initGui();
+    initSky();
 
     Importer importer("..\\resources\\test.gltf");
     importer.load();

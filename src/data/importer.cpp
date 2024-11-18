@@ -196,7 +196,7 @@ void Importer::addMeshRenderers(Entity *entity, aiNode *node) {
 void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
     if (node->mNumMeshes == 0) return; // TODO: habria que traer info sobre que usa fisicas y que no desde el .glb
 
-    auto *physicsComponent = new PhysicsComponent(10, true);
+    auto *physicsComponent = new PhysicsComponent(0, false);
     entity->addComponent(physicsComponent);
 }
 

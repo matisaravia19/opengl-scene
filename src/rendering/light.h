@@ -11,6 +11,11 @@ protected:
 
 public:
     Light(glm::vec3 color, float intensity);
+    void setColor(glm::vec3);
+    [[nodiscard]] glm::vec3 getColor() const;
+    void setIntensity(float);
+    [[nodiscard]] float getIntensity() const;
+
 };
 
 class DirectionalLight : public Light {
@@ -19,6 +24,8 @@ private:
 
 public:
     DirectionalLight(glm::vec3 color, float intensity, glm::vec3 direction);
+    void setDirection(glm::vec3);
+    [[nodiscard]] glm::vec3 getDirection() const;
 };
 
 class PointLight : public Light {

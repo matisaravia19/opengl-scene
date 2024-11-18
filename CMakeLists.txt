@@ -51,9 +51,8 @@ set(sources
         src/rendering/guiRenderer.cpp
         src/core/settings.cpp
         src/core/physicsComponent.cpp
-        src/core/physicsComponent.h
         src/core/physicsWorld.cpp
-        src/core/physicsWorld.h
+        src/rendering/dayCycle.cpp
 )
 
 add_executable(opengl_scene ${sources})

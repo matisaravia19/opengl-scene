@@ -21,6 +21,7 @@ private:
     static Scene *active;
 
     void initGui();
+    void initSky();
 
 public:
     Scene();
