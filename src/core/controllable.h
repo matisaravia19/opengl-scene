@@ -11,7 +11,7 @@ class Controllable : public Component {
     double runSpeed = 10.0f;
     double mouseSensitivity = 0.5f;
     double cameraTime;
-    double bobFactor = 0.015f;
+    double bobFactor = 0.001f;
 
     void rotateCamera();
     void movePlayer();

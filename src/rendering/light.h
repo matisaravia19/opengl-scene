@@ -19,7 +19,7 @@ public:
 };
 
 class DirectionalLight : public Light {
-private:
+protected:
     glm::vec3 direction;
 
 public:

@@ -12,6 +12,7 @@ set(imgui_dir ${PROJECT_SOURCE_DIR}/lib/imgui)
 set(stb_dir ${PROJECT_SOURCE_DIR}/lib/stb)
 set(shadinclude_dir ${PROJECT_SOURCE_DIR}/lib/shadinclude)
 
+
 set(glad_sources
         ${glad_dir}/src/gl.c
 )
@@ -52,7 +53,9 @@ set(sources
         src/core/settings.cpp
         src/core/physicsComponent.cpp
         src/core/physicsWorld.cpp
-        src/rendering/dayCycle.cpp
+        src/rendering/skyLight.cpp
+        src/rendering/skybox.cpp
+        src/data/stb_impl.cpp
 )
 
 add_executable(opengl_scene ${sources})
@@ -71,8 +74,6 @@ include_directories(
 add_subdirectory(${glfw_dir})
 add_subdirectory(${assimp_dir})
 add_subdirectory(${bullet3_dir})
-
-add_compile_definitions(STB_IMAGE_IMPLEMENTATION)
 
 target_link_libraries(opengl_scene glfw)
 target_link_libraries(opengl_scene assimp)

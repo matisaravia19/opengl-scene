@@ -3,9 +3,10 @@
 #include "../data/importer.h"
 #include "../rendering/guiRenderer.h"
 #include "../rendering/meshRenderer.h"
-#include "../rendering/dayCycle.h"
 #include "./time.h"
 #include "physicsComponent.h"
+#include "../rendering/skyLight.h"
+#include "../rendering/skybox.h"
 
 Scene *Scene::active = nullptr;
 
@@ -34,9 +35,9 @@ void Scene::initGui() {
 void Scene::initSky() {
     auto sky = new Entity("sky");
 
-    const auto cycle = new DayCycle();
-    gui->addComponent(cycle);
-    // TODO: add skybox
+    const auto skylight = new SkyLight();
+    sky->addComponent(skylight);
+    sky->addComponent(new Skybox());
 
     spawn(sky);
 }

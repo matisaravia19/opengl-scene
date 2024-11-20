@@ -1,8 +1,8 @@
 #include "texture.h"
 
-#include "stb_image.h"
 #include "glad/gl.h"
 #include "../core/constants.h"
+#include "stb_image.h"
 
 Texture::~Texture() {
     glDeleteTextures(1, &id);
