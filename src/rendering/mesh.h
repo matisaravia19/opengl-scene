@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "glm/glm.hpp"
 
 struct Vertex {
@@ -13,15 +14,16 @@ struct Vertex {
 };
 
 struct Mesh {
+    std::string name;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-
     unsigned int vao = 0;
+
     unsigned int vbo = 0;
     unsigned int ebo = 0;
-
+    
     Mesh() = default;
-    Mesh(unsigned int numVertices, unsigned int numIndices);
+    Mesh(std::string name, unsigned int numVertices, unsigned int numIndices);
     ~Mesh();
 
     glm::vec3 getBoundingBox();

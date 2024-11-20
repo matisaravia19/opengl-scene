@@ -2,7 +2,8 @@
 
 #include "glad/gl.h"
 
-Mesh::Mesh(unsigned int numVertices, unsigned int numIndices) {
+Mesh::Mesh(std::string name, unsigned int numVertices, unsigned int numIndices) {
+    this->name = std::move(name);
     vertices.reserve(numVertices);
     indices.reserve(numIndices);
 }
@@ -50,7 +51,7 @@ Mesh::~Mesh() {
 glm::vec3 Mesh::getBoundingBox() {
     auto bb = glm::vec3(0);
 
-    for (const auto &vertex : vertices) {
+    for (const auto &vertex: vertices) {
         bb.x = std::max(bb.x, std::abs(vertex.position.x));
         bb.y = std::max(bb.y, std::abs(vertex.position.y));
         bb.z = std::max(bb.z, std::abs(vertex.position.z));

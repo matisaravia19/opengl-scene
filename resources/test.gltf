@@ -28,6 +28,9 @@
 	"scene":0,
 	"scenes":[
 		{
+			"extras":{
+				"send2ue":{}
+			},
 			"name":"Scene",
 			"nodes":[
 				0,
@@ -104,6 +107,16 @@
 			]
 		},
 		{
+			"extras":{
+				"lod0":{
+					"name":"Sphere",
+					"type":"Mesh"
+				},
+				"lod1":{
+					"name":"Cube",
+					"type":"Mesh"
+				}
+			},
 			"mesh":2,
 			"name":"Sphere"
 		}

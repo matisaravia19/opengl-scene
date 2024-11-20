@@ -57,28 +57,21 @@ private:
     void clear();
 
     void initKeyboard();
-
     void initMouse();
 
     void processMouseMovement(double x, double y);
-
     void processKeyboardInput(int key, int action);
 
 public:
     explicit Input(Window *window);
 
     void init();
-
     void poll();
 
     bool isKeyDown(KeyCode key) const;
-
     bool wasKeyPressed(KeyCode key) const;
-
     bool wasKeyReleased(KeyCode key) const;
-
     glm::vec<2, double> getMouseDisplacement();
-
     void setCursorVisibility(bool visible);
 
     static Input *getActive();
