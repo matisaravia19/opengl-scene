@@ -13,7 +13,6 @@ uniform vec2 windowSize;
 uniform vec3 cameraPosition;
 uniform vec3 lightColor;
 uniform vec3 lightDirection;
-uniform float intensity;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / windowSize;
@@ -30,7 +29,5 @@ void main() {
     vec3 fragToCamera = cameraPosition - fWorldPosition.xyz;
     vec3 viewDir = normalize(fragToCamera);
 
-    vec3 radiance = lightColor * intensity;
-
-    oFragColor = vec4(pbr(fWorldPosition.xyz, fAlbedo, fNormal, fMetallicRoughness.b, fMetallicRoughness.g, lightDirection, viewDir, radiance), 1.0);
+    oFragColor = vec4(pbr(fWorldPosition.xyz, fAlbedo, fNormal, fMetallicRoughness.b, fMetallicRoughness.g, -lightDirection, viewDir, lightColor), 1.0);
 }

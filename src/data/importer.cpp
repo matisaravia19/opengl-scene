@@ -228,29 +228,20 @@ void Importer::loadMaterials() {
 
 #pragma region lights
 
-static Light *readLight(aiLight *light) {
-    auto color = toVec3(light->mColorDiffuse);
-    auto intensity = glm::length(color);
-    color /= intensity;
-    intensity /= 255.0f;
+#define LIGHT_INTENSITY_MULTIPLIER 0.001f
 
+static Light *readLight(aiLight *light) {
     switch (light->mType) {
         case aiLightSourceType::aiLightSource_DIRECTIONAL:
-            return new DirectionalLight(
-                    color,
-                    intensity,
-                    toVec3(light->mDirection)
-            );
+            return new DirectionalLight(toVec3(light->mColorDiffuse) * LIGHT_INTENSITY_MULTIPLIER);
         case aiLightSourceType::aiLightSource_SPOT:
             return new SpotLight(
-                    color,
-                    intensity,
-                    toVec3(light->mDirection),
+                    toVec3(light->mColorDiffuse) * LIGHT_INTENSITY_MULTIPLIER,
                     light->mAngleInnerCone,
                     light->mAngleOuterCone
             );
         default:
-            return new PointLight(color, intensity);
+            return new PointLight(toVec3(light->mColorDiffuse) * LIGHT_INTENSITY_MULTIPLIER);
     }
 }
 

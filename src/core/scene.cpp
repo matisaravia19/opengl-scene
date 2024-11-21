@@ -38,7 +38,7 @@ void Scene::open() {
     renderer->init();
     initGui();
 
-    Importer importer("..\\resources\\test.gltf");
+    Importer importer("..\\resources\\light.gltf");
     importer.load();
     for (auto &entity: importer.getEntities()) {
         spawn(entity);

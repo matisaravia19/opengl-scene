@@ -50,6 +50,7 @@ Shader *Shader::PBR = new Shader("shaders/standard.vert", "shaders/pbr.frag");
 
 Shader *Shader::DEFERRED_POINT_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/point.frag");
 Shader *Shader::DEFERRED_DIRECTIONAL_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/directional.frag");
+Shader *Shader::DEFERRED_SPOT_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/spot.frag");
 
 Shader *Shader::HDR = new Shader("shaders/shared/screen.vert", "shaders/postprocessing/hdr.frag");
 

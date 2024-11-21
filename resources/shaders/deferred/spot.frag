@@ -13,6 +13,9 @@ uniform vec2 windowSize;
 uniform vec3 cameraPosition;
 uniform vec3 lightColor;
 uniform vec3 lightPosition;
+uniform vec3 lightDirection;
+uniform float innerCutoff;
+uniform float outerCutoff;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / windowSize;
@@ -30,11 +33,14 @@ void main() {
     vec3 viewDir = normalize(fragToCamera);
 
     vec3 fragToLight = lightPosition - fWorldPosition.xyz;
-    vec3 lightDir = normalize(fragToLight);
+    vec3 normalizedFragToLight = normalize(fragToLight);
+
+    float theta = dot(normalizedFragToLight, -lightDirection);
+    float epsilon = innerCutoff - outerCutoff;
 
     float distanceToLight = length(fragToLight);
-    float attenuation = 1.0 / (distanceToLight * distanceToLight);
+    float attenuation = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0) / (distanceToLight * distanceToLight);
     vec3 radiance = lightColor * attenuation;
 
-    oFragColor = vec4(pbr(fWorldPosition.xyz, fAlbedo, fNormal, fMetallicRoughness.b, fMetallicRoughness.g, lightDir, viewDir, radiance), 1.0);
+    oFragColor = vec4(pbr(fWorldPosition.xyz, fAlbedo, fNormal, fMetallicRoughness.b, fMetallicRoughness.g, normalizedFragToLight, viewDir, radiance), 1.0);
 }

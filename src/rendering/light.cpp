@@ -4,9 +4,8 @@
 #include "renderer.h"
 #include "shader.h"
 
-Light::Light(glm::vec3 color, float intensity) {
+Light::Light(glm::vec3 color) {
     this->color = color;
-    this->intensity = intensity;
 }
 
 void Light::init() {
@@ -19,8 +18,8 @@ void Light::remove() {
     Renderer::getActive()->removeLight(this);
 }
 
-DirectionalLight::DirectionalLight(glm::vec3 color, float intensity, glm::vec3 direction) : Light(color, intensity) {
-    this->direction = direction;
+DirectionalLight::DirectionalLight(glm::vec3 color) : Light(color) {
+
 }
 
 void DirectionalLight::renderDeferred() {
@@ -30,9 +29,8 @@ void DirectionalLight::renderDeferred() {
 
     deferredShader->setUniform("windowSize", renderer->getWindow()->getSize());
     deferredShader->setUniform("cameraPosition", renderer->getCamera()->getPosition());
-    deferredShader->setUniform("lightDirection", direction);
+    deferredShader->setUniform("lightDirection", getEntity()->getTransform()->getForward());
     deferredShader->setUniform("lightColor", color);
-    deferredShader->setUniform("intensity", intensity);
 
     renderer->drawFrameQuad();
 }
@@ -43,7 +41,7 @@ void DirectionalLight::init() {
     deferredShader->upload();
 }
 
-PointLight::PointLight(glm::vec3 color, float intensity) : Light(color, intensity) {
+PointLight::PointLight(glm::vec3 color) : Light(color) {
 
 }
 
@@ -62,18 +60,33 @@ void PointLight::renderDeferred() {
     deferredShader->setUniform("cameraPosition", renderer->getCamera()->getPosition());
     deferredShader->setUniform("lightPosition", getEntity()->getTransform()->getPosition());
     deferredShader->setUniform("lightColor", color);
-    deferredShader->setUniform("intensity", intensity);
 
     renderer->drawFrameQuad();
 }
 
-SpotLight::SpotLight(glm::vec3 color, float intensity, glm::vec3 direction, float cutoff, float outerCutoff) :
-        Light(color, intensity) {
-    this->direction = direction;
-    this->cutoff = cutoff;
-    this->outerCutoff = outerCutoff;
+SpotLight::SpotLight(glm::vec3 color, float innerAngle, float outerAngle) : Light(color) {
+    this->innerCutoff = glm::cos(innerAngle);
+    this->outerCutoff = glm::cos(outerAngle);
+}
+
+void SpotLight::init() {
+    Light::init();
+    deferredShader = Shader::DEFERRED_SPOT_LIGHT;
+    deferredShader->upload();
 }
 
 void SpotLight::renderDeferred() {
+    deferredShader->bind();
 
+    auto renderer = Renderer::getActive();
+
+    deferredShader->setUniform("windowSize", renderer->getWindow()->getSize());
+    deferredShader->setUniform("cameraPosition", renderer->getCamera()->getPosition());
+    deferredShader->setUniform("lightPosition", getEntity()->getTransform()->getPosition());
+    deferredShader->setUniform("lightDirection", getEntity()->getTransform()->getForward());
+    deferredShader->setUniform("lightColor", color);
+    deferredShader->setUniform("innerCutoff", innerCutoff);
+    deferredShader->setUniform("outerCutoff", outerCutoff);
+
+    renderer->drawFrameQuad();
 }

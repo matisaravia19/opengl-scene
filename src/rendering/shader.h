@@ -37,5 +37,6 @@ public:
     static Shader *PBR;
     static Shader *DEFERRED_POINT_LIGHT;
     static Shader *DEFERRED_DIRECTIONAL_LIGHT;
+    static Shader *DEFERRED_SPOT_LIGHT;
     static Shader *HDR;
 };
