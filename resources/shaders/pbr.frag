@@ -9,7 +9,10 @@ in vec3 fTangent;
 in vec3 fBitangent;
 in vec2 fTexCoords;
 
-out vec4 oFragColor;
+layout (location = 0) out vec4 oWorldPosition;
+layout (location = 1) out vec4 oAlbedo;
+layout (location = 2) out vec4 oNormal;
+layout (location = 3) out vec4 oMetallicRoughness;
 
 layout (binding = 0) uniform sampler2D albedo;
 layout (binding = 1) uniform sampler2D normal;
@@ -17,11 +20,8 @@ layout (binding = 2) uniform sampler2D metallicRoughness;
 layout (binding = 3) uniform sampler2D ao;
 
 void main() {
-    vec3 sampledAlbedo = texture(albedo, fTexCoords).rgb;
-    vec3 sampledNormal = normalMap(fNormal, fTangent, fBitangent, normal, fTexCoords);
-    vec4 sampledMetallicRoughness = texture(metallicRoughness, fTexCoords);
-
-    vec3 color = pbr(fWorldPosition, sampledAlbedo, sampledNormal, sampledMetallicRoughness.b, sampledMetallicRoughness.g);
-
-    oFragColor = vec4(color, 1.0);
+    oWorldPosition = vec4(fWorldPosition, 1.0);
+    oAlbedo = texture(albedo, fTexCoords);
+    oNormal = vec4(normalMap(fNormal, fTangent, fBitangent, normal, fTexCoords), 1.0);
+    oMetallicRoughness = texture(metallicRoughness, fTexCoords);
 }

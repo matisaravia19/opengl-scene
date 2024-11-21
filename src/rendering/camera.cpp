@@ -40,3 +40,7 @@ glm::mat4 Camera::getView() const {
 void Camera::updateProjection() {
     projection = glm::perspective(fov, aspect, near, far);
 }
+
+glm::vec3 Camera::getPosition() const {
+    return transform->getPosition();
+}

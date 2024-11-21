@@ -2,6 +2,7 @@
 
 #include <utility>
 #include "../core/entity.h"
+#include "shader.h"
 
 MeshRenderer::MeshRenderer(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) {
     this->mesh = std::move(mesh);
@@ -38,7 +39,10 @@ void MeshRenderer::init() {
 
     transform = getEntity()->getTransform();
 
-    Renderer::getActive()->registerRenderable(this);
+    auto materialShaderType = material->getShader()->getType();
+    renderPass = materialShaderType == ShaderType::DEFERRED ? RenderPass::DEFERRED : RenderPass::FORWARD;
+
+    Renderer::getActive()->registerRenderable(this, renderPass);
     mesh->upload();
     material->upload();
 }
@@ -46,7 +50,7 @@ void MeshRenderer::init() {
 void MeshRenderer::remove() {
     Component::remove();
 
-    Renderer::getActive()->removeRenderable(this);
+    Renderer::getActive()->removeRenderable(this, renderPass);
 }
 
 std::shared_ptr<Mesh> MeshRenderer::getMesh() {

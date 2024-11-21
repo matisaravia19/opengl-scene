@@ -232,6 +232,7 @@ static Light *readLight(aiLight *light) {
     auto color = toVec3(light->mColorDiffuse);
     auto intensity = glm::length(color);
     color /= intensity;
+    intensity /= 255.0f;
 
     switch (light->mType) {
         case aiLightSourceType::aiLightSource_DIRECTIONAL:
