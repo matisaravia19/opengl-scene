@@ -67,7 +67,25 @@ static std::shared_ptr<Texture> readTexture(aiMaterial *material, aiTextureType 
     if (material->GetTexture(type, index, &path) == aiReturn_SUCCESS) {
         return std::make_shared<ImageTexture>(ImageTexture(path.C_Str()));
     } else {
-        return std::make_shared<ColorTexture>(ColorTexture(glm::vec3(1.0f)));
+        return nullptr;
+    }
+}
+
+static glm::vec3 readMaterialColor(aiMaterial *material, const char *key, unsigned int type, unsigned int index) {
+    aiColor3D color;
+    if (material->Get(key, type, index, color) == aiReturn_SUCCESS) {
+        return toVec3(color);
+    } else {
+        return glm::vec3(1.0f);
+    }
+}
+
+static float readMaterialFloat(aiMaterial *material, const char *key, unsigned int type, unsigned int index) {
+    float value;
+    if (material->Get(key, type, index, value) == aiReturn_SUCCESS) {
+        return value;
+    } else {
+        return 1.0f;
     }
 }
 
@@ -76,10 +94,34 @@ static PbrMaterial *readPbrMaterial(aiMaterial *materialData) {
     materialData->Get(AI_MATKEY_NAME, name);
 
     auto material = new PbrMaterial(name.C_Str());
-    material->setAlbedo(readTexture(materialData, aiTextureType_DIFFUSE, 0));
-    material->setNormal(readTexture(materialData, aiTextureType_NORMALS, 0));
-    material->setMetallicRoughness(readTexture(materialData, aiTextureType_METALNESS, 0));
-    material->setAO(readTexture(materialData, aiTextureType_AMBIENT_OCCLUSION, 0));
+
+    std::shared_ptr<Texture> albedo = readTexture(materialData, aiTextureType_DIFFUSE, 0);
+    if (!albedo) {
+        albedo = std::make_shared<ColorTexture>(readMaterialColor(materialData, AI_MATKEY_COLOR_DIFFUSE));
+    }
+    material->setAlbedo(albedo);
+
+    std::shared_ptr<Texture> normal = readTexture(materialData, aiTextureType_NORMALS, 0);
+    if (!normal) {
+        normal = std::make_shared<ColorTexture>(glm::vec3(0.5f, 0.5f, 1.0f));
+    }
+    material->setNormal(normal);
+
+    std::shared_ptr<Texture> metallicRoughness = readTexture(materialData, aiTextureType_METALNESS, 0);
+    if (!metallicRoughness) {
+        metallicRoughness = std::make_shared<ColorTexture>(glm::vec3(
+                0.0f,
+                readMaterialFloat(materialData, AI_MATKEY_METALLIC_FACTOR),
+                readMaterialFloat(materialData, AI_MATKEY_ROUGHNESS_FACTOR)
+        ));
+    }
+    material->setMetallicRoughness(metallicRoughness);
+
+    std::shared_ptr<Texture> ao = readTexture(materialData, aiTextureType_AMBIENT_OCCLUSION, 0);
+    if (!ao) {
+        ao = std::make_shared<ColorTexture>(glm::vec3(1.0f));
+    }
+    material->setAO(ao);
 
     return material;
 }
@@ -194,10 +236,10 @@ void Importer::addMeshRenderers(Entity *entity, aiNode *node) {
 }
 
 void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
-    if (node->mNumMeshes == 0) return; // TODO: habria que traer info sobre que usa fisicas y que no desde el .glb
-
-    auto *physicsComponent = new PhysicsComponent(10, true);
-    entity->addComponent(physicsComponent);
+//    if (node->mNumMeshes == 0) return; // TODO: habria que traer info sobre que usa fisicas y que no desde el .glb
+//
+//    auto *physicsComponent = new PhysicsComponent(10, true);
+//    entity->addComponent(physicsComponent);
 }
 
 void Importer::loadNodes(aiNode *node, Transform *parent) {
@@ -243,7 +285,7 @@ void Importer::loadLights() {
 }
 
 void Importer::load() {
-    scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_CalcTangentSpace);
+    scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_FlipUVs);
 
     loadMaterials();
     loadMeshes();
