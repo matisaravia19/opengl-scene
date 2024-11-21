@@ -18,6 +18,8 @@ GuiRenderer::GuiRenderer(Window *window, Input *input)
 }
 
 void GuiRenderer::init() {
+    Component::init();
+
     Renderer::getActive()->registerRenderable(this);
 }
 
@@ -44,6 +46,8 @@ void GuiRenderer::render() {
 }
 
 void GuiRenderer::update() {
+    Component::update();
+
     static bool debounce = false;
     const auto cfg = Settings::ActiveSettings;
 
@@ -72,5 +76,7 @@ GuiRenderer::~GuiRenderer() {
 }
 
 void GuiRenderer::remove() {
+    Component::remove();
+
     Renderer::getActive()->removeRenderable(this);
 }

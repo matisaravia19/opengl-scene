@@ -8,6 +8,9 @@
 #include "../core/util.h"
 #include "../core/controllable.h"
 #include "../core/physicsComponent.h"
+#include "../rendering/lod.h"
+
+#pragma region conversions
 
 static inline glm::vec2 toVec2(aiVector3D aiVector) {
     return glm::vec2(aiVector.x, aiVector.y);
@@ -32,6 +35,10 @@ static inline Transform *toTransform(aiMatrix4x4 aiMatrix) {
     return new Transform(toVec3(position), toQuat(rotation), toVec3(scaling));
 }
 
+#pragma endregion
+
+#pragma region meshes
+
 static Vertex readVertex(aiMesh *mesh, int index) {
     Vertex vertex{};
     vertex.position = toVec3(mesh->mVertices[index]);
@@ -45,7 +52,7 @@ static Vertex readVertex(aiMesh *mesh, int index) {
 }
 
 static Mesh *readMesh(aiMesh *mesh) {
-    auto result = new Mesh(mesh->mNumVertices, mesh->mNumFaces * 3);
+    auto result = new Mesh(mesh->mName.C_Str(), mesh->mNumVertices, mesh->mNumFaces * 3);
 
     for (int i = 0; i < mesh->mNumVertices; i++) {
         Vertex vertex = readVertex(mesh, i);
@@ -62,12 +69,100 @@ static Mesh *readMesh(aiMesh *mesh) {
     return result;
 }
 
+void Importer::loadMeshes() {
+    meshes.reserve(scene->mNumMeshes);
+    for (int i = 0; i < scene->mNumMeshes; i++) {
+        auto mesh = readMesh(scene->mMeshes[i]);
+        meshes.emplace_back(mesh);
+    }
+}
+
+std::shared_ptr<Mesh> Importer::getMesh(const std::string &name) {
+    for (auto &mesh: meshes) {
+        if (mesh->name == name) {
+            return mesh;
+        }
+    }
+    return nullptr;
+}
+
+void Importer::addMeshRenderer(Entity *entity, aiNode *node) {
+    auto mesh = meshes[node->mMeshes[0]];
+    auto material = materials[scene->mMeshes[node->mMeshes[0]]->mMaterialIndex];
+    auto meshRenderer = new MeshRenderer(mesh, material);
+
+    entity->addComponent(meshRenderer);
+}
+
+void Importer::addLOD(Entity *entity, aiNode *node) {
+    auto lod = new LOD();
+
+    for (int i = 0; i < MAX_LODS; i++) {
+        auto propertyName = std::format("lod{}", i);
+        if (!node->mMetaData->HasKey(propertyName.c_str())) {
+            break;
+        }
+
+        aiMetadata lodData;
+        node->mMetaData->Get(propertyName, lodData);
+
+        aiString lodName;
+        lodData.Get("name", lodName);
+
+        auto mesh = getMesh(lodName.C_Str());
+        lod->addMesh(mesh);
+    }
+
+    if (node->mMetaData->HasKey("lodDistance")) {
+        double distance;
+        node->mMetaData->Get("lodDistance", distance);
+
+        lod->setDistance(distance);
+    }
+
+    entity->addComponent(lod);
+}
+
+void Importer::addMeshComponents(Entity *entity, aiNode *node) {
+    addMeshRenderer(entity, node);
+
+    if (!node->mMetaData) {
+        return;
+    }
+
+    if (node->mMetaData->HasKey("lod0")) {
+        addLOD(entity, node);
+    }
+}
+
+#pragma endregion
+
+#pragma region materials
+
 static std::shared_ptr<Texture> readTexture(aiMaterial *material, aiTextureType type, unsigned int index) {
     aiString path;
     if (material->GetTexture(type, index, &path) == aiReturn_SUCCESS) {
         return std::make_shared<ImageTexture>(ImageTexture(path.C_Str()));
     } else {
-        return std::make_shared<ColorTexture>(ColorTexture(glm::vec3(1.0f)));
+        return nullptr;
+    }
+}
+
+static glm::vec3 readMaterialColor(aiMaterial *material, const char *key, unsigned int type, unsigned int index) {
+    aiColor3D color;
+    if (material->Get(key, type, index, color) == aiReturn_SUCCESS) {
+        return toVec3(color);
+    } else {
+        return glm::vec3(1.0f);
+    }
+}
+
+static float readMaterialFloat(aiMaterial *material, const char *key, unsigned int type, unsigned int index) {
+    float value;
+    if (material->Get(key, type, index, value) == aiReturn_SUCCESS) {
+        return value;
+    } else {
+        return 1.0f;
     }
 }
 
@@ -76,10 +171,34 @@ static PbrMaterial *readPbrMaterial(aiMaterial *materialData) {
     materialData->Get(AI_MATKEY_NAME, name);
 
     auto material = new PbrMaterial(name.C_Str());
-    material->setAlbedo(readTexture(materialData, aiTextureType_DIFFUSE, 0));
-    material->setNormal(readTexture(materialData, aiTextureType_NORMALS, 0));
-    material->setMetallicRoughness(readTexture(materialData, aiTextureType_METALNESS, 0));
-    material->setAO(readTexture(materialData, aiTextureType_AMBIENT_OCCLUSION, 0));
+
+    std::shared_ptr<Texture> albedo = readTexture(materialData, aiTextureType_DIFFUSE, 0);
+    if (!albedo) {
+        albedo = std::make_shared<ColorTexture>(readMaterialColor(materialData, AI_MATKEY_COLOR_DIFFUSE));
+    }
+    material->setAlbedo(albedo);
+
+    std::shared_ptr<Texture> normal = readTexture(materialData, aiTextureType_NORMALS, 0);
+    if (!normal) {
+        normal = std::make_shared<ColorTexture>(glm::vec3(0.5f, 0.5f, 1.0f));
+    }
+    material->setNormal(normal);
+
+    std::shared_ptr<Texture> metallicRoughness = readTexture(materialData, aiTextureType_METALNESS, 0);
+    if (!metallicRoughness) {
+        metallicRoughness = std::make_shared<ColorTexture>(glm::vec3(
+                0.0f,
+                readMaterialFloat(materialData, AI_MATKEY_METALLIC_FACTOR),
+                readMaterialFloat(materialData, AI_MATKEY_ROUGHNESS_FACTOR)
+        ));
+    }
+    material->setMetallicRoughness(metallicRoughness);
+
+    std::shared_ptr<Texture> ao = readTexture(materialData, aiTextureType_AMBIENT_OCCLUSION, 0);
+    if (!ao) {
+        ao = std::make_shared<ColorTexture>(glm::vec3(1.0f));
+    }
+    material->setAO(ao);
 
     return material;
 }
@@ -96,6 +215,18 @@ static Material *readMaterial(aiMaterial *material) {
             return Material::DEFAULT;
     }
 }
+
+void Importer::loadMaterials() {
+    materials.reserve(scene->mNumMaterials);
+    for (int i = 0; i < scene->mNumMaterials; i++) {
+        auto material = readMaterial(scene->mMaterials[i]);
+        materials.emplace_back(material);
+    }
+}
+
+#pragma endregion
+
+#pragma region lights
 
 static Light *readLight(aiLight *light) {
     auto color = toVec3(light->mColorDiffuse);
@@ -122,20 +253,33 @@ static Light *readLight(aiLight *light) {
     }
 }
 
-Importer::Importer(std::string path) {
-    this->path = std::move(path);
-    this->scene = nullptr;
-}
-
-Entity *Importer::getEntity(const std::string &name) {
-    for (auto &entity: entities) {
-        if (entity->getName() == name) {
-            return entity;
-        }
+Entity *Importer::getEntity(const aiLight *light) {
+    auto entity = getEntity(light->mName.C_Str());
+    if (!entity) {
+        entity = new Entity(light->mName.C_Str());
+        entity->addComponent(new Transform(
+                toVec3(light->mPosition),
+                toVec3(light->mDirection),
+                toVec3(light->mUp)
+        ));
+        entities.push_back(entity);
     }
 
-    return nullptr;
+    return entity;
 }
+
+void Importer::loadLights() {
+    for (int i = 0; i < scene->mNumLights; i++) {
+        auto light = scene->mLights[i];
+
+        auto entity = getEntity(light);
+        entity->addComponent(readLight(light));
+    }
+}
+
+#pragma endregion
+
+#pragma region cameras
 
 Entity *Importer::getEntity(const aiCamera *camera) {
     auto entity = getEntity(camera->mName.C_Str());
@@ -152,73 +296,6 @@ Entity *Importer::getEntity(const aiCamera *camera) {
     return entity;
 }
 
-Entity *Importer::getEntity(const aiLight *light) {
-    auto entity = getEntity(light->mName.C_Str());
-    if (!entity) {
-        entity = new Entity(light->mName.C_Str());
-        entity->addComponent(new Transform(
-                toVec3(light->mPosition),
-                toVec3(light->mDirection),
-                toVec3(light->mUp)
-        ));
-        entities.push_back(entity);
-    }
-
-    return entity;
-}
-
-void Importer::loadMaterials() {
-    materials.reserve(scene->mNumMaterials);
-    for (int i = 0; i < scene->mNumMaterials; i++) {
-        auto material = readMaterial(scene->mMaterials[i]);
-        materials.emplace_back(material);
-    }
-}
-
-void Importer::loadMeshes() {
-    meshes.reserve(scene->mNumMeshes);
-    for (int i = 0; i < scene->mNumMeshes; i++) {
-        auto mesh = readMesh(scene->mMeshes[i]);
-        meshes.emplace_back(mesh);
-    }
-}
-
-void Importer::addMeshRenderers(Entity *entity, aiNode *node) {
-    for (int i = 0; i < node->mNumMeshes; i++) {
-        auto mesh = meshes[node->mMeshes[i]];
-        auto material = materials[scene->mMeshes[node->mMeshes[i]]->mMaterialIndex];
-        auto meshRenderer = new MeshRenderer(mesh, material);
-
-        entity->addComponent(meshRenderer);
-    }
-}
-
-void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
-    if (node->mNumMeshes == 0) return; // TODO: habria que traer info sobre que usa fisicas y que no desde el .glb
-
-    auto *physicsComponent = new PhysicsComponent(0, false);
-    entity->addComponent(physicsComponent);
-}
-
-void Importer::loadNodes(aiNode *node, Transform *parent) {
-    auto entity = new Entity(node->mName.C_Str());
-    entities.push_back(entity);
-
-    auto transform = toTransform(node->mTransformation);
-    entity->addComponent(transform);
-
-    if (parent) {
-        parent->addChild(transform);
-    }
-
-    addMeshRenderers(entity, node);
-    addPhysicsComponents(node, entity);
-
-    for (int i = 0; i < node->mNumChildren; i++) {
-        loadNodes(node->mChildren[i], transform);
-    }
-}
-
 void Importer::loadCameras() {
     for (int i = 0; i < scene->mNumCameras; i++) {
         auto camera = scene->mCameras[i];
@@ -233,17 +310,57 @@ void Importer::loadCameras() {
     }
 }
 
-void Importer::loadLights() {
-    for (int i = 0; i < scene->mNumLights; i++) {
-        auto light = scene->mLights[i];
+#pragma endregion
 
-        auto entity = getEntity(light);
-        entity->addComponent(readLight(light));
+#pragma region nodes
+
+void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
+    if (node->mNumMeshes == 0) return; // TODO: habria que traer info sobre que usa fisicas y que no desde el .glb
+
+    //auto *physicsComponent = new PhysicsComponent(10, true);
+    //entity->addComponent(physicsComponent);
+}
+
+Entity *Importer::getEntity(const std::string &name) {
+    for (auto &entity: entities) {
+        if (entity->getName() == name) {
+            return entity;
+        }
+    }
+
+    return nullptr;
+}
+
+void Importer::loadNodes(aiNode *node, Transform *parent) {
+    auto entity = new Entity(node->mName.C_Str());
+    entities.push_back(entity);
+
+    auto transform = toTransform(node->mTransformation);
+    entity->addComponent(transform);
+
+    if (parent) {
+        parent->addChild(transform);
+    }
+
+    if (node->mNumMeshes > 0) {
+        addMeshComponents(entity, node);
+        addPhysicsComponents(node, entity);
+    }
+
+    for (int i = 0; i < node->mNumChildren; i++) {
+        loadNodes(node->mChildren[i], transform);
     }
 }
 
+#pragma endregion
+
+Importer::Importer(std::string path) {
+    this->path = std::move(path);
+    this->scene = nullptr;
+}
+
 void Importer::load() {
-    scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_CalcTangentSpace);
+    scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_FlipUVs);
 
     loadMaterials();
     loadMeshes();

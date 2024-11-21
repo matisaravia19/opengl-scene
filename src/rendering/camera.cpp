@@ -10,6 +10,8 @@ Camera::Camera(float fov, float near, float far) {
 }
 
 void Camera::init() {
+    Component::init();
+
     transform = getEntity()->getComponent<Transform>();
     Renderer::getActive()->setCamera(this);
 
@@ -18,6 +20,8 @@ void Camera::init() {
 }
 
 void Camera::update() {
+    Component::update();
+
     auto aspect = Window::getActive()->getAspectRatio();
     if (aspect != this->aspect) {
         this->aspect = aspect;

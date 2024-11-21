@@ -18,3 +18,5 @@
 #define VEC4_UNIT_W glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
 
 #define RESOURCES_PATH std::filesystem::path("../resources")
+
+#define PI 3.14159265359

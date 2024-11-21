@@ -3,6 +3,24 @@
 #include <glm/ext/matrix_transform.hpp>
 #include "constants.h"
 
+glm::vec3 normalizeEulerAngles(glm::vec3 eulerAngles) {
+    eulerAngles.x = fmod(eulerAngles.x, 2 * PI);
+    eulerAngles.y = fmod(eulerAngles.y, 2 * PI);
+    eulerAngles.z = fmod(eulerAngles.z, 2 * PI);
+
+    if (eulerAngles.x > PI / 2) {
+        eulerAngles.x = PI - eulerAngles.x;
+        eulerAngles.y += PI;
+        eulerAngles.z += PI;
+    }
+
+    if (eulerAngles.z > PI) {
+        eulerAngles.z = 2 * PI - eulerAngles.z;
+    }
+
+    return eulerAngles;
+}
+
 Transform::Transform() {
     position = glm::vec3(0.0f);
     rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
@@ -62,7 +80,7 @@ glm::vec3 Transform::getEulerAngles() const {
 }
 
 void Transform::setEulerAngles(const glm::vec3 &eulerAngles) {
-    this->eulerAngles = eulerAngles;
+    this->eulerAngles = normalizeEulerAngles(eulerAngles);
     this->rotation = glm::quat(eulerAngles);
 }
 
@@ -91,7 +109,7 @@ void Transform::translate(const glm::vec3 &translation) {
 }
 
 void Transform::rotate(const glm::vec3 &eulerAngles) {
-    this->eulerAngles += eulerAngles;
+    this->eulerAngles = normalizeEulerAngles(this->eulerAngles + eulerAngles);
     this->rotation = glm::quat(this->eulerAngles);
 }
 

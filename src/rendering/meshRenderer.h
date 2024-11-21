@@ -22,5 +22,6 @@ public:
     void render() override;
     void remove() override;
 
-    std::shared_ptr<Mesh> getMesh() { return mesh; }
+    std::shared_ptr<Mesh> getMesh();
+    void setMesh(std::shared_ptr<Mesh> mesh);
 };

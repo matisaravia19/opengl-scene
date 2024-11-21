@@ -34,6 +34,8 @@ void MeshRenderer::render() {
 }
 
 void MeshRenderer::init() {
+    Component::init();
+
     transform = getEntity()->getTransform();
 
     Renderer::getActive()->registerRenderable(this);
@@ -42,5 +44,18 @@ void MeshRenderer::init() {
 }
 
 void MeshRenderer::remove() {
+    Component::remove();
+
     Renderer::getActive()->removeRenderable(this);
+}
+
+std::shared_ptr<Mesh> MeshRenderer::getMesh() {
+    return mesh;
+}
+
+void MeshRenderer::setMesh(std::shared_ptr<Mesh> mesh) {
+    this->mesh = mesh;
+    if (getLifeState() == ComponentLifeState::INITIALIZED) {
+        mesh->upload();
+    }
 }

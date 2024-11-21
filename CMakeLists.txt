@@ -52,6 +52,7 @@ set(sources
         src/core/settings.cpp
         src/core/physicsComponent.cpp
         src/core/physicsWorld.cpp
+        src/rendering/lod.cpp
         src/rendering/skyLight.cpp
         src/rendering/skybox.cpp
         src/data/stb_impl.cpp
