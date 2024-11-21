@@ -37,7 +37,7 @@ void Scene::open() {
     input->init();
     initGui();
 
-    Importer importer("..\\resources\\test.gltf");
+    Importer importer("..\\resources\\scene.gltf");
     importer.load();
     for (auto &entity: importer.getEntities()) {
         spawn(entity);

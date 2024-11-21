@@ -1,6 +1,7 @@
 #include "controllable.h"
 
 #include "./time.h"
+#include "constants.h"
 
 void Controllable::init() {
     Component::init();
@@ -22,8 +23,9 @@ void Controllable::rotateCamera() {
     const auto mouseDisplacement = input->getMouseDisplacement();
     const auto delta = -mouseDisplacement * mouseSensitivity * Time::getDeltaTime();
 
-    eulerAngles.x = glm::clamp(eulerAngles.x + delta.y, -3.0, 3.0);
+    eulerAngles.x = glm::clamp(eulerAngles.x + delta.y, -PI / 2 + 0.1, PI / 2 - 0.1);
     eulerAngles.y += delta.x;
+    eulerAngles.z = 0;
 
     transform->setEulerAngles(eulerAngles);
 }

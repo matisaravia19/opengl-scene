@@ -17,10 +17,12 @@ void Renderer::render() {
     glClear(GL_DEPTH_BUFFER_BIT);
     glDepthFunc(GL_LESS);
 
+    glEnable(GL_CULL_FACE);
+
     GuiRenderer *gui = nullptr;
     for (Renderable *renderable: renderables) {
-        if (dynamic_cast<GuiRenderer*>(renderable)) { // force gui to render last
-            gui = dynamic_cast<GuiRenderer*>(renderable);
+        if (dynamic_cast<GuiRenderer *>(renderable)) { // force gui to render last
+            gui = dynamic_cast<GuiRenderer *>(renderable);
             continue;
         }
         renderable->render();
