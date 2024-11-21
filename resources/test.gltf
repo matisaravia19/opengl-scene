@@ -28,6 +28,20 @@
 						1,
 						1
 					],
+					"intensity":543.5141306588226,
+					"spot":{
+						"innerConeAngle":0.2777970635538338,
+						"outerConeAngle":0.687659740447998
+					},
+					"type":"spot",
+					"name":"Spot"
+				},
+				{
+					"color":[
+						1,
+						1,
+						1
+					],
 					"intensity":543514.1306588226,
 					"type":"point",
 					"name":"Light"
@@ -48,7 +62,8 @@
 				2,
 				3,
 				4,
-				5
+				5,
+				6
 			]
 		}
 	],
@@ -73,6 +88,25 @@
 			]
 		},
 		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":1
+				}
+			},
+			"name":"Spot",
+			"rotation":[
+				-0.7071068286895752,
+				0,
+				0,
+				0.7071068286895752
+			],
+			"translation":[
+				0,
+				7.880160808563232,
+				0
+			]
+		},
+		{
 			"mesh":0,
 			"name":"Cube",
 			"rotation":[
@@ -90,7 +124,7 @@
 		{
 			"extensions":{
 				"KHR_lights_punctual":{
-					"light":1
+					"light":2
 				}
 			},
 			"name":"Light",
@@ -145,7 +179,8 @@
 				"lod1":{
 					"name":"Cube",
 					"type":"Mesh"
-				}
+				},
+				"lodDistance":10.0
 			},
 			"mesh":2,
 			"name":"Sphere"
