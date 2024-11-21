@@ -17,6 +17,7 @@ private:
 
 public:
     void addMesh(std::shared_ptr<Mesh> mesh);
+    void setDistance(float distance);
 
     void init() override;
     void update() override;

@@ -108,9 +108,16 @@ void Importer::addLOD(Entity *entity, aiNode *node) {
 
         aiString lodName;
         lodData.Get("name", lodName);
-        
+
         auto mesh = getMesh(lodName.C_Str());
         lod->addMesh(mesh);
+    }
+
+    if (node->mMetaData->HasKey("lodDistance")) {
+        double distance;
+        node->mMetaData->Get("lodDistance", distance);
+
+        lod->setDistance(distance);
     }
 
     entity->addComponent(lod);

@@ -29,3 +29,7 @@ void LOD::update() {
 void LOD::addMesh(std::shared_ptr<Mesh> mesh) {
     meshes.push_back(mesh);
 }
+
+void LOD::setDistance(float distance) {
+    distanceBetweenLODs = distance;
+}
