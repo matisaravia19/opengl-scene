@@ -3,9 +3,34 @@
 		"generator":"Khronos glTF Blender I/O v4.1.63",
 		"version":"2.0"
 	},
+	"extensionsUsed":[
+		"KHR_lights_punctual"
+	],
+	"extensionsRequired":[
+		"KHR_lights_punctual"
+	],
+	"extensions":{
+		"KHR_lights_punctual":{
+			"lights":[
+				{
+					"color":[
+						1,
+						1,
+						1
+					],
+					"intensity":54351.41306588226,
+					"type":"point",
+					"name":"Point"
+				}
+			]
+		}
+	},
 	"scene":0,
 	"scenes":[
 		{
+			"extras":{
+				"send2ue":{}
+			},
 			"name":"Scene",
 			"nodes":[
 				3,
@@ -22,7 +47,9 @@
 				1326,
 				1327,
 				1328,
-				1329
+				1329,
+				1330,
+				1331
 			]
 		}
 	],
@@ -14791,6 +14818,52 @@
 				-1.307572364807129,
 				0
 			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":0
+				}
+			},
+			"name":"Point",
+			"rotation":[
+				-0.7071068286895752,
+				0,
+				0,
+				0.7071068286895752
+			],
+			"translation":[
+				1.0404762029647827,
+				7.289931297302246,
+				-0.10513973236083984
+			]
+		},
+		{
+			"camera":0,
+			"name":"Camera",
+			"rotation":[
+				-0.18151041865348816,
+				0.6917527914047241,
+				0.18639115989208221,
+				0.6736396551132202
+			],
+			"translation":[
+				10.261003494262695,
+				3.1467065811157227,
+				0
+			]
+		}
+	],
+	"cameras":[
+		{
+			"name":"Camera.001",
+			"perspective":{
+				"aspectRatio":1.7777777777777777,
+				"yfov":0.39959652046304894,
+				"zfar":1000,
+				"znear":0.10000000149011612
+			},
+			"type":"perspective"
 		}
 	],
 	"materials":[
@@ -14891,6 +14964,32 @@
 		{
 			"alphaMode":"BLEND",
 			"doubleSided":true,
+			"extras":{
+				"params":[
+					{
+						"Name":"Split Translucency Controls",
+						"Value":true
+					},
+					{
+						"Name":"Base Color Controls",
+						"Value":[
+							1.0,
+							0.800000011920929,
+							1.0,
+							0.0
+						]
+					},
+					{
+						"Name":"Translucency Controls Leaves",
+						"Value":[
+							1.0,
+							1.5,
+							0.4000000059604645,
+							0.0
+						]
+					}
+				]
+			},
 			"name":"MI_sltiN.001",
 			"normalTexture":{
 				"index":15
@@ -24178,92 +24277,92 @@
 		{
 			"mimeType":"image/jpeg",
 			"name":"Mossy_Tree_rbewF_Mid_2K_normal",
-			"uri":"Mossy_Tree_rbewF_Mid_2K_normal.jpg"
+			"uri":"textures/Mossy_Tree_rbewF_Mid_2K_normal.jpg"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Mossy_Tree_rbewF_Mid_2K_orm",
-			"uri":"Mossy_Tree_rbewF_Mid_2K_orm.png"
+			"uri":"textures/Mossy_Tree_rbewF_Mid_2K_orm.png"
 		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"Mossy_Tree_rbewF_Mid_2K_albedo",
-			"uri":"Mossy_Tree_rbewF_Mid_2K_albedo.jpg"
+			"uri":"textures/Mossy_Tree_rbewF_Mid_2K_albedo.jpg"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Material.001_normal",
-			"uri":"Material_001_normal.png"
+			"uri":"textures/Material_001_normal.png"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Material.001_metallicRoughness",
-			"uri":"Material_001_metallicRoughness.png"
+			"uri":"textures/Material_001_metallicRoughness.png"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Material.001_baseColor",
-			"uri":"Material_001_baseColor.png"
+			"uri":"textures/Material_001_baseColor.png"
 		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"Japanese_Wooden_Well_Roof_ui2jbif_Mid_2K_normal",
-			"uri":"Japanese_Wooden_Well_Roof_ui2jbif_Mid_2K_normal.jpg"
+			"uri":"textures/Japanese_Wooden_Well_Roof_ui2jbif_Mid_2K_normal.jpg"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Japanese_Wooden_Well_Roof_ui2jbif_Mid_2K_orm",
-			"uri":"Japanese_Wooden_Well_Roof_ui2jbif_Mid_2K_orm.png"
+			"uri":"textures/Japanese_Wooden_Well_Roof_ui2jbif_Mid_2K_orm.png"
 		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"Japanese_Wooden_Well_Roof_ui2jbif_Mid_2K_albedo",
-			"uri":"Japanese_Wooden_Well_Roof_ui2jbif_Mid_2K_albedo.jpg"
+			"uri":"textures/Japanese_Wooden_Well_Roof_ui2jbif_Mid_2K_albedo.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"Old_Stone_Well_ufhoagrfa_Mid_2K_normal",
-			"uri":"Old_Stone_Well_ufhoagrfa_Mid_2K_normal.jpg"
+			"uri":"textures/Old_Stone_Well_ufhoagrfa_Mid_2K_normal.jpg"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Old_Stone_Well_ufhoagrfa_Mid_2K_orm",
-			"uri":"Old_Stone_Well_ufhoagrfa_Mid_2K_orm.png"
+			"uri":"textures/Old_Stone_Well_ufhoagrfa_Mid_2K_orm.png"
 		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"Old_Stone_Well_ufhoagrfa_Mid_2K_albedo",
-			"uri":"Old_Stone_Well_ufhoagrfa_Mid_2K_albedo.jpg"
+			"uri":"textures/Old_Stone_Well_ufhoagrfa_Mid_2K_albedo.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"Old_Well_Crank_ugcicbhga_Mid_2K_normal",
-			"uri":"Old_Well_Crank_ugcicbhga_Mid_2K_normal.jpg"
+			"uri":"textures/Old_Well_Crank_ugcicbhga_Mid_2K_normal.jpg"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"Old_Well_Crank_ugcicbhga_Mid_2K_orm",
-			"uri":"Old_Well_Crank_ugcicbhga_Mid_2K_orm.png"
+			"uri":"textures/Old_Well_Crank_ugcicbhga_Mid_2K_orm.png"
 		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"Old_Well_Crank_ugcicbhga_Mid_2K_albedo",
-			"uri":"Old_Well_Crank_ugcicbhga_Mid_2K_albedo.jpg"
+			"uri":"textures/Old_Well_Crank_ugcicbhga_Mid_2K_albedo.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"T_sltiN_1K_N",
-			"uri":"T_sltiN_1K_N.jpg"
+			"uri":"textures/T_sltiN_1K_N.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"T_sltiN_1K_ORT",
-			"uri":"T_sltiN_1K_ORT.jpg"
+			"uri":"textures/T_sltiN_1K_ORT.jpg"
 		},
 		{
 			"mimeType":"image/png",
 			"name":"T_sltiN_1K_B",
-			"uri":"T_sltiN_1K_B.png"
+			"uri":"textures/T_sltiN_1K_B.png"
 		}
 	],
 	"accessors":[
