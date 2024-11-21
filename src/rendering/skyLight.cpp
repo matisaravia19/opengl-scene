@@ -43,10 +43,10 @@ void SkyLight::update() {
 
     const auto day_progress = static_cast<float>(tm / DayTimer::DAY_LENGTH);
 
-    if (day_progress < DayTimer::DAWN_END) {
+    if (tm < DayTimer::DAWN_END) {
         color = glm::vec3(1.f, .4f, .2f);
         intensity = day_progress * 5.0f;
-    } else if (day_progress > DayTimer::DUSK_START) {
+    } else if (tm > DayTimer::DUSK_START) {
         color = glm::vec3(1.f, .4f, .2f);
         intensity = (1.0f - day_progress) * 5.0f;
     } else { // Full daylight
