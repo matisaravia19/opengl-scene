@@ -3,11 +3,15 @@
 #include "./time.h"
 
 void Controllable::init() {
+    Component::init();
+
     input = Input::getActive();
     transform = getEntity()->getTransform();
 }
 
 void Controllable::update() {
+    Component::update();
+
     rotateCamera();
     movePlayer();
 }

@@ -2,9 +2,16 @@
 
 class Entity;
 
+enum ComponentLifeState {
+    UNINITIALIZED,
+    INITIALIZED,
+    REMOVED
+};
+
 class Component {
 private:
     Entity *entity = nullptr;
+    ComponentLifeState lifeState = UNINITIALIZED;
 
 public:
     virtual ~Component() = default;
@@ -15,6 +22,8 @@ public:
     virtual void init();
     virtual void update();
     virtual void remove();
+
+    ComponentLifeState getLifeState();
 };
 
 class DebugComponent : public Component {

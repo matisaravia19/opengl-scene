@@ -30,6 +30,8 @@ void PhysicsComponent::cleanup() {
 }
 
 void PhysicsComponent::init() {
+    Component::init();
+
     transform = getEntity()->getComponent<Transform>();
     auto mesh = getEntity()->getComponent<MeshRenderer>()->getMesh();
 
@@ -58,6 +60,8 @@ void PhysicsComponent::init() {
 }
 
 void PhysicsComponent::update() {
+    Component::update();
+
     if (!rigidBody) return;
 
     btTransform trans;
@@ -74,6 +78,8 @@ void PhysicsComponent::update() {
 }
 
 void PhysicsComponent::remove() {
+    Component::remove();
+
     if (rigidBody) {
         PhysicsWorld::getInstance()->getDynamicsWorld()->removeRigidBody(rigidBody);
     }

@@ -18,6 +18,8 @@ GuiRenderer::GuiRenderer(Window *window, Input *input, Settings *settings)
 }
 
 void GuiRenderer::init() {
+    Component::init();
+
     Renderer::getActive()->registerRenderable(this);
 }
 
@@ -44,6 +46,8 @@ void GuiRenderer::render() {
 }
 
 void GuiRenderer::update() {
+    Component::update();
+
     static bool debounce = false;
 
     if (input->wasKeyPressed(KeyCode::Escape)) {
@@ -73,5 +77,7 @@ GuiRenderer::~GuiRenderer() {
 }
 
 void GuiRenderer::remove() {
+    Component::remove();
+
     Renderer::getActive()->removeRenderable(this);
 }
