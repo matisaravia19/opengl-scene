@@ -4,6 +4,7 @@
 #include "../rendering/guiRenderer.h"
 #include "../rendering/meshRenderer.h"
 #include "./time.h"
+#include "dayTimer.h"
 #include "physicsComponent.h"
 #include "../rendering/skyLight.h"
 #include "../rendering/skybox.h"
@@ -14,8 +15,7 @@ Scene::Scene() {
     window = new Window(800, 600, "OpenGL scene");
     renderer = new Renderer(window);
     input = new Input(window);
-    settings = new Settings();
-    settings->subscribe(window);
+    Settings::ActiveSettings->subscribe(window);
 }
 
 void Scene::load() {
@@ -26,7 +26,7 @@ void Scene::load() {
 void Scene::initGui() {
     gui = new Entity("gui");
 
-    const auto gui_rend = new GuiRenderer(window, input, settings);
+    const auto gui_rend = new GuiRenderer(window, input);
     gui->addComponent(gui_rend);
 
     spawn(gui);
@@ -35,9 +35,12 @@ void Scene::initGui() {
 void Scene::initSky() {
     auto sky = new Entity("sky");
 
-    const auto skylight = new SkyLight();
-    sky->addComponent(skylight);
-    sky->addComponent(new Skybox());
+    sky->addComponent(new DayTimer());
+    sky->addComponent(new SkyLight());
+
+    std::string vs_path = "../resources/shaders/sky/skybox.vert";
+    std::string fs_path = "../resources/shaders/sky/skybox.frag";
+    sky->addComponent(new Skybox(vs_path, fs_path));
 
     spawn(sky);
 }

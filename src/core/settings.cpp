@@ -1,5 +1,7 @@
 #include "settings.h"
 
+Settings *Settings::ActiveSettings = new Settings();
+
 void Settings::subscribe(SettingsObserver* observer) {
     subscribers.push_back(observer);
 }

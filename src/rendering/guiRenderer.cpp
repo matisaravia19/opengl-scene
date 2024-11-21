@@ -5,8 +5,8 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-GuiRenderer::GuiRenderer(Window *window, Input *input, Settings *settings)
-        : window(window), input(input), settings(settings), visible(false), full_screen(false) {
+GuiRenderer::GuiRenderer(Window *window, Input *input)
+        : window(window), input(input), visible(false), full_screen(false) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -45,6 +45,7 @@ void GuiRenderer::render() {
 
 void GuiRenderer::update() {
     static bool debounce = false;
+    const auto cfg = Settings::ActiveSettings;
 
     if (input->wasKeyPressed(KeyCode::Escape)) {
         if (!debounce) {
@@ -58,9 +59,9 @@ void GuiRenderer::update() {
     }
 
     if (full_screen) {
-        settings->setFullscreen(true);
+        cfg->setFullscreen(true);
     } else {
-        settings->setFullscreen(false);
+        cfg->setFullscreen(false);
     }
 }
 
@@ -68,8 +69,6 @@ GuiRenderer::~GuiRenderer() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
-    delete settings;
 }
 
 void GuiRenderer::remove() {

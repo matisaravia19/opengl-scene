@@ -3,11 +3,13 @@
 #include "../core/component.h"
 #include "renderer.h"
 
+// TODO: Use existing shader class.
 class Skybox : public Component, public Renderable {
     unsigned int VAO, VBO;
     unsigned int dayTexture, nightTexture, sunsetTexture;
     unsigned int shaderProgram;
-    double currentTime;
+    float currentTime;
+    std::string vertexShaderSource, fragmentShaderSource;
 
     struct TimeOfDaySettings {
         glm::vec3 sunPosition;
@@ -18,6 +20,7 @@ class Skybox : public Component, public Renderable {
 
     void setupGeometry();
     void initializeShaders();
+    void readShaderSource(const std::string& vertPath, const std::string& fragPath);
 
     void setMat4(const std::string &name, const glm::mat4 &mat) const {
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()),
@@ -30,7 +33,7 @@ class Skybox : public Component, public Renderable {
         glUniform1f(glGetUniformLocation(shaderProgram, name.c_str()), value);
     }
 public:
-    Skybox();
+    Skybox(const std::string& vertPath, const std::string& fragPath);
     void init() override;
     void update() override;
     TimeOfDaySettings calculateTimeSettings(float timeOfDay);

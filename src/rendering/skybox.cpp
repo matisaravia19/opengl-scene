@@ -1,74 +1,16 @@
 #include "skybox.h"
 
+#include <fstream>
 #include <iostream>
-#include "skyLight.h"
+#include <sstream>
+
+#include "../core/dayTimer.h"
 #include "../core/entity.h"
 #include "stb_image.h"
 
-// TODO: Clean this up.
-// Just wanted to protoype a PoC quickly.
-
-const char* skyboxVertexShader = R"(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-
-    uniform mat4 projection;
-    uniform mat4 view;
-
-    out vec3 texCoords;
-
-    void main() {
-        texCoords = aPos;
-        vec4 pos = projection * mat4(mat3(view)) * vec4(aPos, 1.0);
-        gl_Position = pos.xyww;
-    }
-)";
-
-// Fragment shader with time-based blending
-const char* skyboxFragmentShader = R"(
-    #version 330 core
-    in vec3 texCoords;
-
-    uniform vec3 ambientLight;
-    uniform samplerCube skyboxDay;
-    uniform samplerCube skyboxNight;
-    uniform samplerCube skyboxSunset;
-    uniform float timeOfDay;    // Range 0.0 to 24.0
-    uniform vec3 sunPosition;   // Calculated based on time
-    uniform float starBrightness;
-
-    out vec4 FragColor;
-
-    vec4 getSunGlow(vec3 direction, vec3 sunPos) {
-        float sunDot = max(dot(direction, normalize(sunPos)), 0.0);
-        vec4 sunColor = vec4(1.0, 0.9, 0.7, 1.0);
-        return sunColor * pow(sunDot, 256.0);
-    }
-
-    void main() {
-        // Calculate blend factors based on time of day
-        float dayTime = smoothstep(6.0, 8.0, timeOfDay) - smoothstep(16.0, 18.0, timeOfDay);
-        float nightTime = 1 + smoothstep(18.0, 20.0, timeOfDay) - smoothstep(4.0, 6.0, timeOfDay);
-        float sunsetTime = 1.0 - dayTime - nightTime;
-
-        // Sample from each cubemap
-        vec4 dayColor = texture(skyboxDay, texCoords);
-        vec4 nightColor = texture(skyboxNight, texCoords);
-        vec4 sunsetColor = texture(skyboxSunset, texCoords);
-
-        // Blend between the textures
-        vec4 finalColor = (dayColor * dayTime +
-                           nightColor * nightTime +
-                           sunsetColor * sunsetTime);
-
-        // Add sun glow
-        finalColor += getSunGlow(normalize(texCoords), sunPosition) * (dayTime + sunsetTime * 0.5);
-
-        FragColor = finalColor;
-    }
-)";
-
 void Skybox::setupGeometry() {
+    // This is ugly but better than having to deal with
+    // importing a cube that will always be the same anyway.
     float skyboxVertices[] = {
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
@@ -122,21 +64,23 @@ void Skybox::setupGeometry() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void*>(nullptr));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
 void Skybox::initializeShaders() {
+    const char* vs_source = vertexShaderSource.c_str();
+    const char* fs_source = fragmentShaderSource.c_str();
     // Vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &skyboxVertexShader, NULL);
+    glShaderSource(vertexShader, 1, &vs_source, nullptr);
     glCompileShader(vertexShader);
 
     // Fragment shader
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &skyboxFragmentShader, NULL);
+    glShaderSource(fragmentShader, 1, &fs_source, nullptr);
     glCompileShader(fragmentShader);
 
     // Shader program
@@ -183,21 +127,37 @@ static unsigned int loadCubemap(const std::vector<std::string>& faces) {
     return textureID;
 }
 
-Skybox::Skybox() {
+void Skybox::readShaderSource(const std::string& vertPath, const std::string& fragPath) {
+    std::ifstream vertFile(vertPath);
+    std::ifstream fragFile(fragPath);
+
+    std::stringstream vertStream, fragStream;
+    vertStream << vertFile.rdbuf();
+    fragStream << fragFile.rdbuf();
+
+    vertexShaderSource = vertStream.str();
+    fragmentShaderSource = fragStream.str();
+
+    vertFile.close();
+    fragFile.close();
+}
+
+Skybox::Skybox(const std::string& vertPath, const std::string& fragPath) {
+    readShaderSource(vertPath, fragPath);
     setupGeometry();
     initializeShaders();
 
-    std::vector<std::string> dayFaces = {
+    const std::vector<std::string> dayFaces = {
         "sh_rt.png", "sh_lf.png", "sh_up.png",
         "sh_dn.png", "sh_bk.png", "sh_ft.png"
     };
 
-    std::vector<std::string> nightFaces = {
+    const std::vector<std::string> nightFaces = {
         "n_rt.png", "n_lf.png", "n_up.png",
         "n_dn.png", "n_bk.png", "n_ft.png"
     };
 
-    std::vector<std::string> sunsetFaces = {
+    const std::vector<std::string> sunsetFaces = {
         "d_rt.png", "d_lf.png", "d_up.png",
         "d_dn.png", "d_ft.png", "d_bk.png"
     };
@@ -208,29 +168,29 @@ Skybox::Skybox() {
 }
 
 void Skybox::update() {
-    auto tick = getEntity()->getComponent<SkyLight>()->getTime();
-    currentTime = 24.f * (tick / SkyLight::TICKS_PER_DAY);
-    currentTime = fmod(currentTime, 24.f);
+    currentTime = static_cast<float>(getEntity()->getComponent<DayTimer>()->getCurrentTime());
 }
 
 Skybox::TimeOfDaySettings Skybox::calculateTimeSettings(const float timeOfDay) {
     TimeOfDaySettings settings{};
 
-    // Calculate sun position based on time (simplified model)
-    const float sunAngle = (timeOfDay - 12.0f) * ((22.f / 7.f) / 12.0f);
-    settings.sunPosition = glm::vec3(
-        cos(sunAngle),
-        -sin(sunAngle),
+    const double offset_time = timeOfDay - DayTimer::DAWN_START;
+    constexpr double sun_in_sky = DayTimer::DUSK_END - DayTimer::DAWN_START;
+    const float sun_angle = static_cast<float>(offset_time / sun_in_sky) * glm::pi<float>();
+
+    settings.sunPosition = -glm::vec3(
+        cos(sun_angle),
+        -sin(sun_angle),
         0.2f
     );
 
-    settings.starBrightness = glm::smoothstep(18.0f, 20.0f, timeOfDay) -
-        glm::smoothstep(4.0f, 6.0f, timeOfDay);
+    settings.starBrightness = glm::smoothstep((float)DayTimer::DUSK_START, (float)DayTimer::DUSK_END, timeOfDay) -
+        glm::smoothstep((float)DayTimer::DAWN_START, (float)DayTimer::DAWN_END, timeOfDay);
 
-    const float daylight = glm::smoothstep(6.0f, 8.0f, timeOfDay) -
-        glm::smoothstep(16.0f, 18.0f, timeOfDay);
-    settings.ambientLight = glm::vec3(0.6f) * daylight +  // Reduce from 0.8f
-                           glm::vec3(0.2f) * (1.0f - daylight);  // Increase from 0.1f
+    const float daylight = glm::smoothstep((float)DayTimer::DAWN_START, (float)DayTimer::DAWN_END, timeOfDay) -
+        glm::smoothstep((float)DayTimer::DUSK_START, (float)DayTimer::DUSK_END, timeOfDay);
+    settings.ambientLight = glm::vec3(0.6f) * daylight +
+                           glm::vec3(0.2f) * (1.0f - daylight);
 
     settings.fogDensity = 0.1f + 0.2f * (1.0f - daylight);
 
@@ -242,11 +202,9 @@ void Skybox::render() {
     glUseProgram(shaderProgram);
 
     // Calculate time-based settings
-    TimeOfDaySettings settings = calculateTimeSettings(static_cast<float>(currentTime));
+    TimeOfDaySettings settings = calculateTimeSettings(currentTime);
 
     auto camera = Renderer::getActive()->getCamera();
-    std::cout << "time of day " << currentTime << '\n';
-    std::cout << "starbrightness " << settings.starBrightness << '\n';
 
     // Set uniforms
     setMat4("projection", camera->getProjection());

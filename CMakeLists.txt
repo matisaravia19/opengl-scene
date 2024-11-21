@@ -12,7 +12,6 @@ set(imgui_dir ${PROJECT_SOURCE_DIR}/lib/imgui)
 set(stb_dir ${PROJECT_SOURCE_DIR}/lib/stb)
 set(shadinclude_dir ${PROJECT_SOURCE_DIR}/lib/shadinclude)
 
-
 set(glad_sources
         ${glad_dir}/src/gl.c
 )
@@ -56,6 +55,7 @@ set(sources
         src/rendering/skyLight.cpp
         src/rendering/skybox.cpp
         src/data/stb_impl.cpp
+        src/core/dayTimer.cpp
 )
 
 add_executable(opengl_scene ${sources})

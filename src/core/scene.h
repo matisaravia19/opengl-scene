@@ -14,7 +14,6 @@ private:
     Renderer *renderer;
     Input *input;
     Entity *gui;
-    Settings *settings;
     PhysicsWorld *physicsWorld;
     btDiscreteDynamicsWorld *dynamicsWorld;
 
