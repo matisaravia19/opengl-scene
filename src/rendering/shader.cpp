@@ -23,7 +23,7 @@ static unsigned int loadShader(const std::filesystem::path &path, unsigned int t
     if (!success) {
         char infoLog[512];
         glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-        LOG_ERROR("Failed to compile shader: %s", infoLog);
+        LOG_ERROR("Failed to compile shader %ls: %s", path.c_str(), infoLog);
     }
 
     return shader;
@@ -48,6 +48,12 @@ static unsigned int createProgram(unsigned int vertexShader, unsigned int fragme
 
 Shader *Shader::PBR = new Shader("shaders/standard.vert", "shaders/pbr.frag");
 
+Shader *Shader::DEFERRED_POINT_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/point.frag");
+Shader *Shader::DEFERRED_DIRECTIONAL_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/directional.frag");
+Shader *Shader::DEFERRED_SPOT_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/spot.frag");
+
+Shader *Shader::HDR = new Shader("shaders/shared/screen.vert", "shaders/postprocessing/hdr.frag");
+
 Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
     this->vertexPath = RESOURCES_PATH / vertexPath;
     this->fragmentPath = RESOURCES_PATH / fragmentPath;
@@ -63,6 +69,16 @@ void Shader::bind() const {
 
 void Shader::unbind() const {
     glUseProgram(0);
+}
+
+void Shader::setUniform(const std::string &name, float value) const {
+    auto location = glGetUniformLocation(program, name.c_str());
+    glUniform1f(location, value);
+}
+
+void Shader::setUniform(const std::string &name, glm::vec2 value) const {
+    auto location = glGetUniformLocation(program, name.c_str());
+    glUniform2fv(location, 1, &value[0]);
 }
 
 void Shader::setUniform(const std::string &name, glm::vec3 value) const {
@@ -91,4 +107,12 @@ void Shader::upload() {
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+}
+
+ShaderType Shader::getType() const {
+    return type;
+}
+
+void Shader::setType(ShaderType type) {
+    this->type = type;
 }

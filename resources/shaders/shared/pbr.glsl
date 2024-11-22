@@ -1,13 +1,4 @@
 #include "util.glsl"
-#include "uniforms.glsl"
-
-float saturate(float x) {
-    return clamp(x, 0.0, 1.0);
-}
-
-float positiveDot(vec3 a, vec3 b) {
-    return max(dot(a, b), 0.0);
-}
 
 vec3 fresnelSchlick(vec3 halfwayDir, vec3 viewDir, vec3 albedo, float metallic) {
     vec3 f0 = mix(vec3(0.04), albedo, metallic);
@@ -47,7 +38,7 @@ float geometrySmith(vec3 normal, vec3 viewDir, vec3 lightDir, float roughness) {
     return ggx1 * ggx2;
 }
 
-vec3 pbrSingleLight(
+vec3 pbr(
     vec3 worldPosition,
     vec3 albedo,
     vec3 normal,
@@ -75,28 +66,47 @@ vec3 pbrSingleLight(
     return (diffuse + specular) * radiance * positiveDot(normal, lightDir);
 }
 
-vec3 pbr(
-    vec3 worldPosition,
-    vec3 albedo,
-    vec3 normal,
-    float metallic,
-    float roughness
-) {
-    vec3 fragToLight = pointLightPos - worldPosition;
-    vec3 fragToCamera = cameraPosition - worldPosition;
-
-    vec3 lightDir = normalize(fragToLight);
-    vec3 viewDir = normalize(fragToCamera);
-
-    float distanceToLight = length(fragToLight);
-    float attenuation = 1.0 / (distanceToLight * distanceToLight);
-    vec3 radiance = pointLightColor * attenuation;
-
-    vec3 color = pbrSingleLight(worldPosition, albedo, normal, metallic, roughness, lightDir, viewDir, radiance);
-    color += pbrSingleLight(worldPosition, albedo, normal, metallic, roughness, -normalize(dirLightDir), viewDir, dirLightColor);
-
-    color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0 / 2.2));
-
-    return color;
-}
+//vec3 pbrOld(
+//    vec3 worldPosition,
+//    vec3 albedo,
+//    vec3 normal,
+//    float metallic,
+//    float roughness
+//) {
+//    vec3 fragToCamera = cameraPosition - worldPosition;
+//    vec3 viewDir = normalize(fragToCamera);
+//
+//    vec3 color = vec3(0.0);
+//
+//    for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+//        if (pointLights[i].intensity == 0.0) {
+//            break;
+//        }
+//
+//        vec3 fragToLight = pointLights[i].position - worldPosition;
+//        vec3 lightDir = normalize(fragToLight);
+//
+//        float distanceToLight = length(fragToLight);
+//        float attenuation = 1.0 / (distanceToLight * distanceToLight);
+//        vec3 radiance = pointLights[i].color * pointLights[i].intensity * attenuation;
+//
+//        color += pbrSingleLight(worldPosition, albedo, normal, metallic, roughness, lightDir, viewDir, radiance);
+//    }
+//
+//    for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
+//        if (directionalLights[i].intensity == 0.0) {
+//            break;
+//        }
+//
+//        vec3 lightDir = -normalize(directionalLights[i].direction);
+//
+//        vec3 radiance = directionalLights[i].color * directionalLights[i].intensity;
+//
+//        color += pbrSingleLight(worldPosition, albedo, normal, metallic, roughness, lightDir, viewDir, radiance);
+//    }
+//
+//    color = color / (color + vec3(1.0));
+//    color = pow(color, vec3(1.0 / 2.2));
+//
+//    return color;
+//}

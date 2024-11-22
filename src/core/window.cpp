@@ -52,10 +52,6 @@ GLFWwindow *Window::getWindow() const {
     return window;
 }
 
-void Window::onResize(void (*callback)(GLFWwindow *, int, int)) {
-    glfwSetWindowSizeCallback(window, callback);
-}
-
 Window *Window::getActive() {
     return Scene::getActive()->getWindow();
 }
@@ -69,7 +65,7 @@ auto get_resolution() {
     return std::make_pair(mode->width, mode->height);
 }
 
-void Window::notify(Settings* settings) {
+void Window::notify(Settings *settings) {
     if (settings->getSettingsData().full_screen) {
         auto [width, height] = get_resolution();
         glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, width, height, GLFW_DONT_CARE);
@@ -82,9 +78,18 @@ void Window::resizeCallback(GLFWwindow *glfWwindow, int width, int height) {
     auto window = windows[glfWwindow];
     window->width = width;
     window->height = height;
-    glViewport(0, 0, width, height);
+
+    Renderer::getActive()->onWindowResize(width, height);
 }
 
 float Window::getAspectRatio() const {
     return (float) width / height;
+}
+
+int Window::getWidth() const {
+    return width;
+}
+
+int Window::getHeight() const {
+    return height;
 }

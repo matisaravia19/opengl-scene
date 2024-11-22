@@ -26,12 +26,13 @@ public:
 
     void pollEvents();
     void swapBuffers();
-    void onResize(void (*callback)(GLFWwindow *, int, int));
 
     static Window *getActive();
     GLFWwindow *getWindow() const;
     glm::vec2 getSize() const;
+    int getWidth() const;
+    int getHeight() const;
     float getAspectRatio() const;
 
-    void notify(Settings* settings) override;
+    void notify(Settings *settings) override;
 };

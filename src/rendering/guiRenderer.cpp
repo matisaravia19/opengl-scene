@@ -20,7 +20,7 @@ GuiRenderer::GuiRenderer(Window *window, Input *input, Settings *settings)
 void GuiRenderer::init() {
     Component::init();
 
-    Renderer::getActive()->registerRenderable(this);
+    Renderer::getActive()->registerRenderable(this, RenderPass::GUI);
 }
 
 void GuiRenderer::showSettingsWindow() {
@@ -79,5 +79,5 @@ GuiRenderer::~GuiRenderer() {
 void GuiRenderer::remove() {
     Component::remove();
 
-    Renderer::getActive()->removeRenderable(this);
+    Renderer::getActive()->removeRenderable(this, RenderPass::GUI);
 }

@@ -12,6 +12,7 @@ private:
     std::shared_ptr<Mesh> mesh;
     std::shared_ptr<Material> material;
     Transform *transform;
+    RenderPass renderPass;
 
     void setUniforms();
 
