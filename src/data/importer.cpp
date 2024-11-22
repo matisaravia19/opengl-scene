@@ -307,10 +307,12 @@ void Importer::loadCameras() {
 #pragma region nodes
 
 void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
-    if (node->mNumMeshes == 0) return; // TODO: habria que traer info sobre que usa fisicas y que no desde el .glb
-
-    //auto *physicsComponent = new PhysicsComponent(10, true);
-    //entity->addComponent(physicsComponent);
+    if (node->mMetaData && node->mMetaData->HasKey("weight")) {
+        double weight;
+        node->mMetaData->Get("weight", weight);
+        auto *physicsComponent = new PhysicsComponent(weight, weight != 0);
+        entity->addComponent(physicsComponent);
+    }
 }
 
 Entity *Importer::getEntity(const std::string &name) {

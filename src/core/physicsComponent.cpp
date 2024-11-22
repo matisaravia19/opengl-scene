@@ -40,7 +40,7 @@ void PhysicsComponent::init() {
     glm::vec3 rotation = transform->getEulerAngles();
 
     glm::vec3 boundingBox = mesh->getBoundingBox();
-    collisionShape = new btBoxShape(btVector3(boundingBox.x, boundingBox.y, boundingBox.z));
+    collisionShape = new btBoxShape(btVector3(boundingBox.x * scale.x, boundingBox.y * scale.y, boundingBox.z * scale.z));
 
     btVector3 localInertia(0.0f, 0.0f, 0.0f);
     if (isDynamic && mass != 0.0f) {
@@ -55,6 +55,7 @@ void PhysicsComponent::init() {
 
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, motionState, collisionShape, localInertia);
     rigidBody = new btRigidBody(rbInfo);
+    rigidBody->setUserPointer(getEntity());
 
     PhysicsWorld::getInstance()->getDynamicsWorld()->addRigidBody(rigidBody);
 }

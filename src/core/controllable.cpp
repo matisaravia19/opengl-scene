@@ -2,6 +2,8 @@
 
 #include "./time.h"
 #include "constants.h"
+#include "physicsWorld.h"
+#include "physicsComponent.h"
 
 void Controllable::init() {
     Component::init();
@@ -15,6 +17,7 @@ void Controllable::update() {
 
     rotateCamera();
     movePlayer();
+    interact();
 }
 
 void Controllable::rotateCamera() {
@@ -48,5 +51,34 @@ void Controllable::movePlayer() {
         transform->translate(transform->getUp() * (float) bob);
     } else {
         cameraTime = 0;
+    }
+}
+
+void Controllable::interact() {
+    if (input->isKeyDown(KeyCode::E) && !isInteractPressed) {
+        auto position = transform->getPosition();
+        auto forward = transform->getForward();
+
+        btVector3 from(position.x, position.y, position.z);
+        btVector3 to(position.x + forward.x * (float)interactDistance, position.y + forward.y * (float)interactDistance, position.z + forward.z * (float)interactDistance);
+
+        auto rayCallback = btCollisionWorld::ClosestRayResultCallback(from, to);
+        PhysicsWorld::getInstance()->getDynamicsWorld()->rayTest(from, to, rayCallback);
+
+        if (rayCallback.hasHit()) {
+            auto entity = static_cast<Entity *>(rayCallback.m_collisionObject->getUserPointer());
+            if (entity) {
+                auto physicsComponent = entity->getComponent<PhysicsComponent>();
+                auto impulse = glm::normalize(glm::vec3(forward.x, 0, forward.z)) + glm::vec3(0, 1, 0);
+                physicsComponent->setLinearVelocity(impulse * 20.0f);
+//                physicsComponent->applyForce(impulse * 20.0f);
+            }
+        } else {
+            printf("Nothing to interact with\n");
+        }
+
+        isInteractPressed = true;
+    } else if (!input->isKeyDown(KeyCode::E) && isInteractPressed) {
+        isInteractPressed = false;
     }
 }
