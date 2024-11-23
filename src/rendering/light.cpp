@@ -5,7 +5,6 @@ Light::Light(glm::vec3 color, float intensity) {
     this->intensity = intensity;
 }
 
-
 void Light::setColor(const glm::vec3 color) {
     this->color = color;
 }
@@ -31,9 +30,7 @@ glm::vec3 DirectionalLight::getDirection() const {
     return direction;
 }
 
-PointLight::PointLight(glm::vec3 color, float intensity) : Light(color, intensity) {
-
-}
+PointLight::PointLight(glm::vec3 color, float intensity) : Light(color, intensity) {}
 
 SpotLight::SpotLight(glm::vec3 color, float intensity, glm::vec3 direction, float cutoff, float outerCutoff) :
         Light(color, intensity) {

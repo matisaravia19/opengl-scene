@@ -70,30 +70,6 @@ void Skybox::setupGeometry() {
     glBindVertexArray(0);
 }
 
-void Skybox::initializeShaders() {
-    const char* vs_source = vertexShaderSource.c_str();
-    const char* fs_source = fragmentShaderSource.c_str();
-    // Vertex shader
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vs_source, nullptr);
-    glCompileShader(vertexShader);
-
-    // Fragment shader
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fs_source, nullptr);
-    glCompileShader(fragmentShader);
-
-    // Shader program
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    // Clean up individual shaders
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-}
-
 static unsigned int loadCubemap(const std::vector<std::string>& faces) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
@@ -127,25 +103,11 @@ static unsigned int loadCubemap(const std::vector<std::string>& faces) {
     return textureID;
 }
 
-void Skybox::readShaderSource(const std::string& vertPath, const std::string& fragPath) {
-    std::ifstream vertFile(vertPath);
-    std::ifstream fragFile(fragPath);
-
-    std::stringstream vertStream, fragStream;
-    vertStream << vertFile.rdbuf();
-    fragStream << fragFile.rdbuf();
-
-    vertexShaderSource = vertStream.str();
-    fragmentShaderSource = fragStream.str();
-
-    vertFile.close();
-    fragFile.close();
-}
-
 Skybox::Skybox(const std::string& vertPath, const std::string& fragPath) {
-    readShaderSource(vertPath, fragPath);
+    skyboxShader = new Shader(vertPath, fragPath);
+    skyboxShader->upload();
+
     setupGeometry();
-    initializeShaders();
 
     const std::vector<std::string> dayFaces = {
         "sh_rt.png", "sh_lf.png", "sh_up.png",
@@ -165,6 +127,10 @@ Skybox::Skybox(const std::string& vertPath, const std::string& fragPath) {
     dayTexture = loadCubemap(dayFaces);
     nightTexture = loadCubemap(nightFaces);
     sunsetTexture = loadCubemap(sunsetFaces);
+}
+
+Skybox::~Skybox() {
+    delete skyboxShader;
 }
 
 void Skybox::update() {
@@ -199,7 +165,7 @@ Skybox::TimeOfDaySettings Skybox::calculateTimeSettings(const float timeOfDay) {
 
 void Skybox::render() {
     glDepthFunc(GL_LEQUAL);
-    glUseProgram(shaderProgram);
+    skyboxShader->bind();
 
     // Calculate time-based settings
     TimeOfDaySettings settings = calculateTimeSettings(currentTime);
@@ -207,12 +173,12 @@ void Skybox::render() {
     auto camera = Renderer::getActive()->getCamera();
 
     // Set uniforms
-    setMat4("projection", camera->getProjection());
-    setMat4("view", glm::mat4(glm::mat3(camera->getView())));
-    setFloat("timeOfDay", static_cast<float>(currentTime));
-    setVec3("sunPosition", settings.sunPosition);
-    setFloat("starBrightness", settings.starBrightness);
-    setVec3("ambientLight", settings.ambientLight);
+    skyboxShader->setUniform("projection", camera->getProjection());
+    skyboxShader->setUniform("view", glm::mat4(glm::mat3(camera->getView())));
+    skyboxShader->setUniform("timeOfDay", currentTime);
+    skyboxShader->setUniform("sunPosition", settings.sunPosition);
+    skyboxShader->setUniform("starBrightness", settings.starBrightness);
+    skyboxShader->setUniform("ambientLight", settings.ambientLight);
 
     // Bind textures
     glActiveTexture(GL_TEXTURE0);
@@ -222,14 +188,15 @@ void Skybox::render() {
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_CUBE_MAP, sunsetTexture);
 
-    glUniform1i(glGetUniformLocation(shaderProgram, "skyboxDay"), 0);
-    glUniform1i(glGetUniformLocation(shaderProgram, "skyboxNight"), 1);
-    glUniform1i(glGetUniformLocation(shaderProgram, "skyboxSunset"), 2);
+    skyboxShader->setUniform("skyboxDay", 0);
+    skyboxShader->setUniform("skyboxNight", 1);
+    skyboxShader->setUniform("skyboxSunset", 2);
 
     // Render skybox cube
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
+    skyboxShader->unbind();
     glDepthFunc(GL_LESS);
 }
 
