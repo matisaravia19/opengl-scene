@@ -6,8 +6,6 @@
 #include "camera.h"
 #include "light.h"
 
-class Renderer;
-
 enum class RenderPass {
     DEFERRED = 0,
     FORWARD = 1,

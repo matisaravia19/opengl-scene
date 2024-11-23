@@ -165,6 +165,7 @@ Skybox::TimeOfDaySettings Skybox::calculateTimeSettings(const float timeOfDay) {
 
 void Skybox::render() {
     glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
     skyboxShader->bind();
 
     // Calculate time-based settings
@@ -197,9 +198,11 @@ void Skybox::render() {
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     skyboxShader->unbind();
+    glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
 }
 
 void Skybox::init() {
-    Renderer::getActive()->registerRenderable(this);
+    skyboxShader->setType(ShaderType::FORWARD);
+    Renderer::getActive()->registerRenderable(this, RenderPass::FORWARD);
 }

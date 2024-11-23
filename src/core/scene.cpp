@@ -35,6 +35,7 @@ void Scene::initGui() {
 void Scene::initSky() {
     auto sky = new Entity("sky");
 
+    sky->addComponent(new Transform());
     sky->addComponent(new DayTimer());
     sky->addComponent(new SkyLight());
 

@@ -24,14 +24,13 @@ void Light::remove() {
     Renderer::getActive()->removeLight(this);
 }
 
-DirectionalLight::DirectionalLight(glm::vec3 color) : Light(color) {
+DirectionalLight::DirectionalLight(const glm::vec3 color)
+    : Light(color)
+{}
 
-}
 void DirectionalLight::setDirection(const glm::vec3 direction) {
-    this->direction = direction;
-}
-glm::vec3 DirectionalLight::getDirection() const {
-    return direction;
+    const auto quat = glm::quatLookAt(glm::normalize(direction), glm::vec3(0.f, 1.f, 0.f));
+    getEntity()->getTransform()->setRotation(quat);
 }
 
 void DirectionalLight::renderDeferred() {

@@ -26,7 +26,6 @@ class DirectionalLight : public Light {
 public:
     explicit DirectionalLight(glm::vec3 color);
     void setDirection(glm::vec3);
-    [[nodiscard]] glm::vec3 getDirection() const;
 
     void init() override;
 
