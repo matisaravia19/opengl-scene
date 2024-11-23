@@ -14,13 +14,13 @@ private:
     Renderer *renderer;
     Input *input;
     Entity *gui;
-    Settings *settings;
     PhysicsWorld *physicsWorld;
     btDiscreteDynamicsWorld *dynamicsWorld;
 
     static Scene *active;
 
     void initGui();
+    void initSky();
 
 public:
     Scene();

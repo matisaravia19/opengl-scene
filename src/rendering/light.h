@@ -17,11 +17,16 @@ public:
     void remove() override;
 
     virtual void renderDeferred() = 0;
+
+    void setColor(glm::vec3);
+    [[nodiscard]] glm::vec3 getColor() const;
 };
 
 class DirectionalLight : public Light {
 public:
-    DirectionalLight(glm::vec3 color);
+    explicit DirectionalLight(glm::vec3 color);
+    void setDirection(glm::vec3);
+    [[nodiscard]] glm::vec3 getDirection() const;
 
     void init() override;
 

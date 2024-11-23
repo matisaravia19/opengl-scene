@@ -1,6 +1,5 @@
 #include "core/scene.h"
 
-
 int main() {
     Scene scene;
     scene.load();

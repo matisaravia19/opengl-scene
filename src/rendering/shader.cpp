@@ -96,6 +96,16 @@ void Shader::setUniform(const std::string &name, glm::mat4 value) const {
     glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
 }
 
+void Shader::setUniform(const std::string &name, float value) const {
+    auto location = glGetUniformLocation(program, name.c_str());
+    glUniform1f(location, value);
+}
+
+void Shader::setUniform(const std::string &name, const int value) const {
+    auto location = glGetUniformLocation(program, name.c_str());
+    glUniform1i(location, value);
+}
+
 void Shader::upload() {
     if (program) {
         return;

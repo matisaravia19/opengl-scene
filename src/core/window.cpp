@@ -70,7 +70,7 @@ void Window::notify(Settings *settings) {
         auto [width, height] = get_resolution();
         glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, width, height, GLFW_DONT_CARE);
     } else {
-        glfwSetWindowMonitor(window, nullptr, 0, 0, width, height, GLFW_DONT_CARE);
+        glfwSetWindowMonitor(window, nullptr, 0, 50, width, height, GLFW_DONT_CARE);
     }
 }
 

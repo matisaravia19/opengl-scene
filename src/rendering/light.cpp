@@ -7,6 +7,12 @@
 Light::Light(glm::vec3 color) {
     this->color = color;
 }
+void Light::setColor(const glm::vec3 color) {
+    this->color = color;
+}
+glm::vec3 Light::getColor() const {
+    return color;
+}
 
 void Light::init() {
     Component::init();
@@ -20,6 +26,12 @@ void Light::remove() {
 
 DirectionalLight::DirectionalLight(glm::vec3 color) : Light(color) {
 
+}
+void DirectionalLight::setDirection(const glm::vec3 direction) {
+    this->direction = direction;
+}
+glm::vec3 DirectionalLight::getDirection() const {
+    return direction;
 }
 
 void DirectionalLight::renderDeferred() {
