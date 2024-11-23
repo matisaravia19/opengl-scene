@@ -55,6 +55,7 @@ private:
 
     void renderGBuffer();
     void renderLighting();
+    void renderForward();
     void renderPostProcessing();
 public:
     explicit Renderer(Window *window);

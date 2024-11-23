@@ -21,11 +21,8 @@ void Renderer::init() {
 void Renderer::render() {
     renderGBuffer();
     renderLighting();
+    renderForward();
     renderPostProcessing();
-
-    for (Renderable *renderable: forwardRenderables) {
-        renderable->render();
-    }
 
     glDisable(GL_DEPTH_TEST);
 
@@ -86,6 +83,16 @@ void Renderer::renderLighting() {
 
     for (Light *light: lights) {
         light->renderDeferred();
+    }
+}
+
+void Renderer::renderForward() {
+    glBindFramebuffer(GL_FRAMEBUFFER, ppBuffer);
+
+    glEnable(GL_DEPTH_TEST);
+
+    for (Renderable *renderable: forwardRenderables) {
+        renderable->render();
     }
 }
 
@@ -235,7 +242,8 @@ void Renderer::initGBuffer(int width, int height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gMetallicRoughness, 0);
 
-    unsigned int attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+    unsigned int attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
+                                   GL_COLOR_ATTACHMENT3};
     glDrawBuffers(4, attachments);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBuffer, 0);
@@ -279,6 +287,8 @@ void Renderer::initPPBuffer(int width, int height) {
 
     unsigned int attachments[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, attachments);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBuffer, 0);
 }
 
 void Renderer::resizePPBuffer(int width, int height) {
