@@ -9,6 +9,7 @@
 #include "../core/controllable.h"
 #include "../core/physicsComponent.h"
 #include "../rendering/lod.h"
+#include "../debug/gizmoRenderer.h"
 
 #pragma region conversions
 
@@ -26,6 +27,16 @@ static inline glm::vec3 toVec3(const aiColor3D &aiColor) {
 
 static inline glm::quat toQuat(aiQuaternion aiQuat) {
     return glm::quat(aiQuat.w, aiQuat.x, aiQuat.y, aiQuat.z);
+}
+
+static inline glm::mat4 toMat4(aiMatrix4x4 aiMatrix) {
+    glm::mat4 result;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            result[j][i] = aiMatrix[i][j];
+        }
+    }
+    return result;
 }
 
 static inline Transform *toTransform(aiMatrix4x4 aiMatrix) {
@@ -51,12 +62,31 @@ static Vertex readVertex(aiMesh *mesh, int index) {
     return vertex;
 }
 
+static Bone readBone(aiBone *bone) {
+    Bone result;
+    result.name = bone->mName.C_Str();
+    result.offsetMatrix = toMat4(bone->mOffsetMatrix);
+    return result;
+}
+
 static Mesh *readMesh(aiMesh *mesh) {
     auto result = new Mesh(mesh->mName.C_Str(), mesh->mNumVertices, mesh->mNumFaces * 3);
 
     for (int i = 0; i < mesh->mNumVertices; i++) {
         Vertex vertex = readVertex(mesh, i);
         result->vertices.push_back(vertex);
+    }
+
+    for (int i = 0; i < mesh->mNumBones; i++) {
+        auto bone = readBone(mesh->mBones[i]);
+        result->bones.push_back(bone);
+
+        for (int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+            auto weight = mesh->mBones[i]->mWeights[j];
+            auto vertexId = weight.mVertexId;
+            auto vertex = &result->vertices[vertexId];
+            vertex->addBoneData(i, weight.mWeight);
+        }
     }
 
     for (int i = 0; i < mesh->mNumFaces; i++) {
@@ -132,6 +162,17 @@ void Importer::addMeshComponents(Entity *entity, aiNode *node) {
 
     if (node->mMetaData->HasKey("lod0")) {
         addLOD(entity, node);
+    }
+}
+
+void Importer::loadMeshComponents() {
+    for (auto node: nodes) {
+        if (node->mNumMeshes == 0) {
+            continue;
+        }
+
+        auto entity = getEntity(node);
+        addMeshComponents(entity, node);
     }
 }
 
@@ -299,6 +340,7 @@ void Importer::loadCameras() {
                 camera->mClipPlaneFar
         ));
         entity->addComponent(new Controllable());
+        entity->removeComponent<GizmoRenderer>();
     }
 }
 
@@ -311,6 +353,14 @@ void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
 
     //auto *physicsComponent = new PhysicsComponent(10, true);
     //entity->addComponent(physicsComponent);
+}
+
+Entity *Importer::getEntity(aiNode *node) {
+    if (nodeEntityMap.contains(node)) {
+        return nodeEntityMap[node];
+    } else {
+        return nullptr;
+    }
 }
 
 Entity *Importer::getEntity(const std::string &name) {
@@ -327,16 +377,16 @@ void Importer::loadNodes(aiNode *node, Transform *parent) {
     auto entity = new Entity(node->mName.C_Str());
     entities.push_back(entity);
 
+    nodes.push_back(node);
+    nodeEntityMap[node] = entity;
+
     auto transform = toTransform(node->mTransformation);
     entity->addComponent(transform);
 
+    entity->addComponent(new GizmoRenderer(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+
     if (parent) {
         parent->addChild(transform);
-    }
-
-    if (node->mNumMeshes > 0) {
-        addMeshComponents(entity, node);
-        addPhysicsComponents(node, entity);
     }
 
     for (int i = 0; i < node->mNumChildren; i++) {
@@ -352,11 +402,12 @@ Importer::Importer(std::string path) {
 }
 
 void Importer::load() {
-    scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_FlipUVs);
+    scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_PopulateArmatureData);
 
     loadMaterials();
     loadMeshes();
     loadNodes(scene->mRootNode);
+    loadMeshComponents();
     loadCameras();
     loadLights();
 }

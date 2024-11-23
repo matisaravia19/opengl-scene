@@ -27,17 +27,13 @@ void Renderer::render() {
         renderable->render();
     }
 
+    renderGizmos();
+
     glDisable(GL_DEPTH_TEST);
 
     for (Renderable *renderable: guiRenderables) {
         renderable->render();
     }
-
-//    glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
-//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-//
-//    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gPosition, 0);
-//    glBlitFramebuffer(0, 0, window->getWidth(), window->getHeight(), 0, 0, window->getWidth(), window->getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     window->swapBuffers();
 }
@@ -89,6 +85,19 @@ void Renderer::renderLighting() {
     }
 }
 
+void Renderer::renderGizmos() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glDisable(GL_DEPTH_TEST);
+
+    for (Renderable *renderable: gizmoRenderables) {
+        renderable->render();
+    }
+}
+
 void Renderer::renderPostProcessing() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -104,9 +113,7 @@ void Renderer::renderPostProcessing() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ppColor);
 
-    glBindVertexArray(frameQuad.vao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-    glBindVertexArray(0);
+    drawFrameQuad();
 }
 
 void Renderer::registerRenderable(Renderable *renderable, RenderPass renderPass) {
@@ -116,6 +123,9 @@ void Renderer::registerRenderable(Renderable *renderable, RenderPass renderPass)
             break;
         case RenderPass::FORWARD:
             forwardRenderables.insert(renderable);
+            break;
+        case RenderPass::GIZMO:
+            gizmoRenderables.insert(renderable);
             break;
         case RenderPass::GUI:
             guiRenderables.insert(renderable);
@@ -130,6 +140,9 @@ void Renderer::removeRenderable(Renderable *renderable, RenderPass renderPass) {
             break;
         case RenderPass::FORWARD:
             forwardRenderables.erase(renderable);
+            break;
+        case RenderPass::GIZMO:
+            gizmoRenderables.erase(renderable);
             break;
         case RenderPass::GUI:
             guiRenderables.erase(renderable);
@@ -259,6 +272,9 @@ void Renderer::initZBuffer(int width, int height) {
     glGenTextures(1, &zBuffer);
     glBindTexture(GL_TEXTURE_2D, zBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBuffer, 0);
 }
 
 void Renderer::resizeZBuffer(int width, int height) {

@@ -22,6 +22,13 @@ void MeshRenderer::setUniforms() {
     shader->setUniform("viewMatrix", camera->getView());
     shader->setUniform("projectionMatrix", camera->getProjection());
     shader->setUniform("cameraPosition", camera->getEntity()->getTransform()->getPosition());
+
+    glm::mat4 bones[MAX_BONES];
+    for (int i = 0; i < mesh->bones.size(); i++) {
+        bones[i] = mesh->bones[i].offsetMatrix;
+    }
+
+    shader->setUniform("bones", bones, mesh->bones.size());
 }
 
 void MeshRenderer::render() {

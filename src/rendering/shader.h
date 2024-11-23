@@ -31,12 +31,17 @@ public:
     void setUniform(const std::string &name, float value) const;
     void setUniform(const std::string &name, glm::vec2 value) const;
     void setUniform(const std::string &name, glm::vec3 value) const;
+    void setUniform(const std::string &name, glm::vec4 value) const;
     void setUniform(const std::string &name, glm::mat3 value) const;
     void setUniform(const std::string &name, glm::mat4 value) const;
+    void setUniform(const std::string &name, glm::mat4 *values, int count) const;
 
     static Shader *PBR;
+    static Shader *GIZMO;
+
     static Shader *DEFERRED_POINT_LIGHT;
     static Shader *DEFERRED_DIRECTIONAL_LIGHT;
     static Shader *DEFERRED_SPOT_LIGHT;
+
     static Shader *HDR;
 };

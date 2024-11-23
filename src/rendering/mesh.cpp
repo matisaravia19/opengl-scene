@@ -2,6 +2,28 @@
 
 #include "glad/gl.h"
 
+Vertex::Vertex() {
+    position = glm::vec3(0);
+    normal = glm::vec3(0);
+    tangent = glm::vec3(0);
+    bitangent = glm::vec3(0);
+    texCoords = glm::vec2(0);
+    for (int i = 0; i < MAX_BONES_PER_VERTEX; i++) {
+        boneIds[i] = -1;
+        weights[i] = 0.0f;
+    }
+}
+
+void Vertex::addBoneData(int boneId, float weight) {
+    for (int i = 0; i < MAX_BONES_PER_VERTEX; i++) {
+        if (boneIds[i] == -1) {
+            boneIds[i] = boneId;
+            weights[i] = weight;
+            return;
+        }
+    }
+}
+
 Mesh::Mesh(std::string name, unsigned int numVertices, unsigned int numIndices) {
     this->name = std::move(name);
     vertices.reserve(numVertices);
@@ -34,6 +56,12 @@ void Mesh::upload() {
 
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, texCoords));
+
+    glEnableVertexAttribArray(5);
+    glVertexAttribIPointer(5, MAX_BONES_PER_VERTEX, GL_INT, sizeof(Vertex), (void *) offsetof(Vertex, boneIds));
+
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, MAX_BONES_PER_VERTEX, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, weights));
 
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);

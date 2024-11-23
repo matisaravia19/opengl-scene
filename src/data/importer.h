@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <map>
 #include "assimp/Importer.hpp"
 #include "assimp/scene.h"
 #include "../core/entity.h"
@@ -19,6 +20,10 @@ private:
     std::vector<std::shared_ptr<Mesh>> meshes;
     std::vector<Entity *> entities;
 
+    std::vector<aiNode *> nodes;
+    std::map<aiNode *, Entity *> nodeEntityMap;
+
+    Entity *getEntity(aiNode *node);
     Entity *getEntity(const std::string &name);
     Entity *getEntity(const aiCamera *camera);
     Entity *getEntity(const aiLight *light);
@@ -33,6 +38,7 @@ private:
     void loadMaterials();
     void loadMeshes();
     void loadNodes(aiNode *node, Transform *parent = nullptr);
+    void loadMeshComponents();
     void loadCameras();
     void loadLights();
 

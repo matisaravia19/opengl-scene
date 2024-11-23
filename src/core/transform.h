@@ -31,11 +31,15 @@ public:
     glm::vec3 getScale() const;
     void setScale(const glm::vec3 &scale);
 
+    glm::vec3 getWorldPosition() const;
+
     glm::vec3 getForward();
     glm::vec3 getRight();
     glm::vec3 getUp();
 
-    glm::mat4 getModelMatrix();
+    glm::mat4 getModelMatrix() const;
+    glm::mat4 getLocalModelMatrix() const;
+    glm::mat4 getModelMatrixRelativeTo(Transform *relativeTo) const;
 
     void translate(const glm::vec3 &translation);
     void rotate(const glm::vec3 &eulerAngles);
