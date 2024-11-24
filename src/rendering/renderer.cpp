@@ -90,7 +90,7 @@ void Renderer::renderGizmos() {
     glDisable(GL_DEPTH_TEST);
 
     for (Renderable *renderable: gizmoRenderables) {
-        //renderable->render();
+        renderable->render();
     }
 }
 

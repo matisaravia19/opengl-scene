@@ -11,8 +11,6 @@ private:
     glm::vec4 color;
     float scale = 0.25f;
 
-    static std::unique_ptr<Mesh> GIZMO_MESH;
-
 public:
     explicit GizmoRenderer(glm::vec4 color);
 
