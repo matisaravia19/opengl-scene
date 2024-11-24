@@ -20,16 +20,10 @@ struct Vertex {
     void addBoneData(int boneId, float weight);
 };
 
-struct Bone {
-    std::string name;
-    glm::mat4 offsetMatrix;
-};
-
 struct Mesh {
     std::string name;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<Bone> bones;
 
     unsigned int vao = 0;
     unsigned int vbo = 0;
@@ -42,4 +36,7 @@ struct Mesh {
     glm::vec3 getBoundingBox();
     void upload();
     bool isUploaded() const;
+
+    static Mesh *QUAD;
+    static Mesh *CUBE;
 };

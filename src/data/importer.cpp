@@ -10,6 +10,8 @@
 #include "../core/physicsComponent.h"
 #include "../rendering/lod.h"
 #include "../debug/gizmoRenderer.h"
+#include "../rendering/armature.h"
+#include "../rendering/animationController.h"
 
 #pragma region conversions
 
@@ -62,13 +64,6 @@ static Vertex readVertex(aiMesh *mesh, int index) {
     return vertex;
 }
 
-static Bone readBone(aiBone *bone) {
-    Bone result;
-    result.name = bone->mName.C_Str();
-    result.offsetMatrix = toMat4(bone->mOffsetMatrix);
-    return result;
-}
-
 static Mesh *readMesh(aiMesh *mesh) {
     auto result = new Mesh(mesh->mName.C_Str(), mesh->mNumVertices, mesh->mNumFaces * 3);
 
@@ -78,9 +73,6 @@ static Mesh *readMesh(aiMesh *mesh) {
     }
 
     for (int i = 0; i < mesh->mNumBones; i++) {
-        auto bone = readBone(mesh->mBones[i]);
-        result->bones.push_back(bone);
-
         for (int j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
             auto weight = mesh->mBones[i]->mWeights[j];
             auto vertexId = weight.mVertexId;
@@ -153,18 +145,6 @@ void Importer::addLOD(Entity *entity, aiNode *node) {
     entity->addComponent(lod);
 }
 
-void Importer::addMeshComponents(Entity *entity, aiNode *node) {
-    addMeshRenderer(entity, node);
-
-    if (!node->mMetaData) {
-        return;
-    }
-
-    if (node->mMetaData->HasKey("lod0")) {
-        addLOD(entity, node);
-    }
-}
-
 void Importer::loadMeshComponents() {
     for (auto node: nodes) {
         if (node->mNumMeshes == 0) {
@@ -172,7 +152,103 @@ void Importer::loadMeshComponents() {
         }
 
         auto entity = getEntity(node);
-        addMeshComponents(entity, node);
+        addMeshRenderer(entity, node);
+
+        if (!node->mMetaData) {
+            continue;
+        }
+
+        if (node->mMetaData->HasKey("lod0")) {
+            addLOD(entity, node);
+        }
+    }
+}
+
+#pragma endregion
+
+#pragma region armatures
+
+void Importer::loadArmatures() {
+    for (int i = 0; i < scene->mNumMeshes; i++) {
+        auto mesh = scene->mMeshes[i];
+        if (mesh->mNumBones == 0) {
+            continue;
+        }
+
+        auto node = mesh->mBones[0]->mArmature;
+        auto entity = getEntity(node);
+
+        // Fix scale being applied twice
+        //entity->getTransform()->setScale(glm::vec3(1.0f));
+
+        auto armature = new Armature();
+        for (int j = 0; j < mesh->mNumBones; ++j) {
+            auto bone = mesh->mBones[j];
+            auto boneNode = bone->mNode;
+            auto boneEntity = getEntity(boneNode);
+
+            auto boneComponent = new Bone(toMat4(bone->mOffsetMatrix));
+            boneEntity->addComponent(boneComponent);
+
+            armature->addBone(boneComponent);
+        }
+
+        entity->addComponent(armature);
+    }
+}
+
+#pragma endregion
+
+#pragma region animations
+
+static AnimationChannel readChannel(aiNodeAnim *channel) {
+    AnimationChannel result;
+
+    for (int i = 0; i < channel->mNumPositionKeys; i++) {
+        auto key = channel->mPositionKeys[i];
+        result.positions.emplace_back(key.mTime, toVec3(key.mValue));
+    }
+
+    for (int i = 0; i < channel->mNumRotationKeys; i++) {
+        auto key = channel->mRotationKeys[i];
+        result.rotations.emplace_back(key.mTime, toQuat(key.mValue));
+    }
+
+    for (int i = 0; i < channel->mNumScalingKeys; i++) {
+        auto key = channel->mScalingKeys[i];
+        result.scales.emplace_back(key.mTime, toVec3(key.mValue));
+    }
+
+    return result;
+}
+
+static AnimationController *getAnimationController(Entity *entity) {
+    auto controller = entity->getComponent<AnimationController>();
+    if (!controller) {
+        controller = new AnimationController();
+        entity->addComponent(controller);
+    }
+
+    return controller;
+}
+
+void Importer::loadAnimations() {
+    for (int i = 0; i < scene->mNumAnimations; i++) {
+        Animation animation;
+        animation.name = scene->mAnimations[i]->mName.C_Str();
+        animation.duration = scene->mAnimations[i]->mDuration;
+        animation.ticksPerSecond = scene->mAnimations[i]->mTicksPerSecond;
+
+        animation.channels.reserve(scene->mAnimations[i]->mNumChannels);
+        for (int j = 0; j < scene->mAnimations[i]->mNumChannels; j++) {
+            auto channel = readChannel(scene->mAnimations[i]->mChannels[j]);
+            channel.bone = getEntity(scene->mAnimations[i]->mChannels[j]->mNodeName.C_Str())->getComponent<Bone>();
+            animation.channels.push_back(channel);
+        }
+
+        auto entity = animation.channels[0].bone->getArmature()->getEntity();
+        auto controller = getAnimationController(entity);
+        controller->addAnimation(animation);
     }
 }
 
@@ -408,6 +484,8 @@ void Importer::load() {
     loadMeshes();
     loadNodes(scene->mRootNode);
     loadMeshComponents();
+    loadArmatures();
+    loadAnimations();
     loadCameras();
     loadLights();
 }

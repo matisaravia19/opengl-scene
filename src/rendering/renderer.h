@@ -32,13 +32,9 @@ private:
     std::unordered_set<Renderable *> guiRenderables;
     std::unordered_set<Light *> lights;
 
-    struct {
-        unsigned int vao;
-        unsigned int vbo;
-        unsigned int ebo;
-    } frameQuad;
+    void uploadPrimitiveMeshes();
 
-    void initFrameQuad();
+    void uploadStandardShaders();
 
     unsigned int zBuffer;
 

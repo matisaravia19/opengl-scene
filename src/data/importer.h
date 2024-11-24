@@ -7,6 +7,7 @@
 #include "../core/entity.h"
 #include "../rendering/mesh.h"
 #include "../rendering/material.h"
+#include "../rendering/animation.h"
 
 class Input;
 
@@ -30,7 +31,6 @@ private:
 
     std::shared_ptr<Mesh> getMesh(const std::string &name);
 
-    void addMeshComponents(Entity *entity, aiNode *node);
     void addMeshRenderer(Entity *entity, aiNode *node);
     void addLOD(Entity *entity, aiNode *node);
     void addPhysicsComponents(aiNode *node, Entity *entity);
@@ -39,6 +39,8 @@ private:
     void loadMeshes();
     void loadNodes(aiNode *node, Transform *parent = nullptr);
     void loadMeshComponents();
+    void loadArmatures();
+    void loadAnimations();
     void loadCameras();
     void loadLights();
 

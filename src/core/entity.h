@@ -27,6 +27,8 @@ public:
 
     Transform *getTransform() { return getComponent<Transform>(); }
 
+    Entity *getParent();
+
     void spawn();
     void update();
 };

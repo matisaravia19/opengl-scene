@@ -29,7 +29,7 @@ void main() {
     vec4 bitangent = vec4(0.0);
 
     if (vBoneIDs[0] == -1) {
-        position = vec4(vPosition, 1.0);
+        position = modelMatrix * vec4(vPosition, 1.0);
         normal = vec4(vNormal, 0.0);
         tangent = vec4(vTangent, 0.0);
         bitangent = vec4(vBitangent, 0.0);
@@ -46,14 +46,11 @@ void main() {
         }
     }
 
-    position.w = 1.0;
-    vec4 worldPosition = vec4(modelMatrix * position);
-
-    fWorldPosition = vec3(worldPosition);
+    fWorldPosition = vec3(position);
     fNormal = normalMatrix * vec3(normal);
     fTangent = normalMatrix * vec3(tangent);
     fBitangent = normalMatrix * vec3(bitangent);
     fTexCoords = vTexCoords;
 
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
+    gl_Position = projectionMatrix * viewMatrix * position;
 }

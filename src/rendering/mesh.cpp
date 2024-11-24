@@ -24,6 +24,66 @@ void Vertex::addBoneData(int boneId, float weight) {
     }
 }
 
+static Mesh *createCube() {
+    std::vector<glm::vec3> vertices = {
+            glm::vec3(-0.5f, -0.5f, -0.5f),
+            glm::vec3(0.5f, -0.5f, -0.5f),
+            glm::vec3(0.5f, 0.5f, -0.5f),
+            glm::vec3(-0.5f, 0.5f, -0.5f),
+            glm::vec3(-0.5f, -0.5f, 0.5f),
+            glm::vec3(0.5f, -0.5f, 0.5f),
+            glm::vec3(0.5f, 0.5f, 0.5f),
+            glm::vec3(-0.5f, 0.5f, 0.5f)
+    };
+
+    std::vector<unsigned int> indices = {
+            0, 1, 2, 2, 3, 0,
+            1, 5, 6, 6, 2, 1,
+            7, 6, 5, 5, 4, 7,
+            4, 0, 3, 3, 7, 4,
+            3, 2, 6, 6, 7, 3,
+            4, 5, 1, 1, 0, 4
+    };
+
+    auto mesh = new Mesh("Cube", vertices.size(), indices.size());
+    for (auto position: vertices) {
+        Vertex vertex;
+        vertex.position = position;
+        mesh->vertices.push_back(vertex);
+    }
+
+    mesh->indices = indices;
+
+    return mesh;
+}
+
+static Mesh *createQuad() {
+    std::vector<glm::vec3> vertices = {
+            glm::vec3(-1.0f, -1.0f, 0.0f),
+            glm::vec3(1.0f, -1.0f, 0.0f),
+            glm::vec3(1.0f, 1.0f, 0.0f),
+            glm::vec3(-1.0f, 1.0f, 0.0f)
+    };
+
+    std::vector<unsigned int> indices = {
+            0, 1, 2, 2, 3, 0
+    };
+
+    auto mesh = new Mesh("Quad", vertices.size(), indices.size());
+    for (auto position: vertices) {
+        Vertex vertex;
+        vertex.position = position;
+        mesh->vertices.push_back(vertex);
+    }
+
+    mesh->indices = indices;
+
+    return mesh;
+}
+
+Mesh *Mesh::QUAD = createQuad();
+Mesh *Mesh::CUBE = createCube();
+
 Mesh::Mesh(std::string name, unsigned int numVertices, unsigned int numIndices) {
     this->name = std::move(name);
     vertices.reserve(numVertices);

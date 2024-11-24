@@ -43,4 +43,6 @@ public:
 
     void translate(const glm::vec3 &translation);
     void rotate(const glm::vec3 &eulerAngles);
+
+    Transform *getParent();
 };

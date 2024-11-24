@@ -139,3 +139,7 @@ glm::vec3 Transform::getRight() {
 glm::vec3 Transform::getUp() {
     return glm::normalize(glm::vec3(getModelMatrix() * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)));
 }
+
+Transform *Transform::getParent() {
+    return parent;
+}

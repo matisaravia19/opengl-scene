@@ -56,6 +56,9 @@ set(sources
         src/core/physicsWorld.h
         src/rendering/lod.cpp
         src/debug/gizmoRenderer.cpp
+        src/rendering/armature.cpp
+        src/rendering/animation.cpp
+        src/rendering/animationController.cpp
 )
 
 add_executable(opengl_scene ${sources})
