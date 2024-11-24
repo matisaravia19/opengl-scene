@@ -22,6 +22,11 @@ void MeshRenderer::setUniforms() {
     shader->setUniform("viewMatrix", camera->getView());
     shader->setUniform("projectionMatrix", camera->getProjection());
     shader->setUniform("cameraPosition", camera->getEntity()->getTransform()->getPosition());
+
+    if (armature) {
+        auto bones = armature->getBoneMatrices();
+        shader->setUniform("bones", bones.data(), bones.size());
+    }
 }
 
 void MeshRenderer::render() {
@@ -38,6 +43,11 @@ void MeshRenderer::init() {
     Component::init();
 
     transform = getEntity()->getTransform();
+
+    auto parent = getEntity()->getParent();
+    if (parent) {
+        armature = parent->getComponent<Armature>();
+    }
 
     auto materialShaderType = material->getShader()->getType();
     renderPass = materialShaderType == ShaderType::DEFERRED ? RenderPass::DEFERRED : RenderPass::FORWARD;

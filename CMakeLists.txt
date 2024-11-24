@@ -53,6 +53,10 @@ set(sources
         src/core/physicsComponent.cpp
         src/core/physicsWorld.cpp
         src/rendering/lod.cpp
+        src/debug/gizmoRenderer.cpp
+        src/rendering/armature.cpp
+        src/rendering/animation.cpp
+        src/rendering/animationController.cpp
         src/rendering/skyLight.cpp
         src/rendering/skybox.cpp
         src/data/stb_impl.cpp

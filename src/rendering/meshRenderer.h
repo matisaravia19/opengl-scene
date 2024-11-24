@@ -6,12 +6,14 @@
 #include "renderer.h"
 #include "shader.h"
 #include "material.h"
+#include "armature.h"
 
 class MeshRenderer : public Component, public Renderable {
 private:
     std::shared_ptr<Mesh> mesh;
     std::shared_ptr<Material> material;
     Transform *transform;
+    Armature *armature;
     RenderPass renderPass;
 
     void setUniforms();

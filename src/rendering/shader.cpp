@@ -47,6 +47,7 @@ static unsigned int createProgram(unsigned int vertexShader, unsigned int fragme
 }
 
 Shader *Shader::PBR = new Shader("shaders/standard.vert", "shaders/pbr.frag");
+Shader *Shader::GIZMO = new Shader("shaders/standard.vert", "shaders/gizmo.frag");
 
 Shader *Shader::DEFERRED_POINT_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/point.frag");
 Shader *Shader::DEFERRED_DIRECTIONAL_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/directional.frag");
@@ -86,6 +87,11 @@ void Shader::setUniform(const std::string &name, glm::vec3 value) const {
     glUniform3fv(location, 1, &value[0]);
 }
 
+void Shader::setUniform(const std::string &name, glm::vec4 value) const {
+    auto location = glGetUniformLocation(program, name.c_str());
+    glUniform4fv(location, 1, &value[0]);
+}
+
 void Shader::setUniform(const std::string &name, glm::mat3 value) const {
     auto location = glGetUniformLocation(program, name.c_str());
     glUniformMatrix3fv(location, 1, GL_FALSE, &value[0][0]);
@@ -94,6 +100,11 @@ void Shader::setUniform(const std::string &name, glm::mat3 value) const {
 void Shader::setUniform(const std::string &name, glm::mat4 value) const {
     auto location = glGetUniformLocation(program, name.c_str());
     glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+}
+
+void Shader::setUniform(const std::string &name, glm::mat4 *values, int count) const {
+    auto location = glGetUniformLocation(program, name.c_str());
+    glUniformMatrix4fv(location, count, GL_FALSE, &values[0][0][0]);
 }
 
 void Shader::setUniform(const std::string &name, const int value) const {

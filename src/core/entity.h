@@ -22,7 +22,12 @@ public:
     template<class C>
     C *getComponent();
 
+    template<class C>
+    void removeComponent();
+
     Transform *getTransform() { return getComponent<Transform>(); }
+
+    Entity *getParent();
 
     void spawn();
     void update();
@@ -37,4 +42,17 @@ C *Entity::getComponent() {
         }
     }
     return nullptr;
+}
+
+template<class C>
+void Entity::removeComponent() {
+    for (auto it = components.begin(); it != components.end(); it++) {
+        auto c = dynamic_cast<C *>(*it);
+        if (c) {
+            (*it)->remove();
+            components.erase(it);
+            delete c;
+            return;
+        }
+    }
 }

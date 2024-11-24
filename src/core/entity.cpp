@@ -41,3 +41,17 @@ Entity::~Entity() {
         delete component;
     }
 }
+
+Entity *Entity::getParent() {
+    auto transform = getTransform();
+    if (!transform) {
+        return nullptr;
+    }
+
+    auto parent = transform->getParent();
+    if (!parent) {
+        return nullptr;
+    }
+
+    return parent->getEntity();
+}
