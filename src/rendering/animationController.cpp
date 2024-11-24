@@ -17,6 +17,7 @@ void AnimationController::playAnimation(const std::string &name) {
     auto animation = getAnimation(name);
     if (animation) {
         currentAnimation = animation;
+        currentTime = 0;
     }
 }
 
