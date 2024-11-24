@@ -4,7 +4,6 @@
 #include <unordered_set>
 #include "../core/window.h"
 #include "camera.h"
-#include "light.h"
 
 enum class RenderPass {
     DEFERRED = 0,
@@ -18,7 +17,11 @@ public:
     virtual ~Renderable() = default;
 
     virtual void render() = 0;
+
+    virtual void renderShadow(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {}
 };
+
+class Light;
 
 class Renderer {
 private:
@@ -71,7 +74,7 @@ public:
     void setCamera(Camera *camera);
     void onWindowResize(int width, int height);
 
-    void drawFrameQuad();
+    static void drawFrameQuad();
 
     static Renderer *getActive();
     Camera *getCamera();

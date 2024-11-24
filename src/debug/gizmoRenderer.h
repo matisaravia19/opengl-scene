@@ -4,6 +4,7 @@
 #include "../core/component.h"
 #include "../rendering/renderer.h"
 #include "../rendering/mesh.h"
+#include "../rendering/shader.h"
 
 class GizmoRenderer : public Component, Renderable {
 private:
