@@ -5,7 +5,7 @@
 #include "../rendering/meshRenderer.h"
 #include "./time.h"
 #include "dayTimer.h"
-#include "physicsComponent.h"
+#include "../physics/physicsComponent.h"
 #include "../rendering/skyLight.h"
 #include "../rendering/skybox.h"
 
@@ -55,7 +55,7 @@ void Scene::open() {
     initGui();
     initSky();
 
-    Importer importer("..\\resources\\anim.gltf");
+    Importer importer("..\\resources\\light.gltf");
     importer.load();
     for (auto &entity: importer.getEntities()) {
         spawn(entity);

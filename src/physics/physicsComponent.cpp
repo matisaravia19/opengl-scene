@@ -1,7 +1,7 @@
-#include "PhysicsComponent.h"
-#include "PhysicsWorld.h"
-#include <glm/gtc/type_ptr.hpp>
-#include "../rendering/MeshRenderer.h"
+#include "physicsComponent.h"
+#include "physicsWorld.h"
+#include "glm/gtc/type_ptr.hpp"
+#include "../rendering/meshRenderer.h"
 
 PhysicsComponent::PhysicsComponent(float mass, bool isDynamic)
         : mass(mass), isDynamic(isDynamic), rigidBody(nullptr), collisionShape(nullptr), motionState(nullptr) {

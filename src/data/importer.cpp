@@ -7,7 +7,7 @@
 #include "../rendering/light.h"
 #include "../core/util.h"
 #include "../core/controllable.h"
-#include "../core/physicsComponent.h"
+#include "../physics/physicsComponent.h"
 #include "../rendering/lod.h"
 #include "../debug/gizmoRenderer.h"
 #include "../rendering/armature.h"

@@ -5,7 +5,7 @@
 #include "window.h"
 #include "../rendering/renderer.h"
 #include "input.h"
-#include "physicsWorld.h"
+#include "../physics/physicsWorld.h"
 
 class Scene {
 private:

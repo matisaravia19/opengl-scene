@@ -50,8 +50,8 @@ set(sources
         src/core/time.cpp
         src/rendering/guiRenderer.cpp
         src/core/settings.cpp
-        src/core/physicsComponent.cpp
-        src/core/physicsWorld.cpp
+        src/physics/physicsComponent.cpp
+        src/physics/physicsWorld.cpp
         src/rendering/lod.cpp
         src/debug/gizmoRenderer.cpp
         src/rendering/armature.cpp
