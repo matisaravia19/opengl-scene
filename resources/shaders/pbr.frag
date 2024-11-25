@@ -1,7 +1,6 @@
 #version 460 core
 
 #include "shared/normal.glsl"
-#include "shared/pbr.glsl"
 
 in vec3 fWorldPosition;
 in vec3 fNormal;

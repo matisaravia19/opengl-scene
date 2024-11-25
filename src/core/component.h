@@ -16,7 +16,7 @@ private:
 public:
     virtual ~Component() = default;
 
-    Entity *getEntity();
+    Entity *getEntity() const;
     void setEntity(Entity *entity);
 
     virtual void init();

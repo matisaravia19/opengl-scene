@@ -4,6 +4,7 @@
 #include "../core/scene.h"
 #include "shader.h"
 #include "mesh.h"
+#include "light.h"
 
 Renderer::Renderer(Window *window) {
     this->window = window;
@@ -53,7 +54,17 @@ void Renderer::renderGBuffer() {
 }
 
 void Renderer::renderLighting() {
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+
+    for (Light *light: lights) {
+        light->renderShadow(deferredRenderables);
+    }
+
+    glDisable(GL_CULL_FACE);
+
     glBindFramebuffer(GL_FRAMEBUFFER, ppBuffer);
+    glViewport(0, 0, window->getWidth(), window->getHeight());
 
     glDisable(GL_DEPTH_TEST);
 
@@ -193,6 +204,7 @@ void Renderer::uploadStandardShaders() {
     Shader::DEFERRED_POINT_LIGHT->upload();
     Shader::DEFERRED_DIRECTIONAL_LIGHT->upload();
     Shader::DEFERRED_SPOT_LIGHT->upload();
+    Shader::SHADOW->upload();
     Shader::PBR->upload();
     Shader::GIZMO->upload();
     Shader::HDR->upload();

@@ -35,7 +35,7 @@ public:
     void setUniform(const std::string &name, glm::mat3 value) const;
     void setUniform(const std::string &name, glm::mat4 value) const;
     void setUniform(const std::string &name, glm::mat4 *values, int count) const;
-    void setUniform(const std::string& name, int value) const;
+    void setUniform(const std::string &name, int value) const;
 
     static Shader *PBR;
     static Shader *GIZMO;
@@ -43,6 +43,7 @@ public:
     static Shader *DEFERRED_POINT_LIGHT;
     static Shader *DEFERRED_DIRECTIONAL_LIGHT;
     static Shader *DEFERRED_SPOT_LIGHT;
+    static Shader *SHADOW;
 
     static Shader *HDR;
 };

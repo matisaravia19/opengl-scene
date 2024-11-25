@@ -19,9 +19,13 @@
 						1,
 						1
 					],
-					"intensity":6830,
-					"type":"directional",
-					"name":"Sun"
+					"intensity":27175.70653294113,
+					"spot":{
+						"innerConeAngle":0.4928209399067516,
+						"outerConeAngle":0.6709122061729431
+					},
+					"type":"spot",
+					"name":"Spot"
 				}
 			]
 		}
@@ -365,26 +369,31 @@
 			]
 		},
 		{
-			"extensions":{
-				"KHR_lights_punctual":{
-					"light":0
-				}
-			},
-			"name":"Sun",
-			"rotation":[
-				-0.43912190198898315,
-				0.8192967176437378,
-				0.06331139802932739,
-				0.3632031977176666
-			]
-		},
-		{
 			"mesh":1,
 			"name":"Plane",
 			"scale":[
 				5,
 				5,
 				5
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":0
+				}
+			},
+			"name":"Spot",
+			"rotation":[
+				-0.7736536860466003,
+				0.3122580051422119,
+				-0.06222103536128998,
+				0.5477989912033081
+			],
+			"translation":[
+				2.5284156799316406,
+				5.6663665771484375,
+				-1.969428539276123
 			]
 		}
 	],
