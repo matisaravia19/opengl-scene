@@ -14,6 +14,7 @@ void Renderer::init() {
     uploadPrimitiveMeshes();
     uploadStandardShaders();
     initZBuffer(window->getWidth(), window->getHeight());
+    initMetadataTexture(window->getWidth(), window->getHeight());
     initGBuffer(window->getWidth(), window->getHeight());
     initPPBuffer(window->getWidth(), window->getHeight());
 }
@@ -22,8 +23,8 @@ void Renderer::render() {
     renderGBuffer();
     renderLighting();
     renderForward();
-    renderGizmos();
     renderPostProcessing();
+    renderGizmos();
 
     glDisable(GL_DEPTH_TEST);
 
@@ -62,11 +63,10 @@ void Renderer::renderLighting() {
     }
 
     glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
 
     glBindFramebuffer(GL_FRAMEBUFFER, ppBuffer);
     glViewport(0, 0, window->getWidth(), window->getHeight());
-
-    glDisable(GL_DEPTH_TEST);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -89,6 +89,8 @@ void Renderer::renderLighting() {
     for (Light *light: lights) {
         light->renderDeferred();
     }
+
+    glDisable(GL_BLEND);
 }
 
 void Renderer::renderForward() {
@@ -96,19 +98,14 @@ void Renderer::renderForward() {
 
     glEnable(GL_DEPTH_TEST);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
     for (Renderable *renderable: forwardRenderables) {
         renderable->render();
     }
-}
 
-void Renderer::renderGizmos() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    glDisable(GL_DEPTH_TEST);
-
-    for (Renderable *renderable: gizmoRenderables) {
-        renderable->render();
-    }
+    glDisable(GL_CULL_FACE);
 }
 
 void Renderer::renderPostProcessing() {
@@ -120,13 +117,34 @@ void Renderer::renderPostProcessing() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    Shader::HDR->bind();
-    Shader::HDR->setUniform("windowSize", window->getSize());
+    Shader::POSTPROCESSING->bind();
+    Shader::POSTPROCESSING->setUniform("windowSize", window->getSize());
+    Shader::POSTPROCESSING->setUniform("fogColor", glm::vec4(0.23f, 0.44f, 0.71f, 1.0f));
+    Shader::POSTPROCESSING->setUniform("fogDensity", 0.001f);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ppColor);
 
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, metadataTexture);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, gPosition);
+
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, zBuffer);
+
     drawFrameQuad();
+}
+
+void Renderer::renderGizmos() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glDisable(GL_DEPTH_TEST);
+
+    for (Renderable *renderable: gizmoRenderables) {
+        renderable->render();
+    }
 }
 
 void Renderer::registerRenderable(Renderable *renderable, RenderPass renderPass) {
@@ -191,6 +209,7 @@ void Renderer::onWindowResize(int width, int height) {
     glViewport(0, 0, width, height);
 
     resizeZBuffer(width, height);
+    resizeMetadataTexture(width, height);
     resizeGBuffer(width, height);
     resizePPBuffer(width, height);
 }
@@ -207,12 +226,12 @@ void Renderer::uploadStandardShaders() {
     Shader::SHADOW->upload();
     Shader::PBR->upload();
     Shader::GIZMO->upload();
-    Shader::HDR->upload();
+    Shader::POSTPROCESSING->upload();
 }
 
 void Renderer::drawFrameQuad() {
     glBindVertexArray(Mesh::QUAD->vao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, Mesh::QUAD->indices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
 
@@ -248,9 +267,12 @@ void Renderer::initGBuffer(int width, int height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gMetallicRoughness, 0);
 
-    unsigned int attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
-                                   GL_COLOR_ATTACHMENT3};
-    glDrawBuffers(4, attachments);
+    glBindTexture(GL_TEXTURE_2D, metadataTexture);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, metadataTexture, 0);
+
+    unsigned int attachments[5] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
+                                   GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4};
+    glDrawBuffers(5, attachments);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBuffer, 0);
 }
@@ -273,14 +295,26 @@ void Renderer::initZBuffer(int width, int height) {
     glGenTextures(1, &zBuffer);
     glBindTexture(GL_TEXTURE_2D, zBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBuffer, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void Renderer::resizeZBuffer(int width, int height) {
     glBindTexture(GL_TEXTURE_2D, zBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+}
+
+void Renderer::initMetadataTexture(int width, int height) {
+    glGenTextures(1, &metadataTexture);
+    glBindTexture(GL_TEXTURE_2D, metadataTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+}
+
+void Renderer::resizeMetadataTexture(int width, int height) {
+    glBindTexture(GL_TEXTURE_2D, metadataTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 }
 
 void Renderer::initPPBuffer(int width, int height) {
@@ -294,8 +328,11 @@ void Renderer::initPPBuffer(int width, int height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ppColor, 0);
 
-    unsigned int attachments[1] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, attachments);
+    glBindTexture(GL_TEXTURE_2D, metadataTexture);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, metadataTexture, 0);
+
+    unsigned int attachments[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    glDrawBuffers(2, attachments);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBuffer, 0);
 }

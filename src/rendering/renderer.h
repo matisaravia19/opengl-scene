@@ -42,6 +42,10 @@ private:
     void initZBuffer(int width, int height);
     void resizeZBuffer(int width, int height);
 
+    unsigned int metadataTexture;
+    void initMetadataTexture(int width, int height);
+    void resizeMetadataTexture(int width, int height);
+
     unsigned int gBuffer;
     unsigned int gPosition, gAlbedo, gNormal, gMetallicRoughness;
 
