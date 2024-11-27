@@ -22,9 +22,14 @@ protected:
     unsigned int shadowMap;
     unsigned int shadowMapFBO;
 
+    glm::mat4 projectionMatrix;
+    glm::mat4 viewMatrix;
+    Frustum shadowFrustum;
+
     void createShadowMap();
-    virtual glm::mat4 getProjectionMatrix() const = 0;
-    virtual glm::mat4 getViewMatrix() const = 0;
+    virtual void updateProjectionMatrix() = 0;
+    virtual void updateViewMatrix() = 0;
+    void updateShadowFrustum();
 
     virtual void setUniforms();
 
@@ -32,10 +37,14 @@ public:
 
     explicit Light(glm::vec3 color);
     void init() override;
-
+    void update() override;
     void remove() override;
     virtual void renderDeferred();
     void renderShadow(const std::unordered_set<Renderable *> &renderables);
+
+    glm::mat4 getProjectionMatrix() const;
+    glm::mat4 getViewMatrix() const;
+    Frustum getShadowFrustum() const;
 
     void setColor(glm::vec3);
     [[nodiscard]] glm::vec3 getColor() const;
@@ -43,8 +52,8 @@ public:
 
 class DirectionalLight : public Light {
 protected:
-    glm::mat4 getProjectionMatrix() const override;
-    glm::mat4 getViewMatrix() const override;
+    void updateProjectionMatrix() override;
+    void updateViewMatrix() override;
 
     void setUniforms() override;
 
@@ -57,8 +66,8 @@ public:
 
 class PointLight : public Light {
 protected:
-    glm::mat4 getProjectionMatrix() const override;
-    glm::mat4 getViewMatrix() const override;
+    void updateProjectionMatrix() override;
+    void updateViewMatrix() override;
 
     void setUniforms() override;
 
@@ -76,8 +85,8 @@ private:
     float outerCutoff;
 
 protected:
-    glm::mat4 getProjectionMatrix() const override;
-    glm::mat4 getViewMatrix() const override;
+    void updateProjectionMatrix() override;
+    void updateViewMatrix() override;
 
     void setUniforms() override;
 

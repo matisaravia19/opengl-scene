@@ -53,49 +53,7 @@ void Camera::updateView() {
 }
 
 void Camera::updateFrustum() {
-    glm::mat4 clip = projection * view;
-
-    // Extract the numbers for the RIGHT plane
-    frustum.planes[0].normal.x = clip[0][3] - clip[0][0];
-    frustum.planes[0].normal.y = clip[1][3] - clip[1][0];
-    frustum.planes[0].normal.z = clip[2][3] - clip[2][0];
-    frustum.planes[0].distance = clip[3][3] - clip[3][0];
-
-    // Extract the numbers for the LEFT plane
-    frustum.planes[1].normal.x = clip[0][3] + clip[0][0];
-    frustum.planes[1].normal.y = clip[1][3] + clip[1][0];
-    frustum.planes[1].normal.z = clip[2][3] + clip[2][0];
-    frustum.planes[1].distance = clip[3][3] + clip[3][0];
-
-    // Extract the BOTTOM plane
-    frustum.planes[2].normal.x = clip[0][3] + clip[0][1];
-    frustum.planes[2].normal.y = clip[1][3] + clip[1][1];
-    frustum.planes[2].normal.z = clip[2][3] + clip[2][1];
-    frustum.planes[2].distance = clip[3][3] + clip[3][1];
-
-    // Extract the TOP plane
-    frustum.planes[3].normal.x = clip[0][3] - clip[0][1];
-    frustum.planes[3].normal.y = clip[1][3] - clip[1][1];
-    frustum.planes[3].normal.z = clip[2][3] - clip[2][1];
-    frustum.planes[3].distance = clip[3][3] - clip[3][1];
-
-    // Extract the FAR plane
-    frustum.planes[4].normal.x = clip[0][3] - clip[0][2];
-    frustum.planes[4].normal.y = clip[1][3] - clip[1][2];
-    frustum.planes[4].normal.z = clip[2][3] - clip[2][2];
-    frustum.planes[4].distance = clip[3][3] - clip[3][2];
-
-    // Extract the NEAR plane
-    frustum.planes[5].normal.x = clip[0][3] + clip[0][2];
-    frustum.planes[5].normal.y = clip[1][3] + clip[1][2];
-    frustum.planes[5].normal.z = clip[2][3] + clip[2][2];
-    frustum.planes[5].distance = clip[3][3] + clip[3][2];
-
-    for (auto &plane: frustum.planes) {
-        float length = glm::length(plane.normal);
-        plane.normal /= length;
-        plane.distance /= length;
-    }
+    frustum = Frustum(projection * view);
 }
 
 glm::vec3 Camera::getPosition() const {

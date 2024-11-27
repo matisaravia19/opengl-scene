@@ -5,6 +5,8 @@
 #include "../core/window.h"
 #include "camera.h"
 
+class Light;
+
 enum class RenderPass {
     DEFERRED = 0,
     FORWARD = 1,
@@ -18,10 +20,8 @@ public:
 
     virtual void render() = 0;
 
-    virtual void renderShadow(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {}
+    virtual void renderShadow(const Light *light) {}
 };
-
-class Light;
 
 class Renderer {
 private:

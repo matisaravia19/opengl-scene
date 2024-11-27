@@ -17,5 +17,8 @@ struct Plane {
 struct Frustum {
     Plane planes[6];
 
+    Frustum() = default;
+    explicit Frustum(glm::mat4 viewProjectionMatrix);
+
     bool intersects(const Sphere &sphere) const;
 };

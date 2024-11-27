@@ -24,7 +24,7 @@ public:
 
     void init() override;
     void render() override;
-    void renderShadow(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) override;
+    void renderShadow(const Light *light) override;
     void remove() override;
 
     std::shared_ptr<Mesh> getMesh();

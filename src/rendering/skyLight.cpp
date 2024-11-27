@@ -10,10 +10,11 @@
 #include "../core/entity.h"
 
 SkyLight::SkyLight()
-    : DirectionalLight(glm::vec3(1.f))
-{}
+        : DirectionalLight(glm::vec3(1.f)) {}
 
 void SkyLight::update() {
+    DirectionalLight::update();
+
     const auto tm = getEntity()->getComponent<DayTimer>()->getCurrentTime();
 
     // Moonlight has a constant direction
@@ -29,9 +30,9 @@ void SkyLight::update() {
 
     // Calculate sun direction based on angle
     setDirection(normalize(glm::vec3(
-        std::cos(angle),
-        -std::sin(angle),
-        0.2f // Slight offset to make the sun not move in a perfect vertical line
+            std::cos(angle),
+            -std::sin(angle),
+            0.2f // Slight offset to make the sun not move in a perfect vertical line
     )));
 
     if (tm < DayTimer::DAWN_END || tm > DayTimer::DUSK_START) {

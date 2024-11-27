@@ -3,6 +3,7 @@
 #include <utility>
 #include "../core/entity.h"
 #include "shader.h"
+#include "light.h"
 
 MeshRenderer::MeshRenderer(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> material) {
     this->mesh = std::move(mesh);
@@ -47,11 +48,15 @@ void MeshRenderer::render() {
     glBindVertexArray(0);
 }
 
-void MeshRenderer::renderShadow(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
+void MeshRenderer::renderShadow(const Light *light) {
+    if (!light->getShadowFrustum().intersects(getBoundingSphere())) {
+        return;
+    }
+
     auto shader = Shader::SHADOW;
     shader->bind();
 
-    setUniforms(shader, projectionMatrix, viewMatrix);
+    setUniforms(shader, light->getProjectionMatrix(), light->getViewMatrix());
 
     glBindVertexArray(mesh->vao);
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -96,6 +101,6 @@ void MeshRenderer::setMesh(std::shared_ptr<Mesh> mesh) {
 Sphere MeshRenderer::getBoundingSphere() {
     auto scale = transform->getWorldScale();
     float radius = mesh->radius * glm::max(scale.x, glm::max(scale.y, scale.z));
-    
+
     return Sphere(transform->getWorldPosition(), radius);
 }
