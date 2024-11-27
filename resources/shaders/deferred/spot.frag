@@ -3,7 +3,8 @@
 #include "../shared/pbr.glsl"
 #include "../shared/lightning.glsl"
 
-out vec4 oFragColor;
+layout (location = 0) out vec4 oFragColor;
+layout (location = 1) out vec4 oMetadata;
 
 layout (binding = 0) uniform sampler2D worldPosition;
 layout (binding = 1) uniform sampler2D albedo;
@@ -50,4 +51,5 @@ void main() {
     vec3 radiance = lightColor * attenuation;
 
     oFragColor = vec4(pbr(fWorldPosition.xyz, fAlbedo, fNormal, fMetallicRoughness.b, fMetallicRoughness.g, normalizedFragToLight, viewDir, radiance), 1.0);
+    oMetadata = vec4(0.0);
 }

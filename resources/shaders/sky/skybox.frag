@@ -1,4 +1,5 @@
 #version 330 core
+
 in vec3 texCoords;
 
 uniform vec3 ambientLight;
@@ -9,7 +10,8 @@ uniform float timeOfDay;    // Range 0.0 to 24.0
 uniform vec3 sunPosition;   // Calculated based on time
 uniform float starBrightness;
 
-out vec4 FragColor;
+layout (location = 0) out vec4 oFragColor;
+layout (location = 1) out vec4 oMetadata;
 
 vec4 getSunGlow(vec3 direction, vec3 sunPos) {
     float sunDot = max(dot(direction, normalize(sunPos)), 0.0);
@@ -36,5 +38,6 @@ void main() {
     // Add sun glow
     finalColor += getSunGlow(normalize(texCoords), sunPosition) * (dayTime + sunsetTime * 0.5);
 
-    FragColor = finalColor;
+    oFragColor = finalColor;
+    oMetadata = vec4(1.0, 0.0, 0.0, 0.0);
 }

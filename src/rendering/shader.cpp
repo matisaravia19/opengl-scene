@@ -54,7 +54,7 @@ Shader *Shader::DEFERRED_DIRECTIONAL_LIGHT = new Shader("shaders/shared/screen.v
 Shader *Shader::DEFERRED_SPOT_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/spot.frag");
 Shader *Shader::SHADOW = new Shader("shaders/standard.vert", "shaders/shadow.frag");
 
-Shader *Shader::HDR = new Shader("shaders/shared/screen.vert", "shaders/postprocessing/hdr.frag");
+Shader *Shader::POSTPROCESSING = new Shader("shaders/shared/screen.vert", "shaders/postprocessing.frag");
 
 Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
     this->vertexPath = RESOURCES_PATH / vertexPath;

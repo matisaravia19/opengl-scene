@@ -45,5 +45,5 @@ public:
     static Shader *DEFERRED_SPOT_LIGHT;
     static Shader *SHADOW;
 
-    static Shader *HDR;
+    static Shader *POSTPROCESSING;
 };
