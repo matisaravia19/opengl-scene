@@ -4,14 +4,12 @@
 #include <unordered_set>
 #include "../core/window.h"
 #include "camera.h"
-#include "light.h"
-
-class Renderer;
 
 enum class RenderPass {
     DEFERRED = 0,
     FORWARD = 1,
-    GUI = 2,
+    GIZMO = 2,
+    GUI = 3,
 };
 
 class Renderable {
@@ -19,7 +17,11 @@ public:
     virtual ~Renderable() = default;
 
     virtual void render() = 0;
+
+    virtual void renderShadow(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {}
 };
+
+class Light;
 
 class Renderer {
 private:
@@ -27,16 +29,13 @@ private:
     Camera *camera;
     std::unordered_set<Renderable *> deferredRenderables;
     std::unordered_set<Renderable *> forwardRenderables;
+    std::unordered_set<Renderable *> gizmoRenderables;
     std::unordered_set<Renderable *> guiRenderables;
     std::unordered_set<Light *> lights;
 
-    struct {
-        unsigned int vao;
-        unsigned int vbo;
-        unsigned int ebo;
-    } frameQuad;
+    void uploadPrimitiveMeshes();
 
-    void initFrameQuad();
+    void uploadStandardShaders();
 
     unsigned int zBuffer;
 
@@ -57,6 +56,8 @@ private:
 
     void renderGBuffer();
     void renderLighting();
+    void renderForward();
+    void renderGizmos();
     void renderPostProcessing();
 public:
     explicit Renderer(Window *window);
@@ -73,7 +74,7 @@ public:
     void setCamera(Camera *camera);
     void onWindowResize(int width, int height);
 
-    void drawFrameQuad();
+    static void drawFrameQuad();
 
     static Renderer *getActive();
     Camera *getCamera();

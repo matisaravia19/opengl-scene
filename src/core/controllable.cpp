@@ -2,8 +2,8 @@
 
 #include "./time.h"
 #include "constants.h"
-#include "physicsWorld.h"
-#include "physicsComponent.h"
+#include "../physics/physicsWorld.h"
+#include "../physics/physicsComponent.h"
 
 void Controllable::init() {
     Component::init();

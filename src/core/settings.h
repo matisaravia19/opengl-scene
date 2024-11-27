@@ -20,6 +20,8 @@ public:
   SetingsData& getSettingsData() { return settingsData; }
 
   void setFullscreen(bool fs);
+
+  static Settings *ActiveSettings;
 };
 
 // Interface implemented by oberver subscribers.

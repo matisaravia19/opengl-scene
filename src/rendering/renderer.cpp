@@ -3,41 +3,33 @@
 #include "guiRenderer.h"
 #include "../core/scene.h"
 #include "shader.h"
+#include "mesh.h"
+#include "light.h"
 
 Renderer::Renderer(Window *window) {
     this->window = window;
 }
 
 void Renderer::init() {
-    initFrameQuad();
+    uploadPrimitiveMeshes();
+    uploadStandardShaders();
     initZBuffer(window->getWidth(), window->getHeight());
     initGBuffer(window->getWidth(), window->getHeight());
     initPPBuffer(window->getWidth(), window->getHeight());
-
-    Shader::DEFERRED_POINT_LIGHT->upload();
-    Shader::HDR->upload();
 }
 
 void Renderer::render() {
     renderGBuffer();
     renderLighting();
+    renderForward();
+    renderGizmos();
     renderPostProcessing();
-
-    for (Renderable *renderable: forwardRenderables) {
-        renderable->render();
-    }
 
     glDisable(GL_DEPTH_TEST);
 
     for (Renderable *renderable: guiRenderables) {
         renderable->render();
     }
-
-//    glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
-//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-//
-//    glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gPosition, 0);
-//    glBlitFramebuffer(0, 0, window->getWidth(), window->getHeight(), 0, 0, window->getWidth(), window->getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
     window->swapBuffers();
 }
@@ -62,7 +54,17 @@ void Renderer::renderGBuffer() {
 }
 
 void Renderer::renderLighting() {
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+
+    for (Light *light: lights) {
+        light->renderShadow(deferredRenderables);
+    }
+
+    glDisable(GL_CULL_FACE);
+
     glBindFramebuffer(GL_FRAMEBUFFER, ppBuffer);
+    glViewport(0, 0, window->getWidth(), window->getHeight());
 
     glDisable(GL_DEPTH_TEST);
 
@@ -89,6 +91,26 @@ void Renderer::renderLighting() {
     }
 }
 
+void Renderer::renderForward() {
+    glBindFramebuffer(GL_FRAMEBUFFER, ppBuffer);
+
+    glEnable(GL_DEPTH_TEST);
+
+    for (Renderable *renderable: forwardRenderables) {
+        renderable->render();
+    }
+}
+
+void Renderer::renderGizmos() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glDisable(GL_DEPTH_TEST);
+
+    for (Renderable *renderable: gizmoRenderables) {
+        renderable->render();
+    }
+}
+
 void Renderer::renderPostProcessing() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -104,9 +126,7 @@ void Renderer::renderPostProcessing() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ppColor);
 
-    glBindVertexArray(frameQuad.vao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-    glBindVertexArray(0);
+    drawFrameQuad();
 }
 
 void Renderer::registerRenderable(Renderable *renderable, RenderPass renderPass) {
@@ -116,6 +136,9 @@ void Renderer::registerRenderable(Renderable *renderable, RenderPass renderPass)
             break;
         case RenderPass::FORWARD:
             forwardRenderables.insert(renderable);
+            break;
+        case RenderPass::GIZMO:
+            gizmoRenderables.insert(renderable);
             break;
         case RenderPass::GUI:
             guiRenderables.insert(renderable);
@@ -130,6 +153,9 @@ void Renderer::removeRenderable(Renderable *renderable, RenderPass renderPass) {
             break;
         case RenderPass::FORWARD:
             forwardRenderables.erase(renderable);
+            break;
+        case RenderPass::GIZMO:
+            gizmoRenderables.erase(renderable);
             break;
         case RenderPass::GUI:
             guiRenderables.erase(renderable);
@@ -169,36 +195,23 @@ void Renderer::onWindowResize(int width, int height) {
     resizePPBuffer(width, height);
 }
 
-void Renderer::initFrameQuad() {
-    float quadVertices[] = {
-            -1.0f, 1.0f,
-            -1.0f, -1.0f,
-            1.0f, -1.0f,
+void Renderer::uploadPrimitiveMeshes() {
+    Mesh::QUAD->upload();
+    Mesh::CUBE->upload();
+}
 
-            -1.0f, 1.0f,
-            1.0f, -1.0f,
-            1.0f, 1.0f,
-    };
-
-    glGenVertexArrays(1, &frameQuad.vao);
-    glBindVertexArray(frameQuad.vao);
-
-    glGenBuffers(1, &frameQuad.vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, frameQuad.vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *) nullptr);
-    glEnableVertexAttribArray(0);
-
-    unsigned int indices[] = {0, 1, 2, 3, 4, 5};
-
-    glGenBuffers(1, &frameQuad.ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, frameQuad.ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+void Renderer::uploadStandardShaders() {
+    Shader::DEFERRED_POINT_LIGHT->upload();
+    Shader::DEFERRED_DIRECTIONAL_LIGHT->upload();
+    Shader::DEFERRED_SPOT_LIGHT->upload();
+    Shader::SHADOW->upload();
+    Shader::PBR->upload();
+    Shader::GIZMO->upload();
+    Shader::HDR->upload();
 }
 
 void Renderer::drawFrameQuad() {
-    glBindVertexArray(frameQuad.vao);
+    glBindVertexArray(Mesh::QUAD->vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
@@ -235,7 +248,8 @@ void Renderer::initGBuffer(int width, int height) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gMetallicRoughness, 0);
 
-    unsigned int attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
+    unsigned int attachments[4] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
+                                   GL_COLOR_ATTACHMENT3};
     glDrawBuffers(4, attachments);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBuffer, 0);
@@ -259,6 +273,9 @@ void Renderer::initZBuffer(int width, int height) {
     glGenTextures(1, &zBuffer);
     glBindTexture(GL_TEXTURE_2D, zBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBuffer, 0);
 }
 
 void Renderer::resizeZBuffer(int width, int height) {
@@ -279,6 +296,8 @@ void Renderer::initPPBuffer(int width, int height) {
 
     unsigned int attachments[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, attachments);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, zBuffer, 0);
 }
 
 void Renderer::resizePPBuffer(int width, int height) {

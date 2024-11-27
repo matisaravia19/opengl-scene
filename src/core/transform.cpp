@@ -92,15 +92,26 @@ void Transform::setScale(const glm::vec3 &scale) {
     this->scale = scale;
 }
 
-glm::mat4 Transform::getModelMatrix() {
+glm::mat4 Transform::getModelMatrix() const {
+    if (parent) {
+        return parent->getModelMatrix() * getLocalModelMatrix();
+    } else {
+        return getLocalModelMatrix();
+    }
+}
+
+glm::mat4 Transform::getLocalModelMatrix() const {
     auto translationMatrix = glm::translate(glm::mat4(1.0f), position);
     auto rotationMatrix = glm::mat4_cast(rotation);
     auto scaleMatrix = glm::scale(glm::mat4(1.0f), scale);
+    return translationMatrix * rotationMatrix * scaleMatrix;
+}
 
-    if (parent) {
-        return parent->getModelMatrix() * translationMatrix * rotationMatrix * scaleMatrix;
+glm::mat4 Transform::getModelMatrixRelativeTo(Transform *relativeTo) const {
+    if (parent && parent != relativeTo) {
+        return parent->getModelMatrix() * getLocalModelMatrix();
     } else {
-        return translationMatrix * rotationMatrix * scaleMatrix;
+        return getLocalModelMatrix();
     }
 }
 
@@ -113,6 +124,10 @@ void Transform::rotate(const glm::vec3 &eulerAngles) {
     this->rotation = glm::quat(this->eulerAngles);
 }
 
+glm::vec3 Transform::getWorldPosition() const {
+    return getModelMatrix() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
 glm::vec3 Transform::getForward() {
     return glm::normalize(glm::vec3(getModelMatrix() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
 }
@@ -123,4 +138,8 @@ glm::vec3 Transform::getRight() {
 
 glm::vec3 Transform::getUp() {
     return glm::normalize(glm::vec3(getModelMatrix() * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)));
+}
+
+Transform *Transform::getParent() {
+    return parent;
 }

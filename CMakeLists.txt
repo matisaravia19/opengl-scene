@@ -50,11 +50,17 @@ set(sources
         src/core/time.cpp
         src/rendering/guiRenderer.cpp
         src/core/settings.cpp
-        src/core/physicsComponent.cpp
-        src/core/physicsComponent.h
-        src/core/physicsWorld.cpp
-        src/core/physicsWorld.h
+        src/physics/physicsComponent.cpp
+        src/physics/physicsWorld.cpp
         src/rendering/lod.cpp
+        src/debug/gizmoRenderer.cpp
+        src/rendering/armature.cpp
+        src/rendering/animation.cpp
+        src/rendering/animationController.cpp
+        src/rendering/skyLight.cpp
+        src/rendering/skybox.cpp
+        src/data/stb_impl.cpp
+        src/core/dayTimer.cpp
 )
 
 add_executable(opengl_scene ${sources})
@@ -73,8 +79,6 @@ include_directories(
 add_subdirectory(${glfw_dir})
 add_subdirectory(${assimp_dir})
 add_subdirectory(${bullet3_dir})
-
-add_compile_definitions(STB_IMAGE_IMPLEMENTATION)
 
 target_link_libraries(opengl_scene glfw)
 target_link_libraries(opengl_scene assimp)

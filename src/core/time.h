@@ -1,6 +1,5 @@
 #pragma once
 
-
 class Time {
 private:
     static double deltaTime;

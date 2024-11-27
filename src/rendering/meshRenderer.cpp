@@ -9,9 +9,7 @@ MeshRenderer::MeshRenderer(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material>
     this->material = std::move(material);
 }
 
-void MeshRenderer::setUniforms() {
-    auto shader = material->getShader();
-
+void MeshRenderer::setUniforms(Shader *shader, glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
     auto modelMatrix = transform->getModelMatrix();
     shader->setUniform("modelMatrix", modelMatrix);
 
@@ -19,15 +17,36 @@ void MeshRenderer::setUniforms() {
     shader->setUniform("normalMatrix", normalMatrix);
 
     auto camera = Renderer::getActive()->getCamera();
-    shader->setUniform("viewMatrix", camera->getView());
-    shader->setUniform("projectionMatrix", camera->getProjection());
+    shader->setUniform("viewMatrix", viewMatrix);
+    shader->setUniform("projectionMatrix", projectionMatrix);
     shader->setUniform("cameraPosition", camera->getEntity()->getTransform()->getPosition());
+
+    if (armature) {
+        auto bones = armature->getBoneMatrices();
+        shader->setUniform("bones", bones.data(), bones.size());
+    }
 }
 
 void MeshRenderer::render() {
     material->bind();
+    auto shader = material->getShader();
 
-    setUniforms();
+    auto camera = Renderer::getActive()->getCamera();
+    auto viewMatrix = camera->getView();
+    auto projectionMatrix = camera->getProjection();
+
+    setUniforms(shader, projectionMatrix, viewMatrix);
+
+    glBindVertexArray(mesh->vao);
+    glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+}
+
+void MeshRenderer::renderShadow(glm::mat4 projectionMatrix, glm::mat4 viewMatrix) {
+    auto shader = Shader::SHADOW;
+    shader->bind();
+
+    setUniforms(shader, projectionMatrix, viewMatrix);
 
     glBindVertexArray(mesh->vao);
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -38,6 +57,11 @@ void MeshRenderer::init() {
     Component::init();
 
     transform = getEntity()->getTransform();
+
+    auto parent = getEntity()->getParent();
+    if (parent) {
+        armature = parent->getComponent<Armature>();
+    }
 
     auto materialShaderType = material->getShader()->getType();
     renderPass = materialShaderType == ShaderType::DEFERRED ? RenderPass::DEFERRED : RenderPass::FORWARD;

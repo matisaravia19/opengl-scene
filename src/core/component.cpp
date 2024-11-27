@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Entity *Component::getEntity() {
+Entity *Component::getEntity() const {
     return entity;
 }
 
