@@ -430,7 +430,7 @@ void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
     if (node->mMetaData && node->mMetaData->HasKey("weight")) {
         double weight;
         node->mMetaData->Get("weight", weight);
-        double hitboxType = 0; // 0 = box, 1 = sphere, 2 = capsule
+        double hitboxType = 0; // 0 = box, 1 = sphere, 2 = player(box), 3 = ground (mesh)
         if (node->mMetaData->HasKey("hitbox")) {
             node->mMetaData->Get("hitbox", hitboxType);
         }

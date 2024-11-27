@@ -47,14 +47,11 @@ void Controllable::movePlayer() {
     auto currentVelocity = physicsComponent->getLinearVelocity();
     auto newVelocity = (movement == glm::vec3(0) ? movement : glm::normalize(glm::vec3(movement.x, 0, movement.z)) * 10.f) + glm::vec3(0, currentVelocity.y, 0);
 
-    printf("Grounded: %d\n", physicsComponent->isGrounded());
-
     if (input->isKeyDown(KeyCode::Space) && physicsComponent->isGrounded()) {
         newVelocity.y = 5.0f;
     }
 
     physicsComponent->setLinearVelocity(newVelocity);
-    printf("Linear velocity: %f %f %f\n", currentVelocity.x, currentVelocity.y, currentVelocity.z);
 
 //    if (glm::dot(movement, movement) > 0) {
 //        cameraTime = cameraTime + Time::getDeltaTime();

@@ -49,6 +49,30 @@ void PhysicsComponent::init() {
         collisionShape = new btSphereShape(maxVertexFromBoundingBox);
     } else if (hitboxType == 2) {
         collisionShape = new btBoxShape(btVector3(1, 1, 1));
+    } else if (hitboxType == 3) {
+        auto mesh = meshRenderer->getMesh();
+        auto vertices = mesh->vertices;
+        auto indices = mesh->indices;
+        auto scale = transform->getScale();
+        auto transform = getEntity()->getTransform();
+        auto matrix = transform->getModelMatrix();
+
+        btTriangleMesh *triangleMesh = new btTriangleMesh();
+        for (int i = 0; i < indices.size(); i += 3) {
+            auto vertex0 = matrix * glm::vec4(vertices[indices[i]].position, 1.0f);
+            auto vertex1 = matrix * glm::vec4(vertices[indices[i + 1]].position, 1.0f);
+            auto vertex2 = matrix * glm::vec4(vertices[indices[i + 2]].position, 1.0f);
+            btVector3 btVertex0(vertex0.x, vertex0.y, vertex0.z);
+            btVector3 btVertex1(vertex1.x, vertex1.y, vertex1.z);
+            btVector3 btVertex2(vertex2.x, vertex2.y, vertex2.z);
+            triangleMesh->addTriangle(btVertex0, btVertex1, btVertex2);
+
+            // if (!strcmp(getEntity()->getName().c_str(), "Plane.001")) {
+            //     printf("Triangle %f %f %f || %f %f %f || %f %f %f\n", btVertex2.x(), btVertex2.y(), btVertex2.z(), btVertex1.x(), btVertex1.y(), btVertex1.z(), btVertex0.x(), btVertex0.y(), btVertex0.z());
+            // }
+        }
+
+        collisionShape = new btBvhTriangleMeshShape(triangleMesh, true);
     }
 
     btVector3 localInertia(0.0f, 0.0f, 0.0f);
