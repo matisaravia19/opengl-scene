@@ -12,13 +12,14 @@ private:
     btCollisionShape* collisionShape;
     btMotionState* motionState;
     btScalar mass;
+    int hitboxType;
     bool isDynamic;
     btTransform initialTransform;
 
     void cleanup();
 
 public:
-    PhysicsComponent(float mass = 1.0f, bool isDynamic = true);
+    PhysicsComponent(float mass = 1.0f, bool isDynamic = true, int hitboxType = 0);
     ~PhysicsComponent() override;
 
     void init() override;

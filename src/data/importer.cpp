@@ -299,6 +299,8 @@ void Importer::loadCameras() {
                 camera->mClipPlaneFar
         ));
         entity->addComponent(new Controllable());
+        auto *physicsComponent = new PhysicsComponent(1, true, 2);
+        entity->addComponent(physicsComponent);
     }
 }
 
@@ -310,7 +312,11 @@ void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
     if (node->mMetaData && node->mMetaData->HasKey("weight")) {
         double weight;
         node->mMetaData->Get("weight", weight);
-        auto *physicsComponent = new PhysicsComponent(weight, weight != 0);
+        double hitboxType = 0; // 0 = box, 1 = sphere, 2 = capsule
+        if (node->mMetaData->HasKey("hitbox")) {
+            node->mMetaData->Get("hitbox", hitboxType);
+        }
+        auto *physicsComponent = new PhysicsComponent(weight, weight != 0, hitboxType);
         entity->addComponent(physicsComponent);
     }
 }
