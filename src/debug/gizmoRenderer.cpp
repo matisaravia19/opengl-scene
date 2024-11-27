@@ -1,6 +1,7 @@
 #include "gizmoRenderer.h"
 
 #include "../core/entity.h"
+#include "../rendering/meshRenderer.h"
 
 GizmoRenderer::GizmoRenderer(glm::vec4 color) {
     this->color = color;
@@ -13,6 +14,11 @@ void GizmoRenderer::init() {
 }
 
 void GizmoRenderer::render() {
+    auto meshRenderer = getEntity()->getComponent<MeshRenderer>();
+    if (meshRenderer) {
+        scale = meshRenderer->getBoundingSphere().radius;
+    }
+
     shader->bind();
 
     auto position = getEntity()->getTransform()->getWorldPosition();
@@ -25,8 +31,8 @@ void GizmoRenderer::render() {
 
     shader->setUniform("color", color);
 
-    glBindVertexArray(Mesh::CUBE->vao);
-    glDrawElements(GL_TRIANGLES, Mesh::CUBE->indices.size(), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(Mesh::SPHERE->vao);
+    glDrawElements(GL_TRIANGLES, Mesh::SPHERE->indices.size(), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
 

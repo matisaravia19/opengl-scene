@@ -32,6 +32,7 @@ public:
     void setScale(const glm::vec3 &scale);
 
     glm::vec3 getWorldPosition() const;
+    glm::vec3 getWorldScale() const;
 
     glm::vec3 getForward();
     glm::vec3 getRight();

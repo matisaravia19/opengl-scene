@@ -27,6 +27,9 @@ void Camera::update() {
         this->aspect = aspect;
         updateProjection();
     }
+
+    updateView();
+    updateFrustum();
 }
 
 glm::mat4 Camera::getProjection() const {
@@ -34,11 +37,23 @@ glm::mat4 Camera::getProjection() const {
 }
 
 glm::mat4 Camera::getView() const {
-    return glm::inverse(transform->getModelMatrix());
+    return view;
+}
+
+Frustum Camera::getFrustum() const {
+    return frustum;
 }
 
 void Camera::updateProjection() {
     projection = glm::perspective(fov, aspect, near, far);
+}
+
+void Camera::updateView() {
+    view = glm::inverse(transform->getModelMatrix());
+}
+
+void Camera::updateFrustum() {
+    frustum = Frustum(projection * view);
 }
 
 glm::vec3 Camera::getPosition() const {

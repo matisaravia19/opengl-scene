@@ -1,6 +1,7 @@
 #include "mesh.h"
 
 #include "glad/gl.h"
+#include "../core/constants.h"
 
 Vertex::Vertex() {
     position = glm::vec3(0);
@@ -22,6 +23,30 @@ void Vertex::addBoneData(int boneId, float weight) {
             return;
         }
     }
+}
+
+static Mesh *createQuad() {
+    std::vector<glm::vec3> vertices = {
+            glm::vec3(-1.0f, -1.0f, 0.0f),
+            glm::vec3(1.0f, -1.0f, 0.0f),
+            glm::vec3(1.0f, 1.0f, 0.0f),
+            glm::vec3(-1.0f, 1.0f, 0.0f)
+    };
+
+    std::vector<unsigned int> indices = {
+            0, 1, 2, 2, 3, 0
+    };
+
+    auto mesh = new Mesh("Quad", vertices.size(), indices.size());
+    for (auto position: vertices) {
+        Vertex vertex;
+        vertex.position = position;
+        mesh->vertices.push_back(vertex);
+    }
+
+    mesh->indices = indices;
+
+    return mesh;
 }
 
 static Mesh *createCube() {
@@ -57,37 +82,70 @@ static Mesh *createCube() {
     return mesh;
 }
 
-static Mesh *createQuad() {
-    std::vector<glm::vec3> vertices = {
-            glm::vec3(-1.0f, -1.0f, 0.0f),
-            glm::vec3(1.0f, -1.0f, 0.0f),
-            glm::vec3(1.0f, 1.0f, 0.0f),
-            glm::vec3(-1.0f, 1.0f, 0.0f)
-    };
+static Mesh *createSphere() {
+    const int X_SEGMENTS = 8;
+    const int Y_SEGMENTS = 12;
 
-    std::vector<unsigned int> indices = {
-            0, 1, 2, 2, 3, 0
-    };
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
 
-    auto mesh = new Mesh("Quad", vertices.size(), indices.size());
-    for (auto position: vertices) {
-        Vertex vertex;
-        vertex.position = position;
-        mesh->vertices.push_back(vertex);
+    for (int y = 0; y <= Y_SEGMENTS; y++) {
+        for (int x = 0; x <= X_SEGMENTS; x++) {
+            float xSegment = (float) x / (float) X_SEGMENTS;
+            float ySegment = (float) y / (float) Y_SEGMENTS;
+
+            Vertex vertex;
+            vertex.position.x = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+            vertex.position.y = std::cos(ySegment * PI);
+            vertex.position.z = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+
+            vertices.push_back(vertex);
+        }
     }
 
-    mesh->indices = indices;
+    bool oddRow = false;
+    for (int y = 0; y < Y_SEGMENTS; y++) {
+        if (!oddRow) {
+            for (int x = 0; x < X_SEGMENTS; x++) {
+                indices.push_back(y * (X_SEGMENTS + 1) + x);
+                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+                indices.push_back(y * (X_SEGMENTS + 1) + x + 1);
 
-    return mesh;
+                indices.push_back(y * (X_SEGMENTS + 1) + x + 1);
+                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x + 1);
+            }
+        } else {
+            for (int x = X_SEGMENTS - 1; x >= 0; x--) {
+                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x + 1);
+                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+                indices.push_back(y * (X_SEGMENTS + 1) + x + 1);
+
+                indices.push_back(y * (X_SEGMENTS + 1) + x + 1);
+                indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+                indices.push_back(y * (X_SEGMENTS + 1) + x);
+            }
+        }
+        oddRow = !oddRow;
+    }
+
+    return new Mesh("Sphere", vertices, indices);
 }
 
 Mesh *Mesh::QUAD = createQuad();
 Mesh *Mesh::CUBE = createCube();
+Mesh *Mesh::SPHERE = createSphere();
 
 Mesh::Mesh(std::string name, unsigned int numVertices, unsigned int numIndices) {
     this->name = std::move(name);
     vertices.reserve(numVertices);
     indices.reserve(numIndices);
+}
+
+Mesh::Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices) {
+    this->name = std::move(name);
+    this->vertices = std::move(vertices);
+    this->indices = std::move(indices);
 }
 
 void Mesh::upload() {
@@ -136,18 +194,17 @@ Mesh::~Mesh() {
     glDeleteVertexArrays(1, &vao);
 }
 
-glm::vec3 Mesh::getBoundingBox() {
-    auto bb = glm::vec3(0);
-
-    for (const auto &vertex: vertices) {
-        bb.x = std::max(bb.x, std::abs(vertex.position.x));
-        bb.y = std::max(bb.y, std::abs(vertex.position.y));
-        bb.z = std::max(bb.z, std::abs(vertex.position.z));
-    }
-
-    return bb;
-}
-
 bool Mesh::isUploaded() const {
     return vao != 0;
+}
+
+void Mesh::calculateBounds() {
+    bounds = glm::vec3(0);
+    radius = 0;
+    for (const auto &vertex: vertices) {
+        bounds.x = std::max(bounds.x, std::abs(vertex.position.x));
+        bounds.y = std::max(bounds.y, std::abs(vertex.position.y));
+        bounds.z = std::max(bounds.z, std::abs(vertex.position.z));
+        radius = std::max(radius, glm::length(vertex.position));
+    }
 }

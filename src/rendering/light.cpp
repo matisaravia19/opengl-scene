@@ -22,9 +22,20 @@ void Light::init() {
     createShadowMap();
 }
 
+void Light::update() {
+    Component::update();
+    updateProjectionMatrix();
+    updateViewMatrix();
+    updateShadowFrustum();
+}
+
 void Light::remove() {
     Component::remove();
     Renderer::getActive()->removeLight(this);
+}
+
+void Light::updateShadowFrustum() {
+    shadowFrustum = Frustum(projectionMatrix * viewMatrix);
 }
 
 void Light::createShadowMap() {
@@ -56,11 +67,8 @@ void Light::renderShadow(const std::unordered_set<Renderable *> &renderables) {
     glEnable(GL_DEPTH_TEST);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    auto projection = getProjectionMatrix();
-    auto view = getViewMatrix();
-
     for (auto &renderable: renderables) {
-        renderable->renderShadow(projection, view);
+        renderable->renderShadow(this);
     }
 }
 
@@ -71,7 +79,7 @@ void Light::setUniforms() {
     deferredShader->setUniform("cameraPosition", renderer->getCamera()->getPosition());
     deferredShader->setUniform("lightColor", color);
 
-    deferredShader->setUniform("lightSpaceMatrix", getProjectionMatrix() * getViewMatrix());
+    deferredShader->setUniform("lightSpaceMatrix", projectionMatrix * viewMatrix);
 
     glActiveTexture(GL_TEXTURE8);
     glBindTexture(GL_TEXTURE_2D, shadowMap);
@@ -81,6 +89,18 @@ void Light::renderDeferred() {
     deferredShader->bind();
     setUniforms();
     Renderer::drawFrameQuad();
+}
+
+glm::mat4 Light::getProjectionMatrix() const {
+    return projectionMatrix;
+}
+
+glm::mat4 Light::getViewMatrix() const {
+    return viewMatrix;
+}
+
+Frustum Light::getShadowFrustum() const {
+    return shadowFrustum;
 }
 
 DirectionalLight::DirectionalLight(const glm::vec3 color)
@@ -101,8 +121,8 @@ void DirectionalLight::init() {
     deferredShader = Shader::DEFERRED_DIRECTIONAL_LIGHT;
 }
 
-glm::mat4 DirectionalLight::getProjectionMatrix() const {
-    return glm::ortho(
+void DirectionalLight::updateProjectionMatrix() {
+    projectionMatrix = glm::ortho(
             -DIRECTIONAL_LIGHT_SHADOW_DISTANCE,
             DIRECTIONAL_LIGHT_SHADOW_DISTANCE,
             -DIRECTIONAL_LIGHT_SHADOW_DISTANCE,
@@ -112,11 +132,11 @@ glm::mat4 DirectionalLight::getProjectionMatrix() const {
     );
 }
 
-glm::mat4 DirectionalLight::getViewMatrix() const {
+void DirectionalLight::updateViewMatrix() {
     auto transform = getEntity()->getTransform();
     auto cameraPosition = Renderer::getActive()->getCamera()->getPosition();
     auto position = cameraPosition - transform->getForward() * DIRECTIONAL_LIGHT_SHADOW_DISTANCE;
-    return glm::lookAt(position, cameraPosition, transform->getUp());
+    viewMatrix = glm::lookAt(position, cameraPosition, transform->getUp());
 }
 
 PointLight::PointLight(glm::vec3 color) : Light(color) {
@@ -134,13 +154,13 @@ void PointLight::setUniforms() {
     deferredShader->setUniform("lightPosition", getEntity()->getTransform()->getPosition());
 }
 
-glm::mat4 PointLight::getProjectionMatrix() const {
-    return glm::perspective(glm::radians(90.f), 1.f, 1.f, 25.f);
+void PointLight::updateProjectionMatrix() {
+    projectionMatrix = glm::perspective(glm::radians(90.f), 1.f, 1.f, 25.f);
 }
 
-glm::mat4 PointLight::getViewMatrix() const {
+void PointLight::updateViewMatrix() {
     auto position = getEntity()->getTransform()->getPosition();
-    return glm::lookAt(position, position + glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, -1.f, 0.f));
+    viewMatrix = glm::lookAt(position, position + glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, -1.f, 0.f));
 }
 
 SpotLight::SpotLight(glm::vec3 color, float innerAngle, float outerAngle) : Light(color) {
@@ -164,11 +184,11 @@ void SpotLight::setUniforms() {
     deferredShader->setUniform("outerCutoff", outerCutoff);
 }
 
-glm::mat4 SpotLight::getProjectionMatrix() const {
-    return glm::perspective(2 * outerAngle, 1.0f, SHADOW_NEAR_PLANE, SHADOW_FAR_PLANE);
+void SpotLight::updateProjectionMatrix() {
+    projectionMatrix = glm::perspective(2 * outerAngle, 1.0f, SHADOW_NEAR_PLANE, SHADOW_FAR_PLANE);
 }
 
-glm::mat4 SpotLight::getViewMatrix() const {
+void SpotLight::updateViewMatrix() {
     auto transform = getEntity()->getTransform();
-    return glm::lookAt(transform->getPosition(), transform->getPosition() + transform->getForward(), transform->getUp());
+    viewMatrix = glm::lookAt(transform->getPosition(), transform->getPosition() + transform->getForward(), transform->getUp());
 }

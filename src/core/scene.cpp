@@ -91,11 +91,7 @@ Scene::~Scene() {
 }
 
 void Scene::updateWorld() {
-    const double current_frame = glfwGetTime();
-    static double last_frame = 0.0f;
-
-    dynamicsWorld->stepSimulation(current_frame - last_frame, 10);
-    last_frame = current_frame;
+    dynamicsWorld->stepSimulation(Time::getDeltaTime(), 10);
 }
 
 Scene *Scene::getActive() {

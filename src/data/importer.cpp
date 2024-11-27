@@ -88,6 +88,8 @@ static Mesh *readMesh(aiMesh *mesh) {
         }
     }
 
+    result->calculateBounds();
+
     return result;
 }
 
@@ -416,6 +418,8 @@ void Importer::loadCameras() {
                 camera->mClipPlaneFar
         ));
         entity->addComponent(new Controllable());
+        auto *physicsComponent = new PhysicsComponent(50, true, 2);
+        entity->addComponent(physicsComponent);
         entity->removeComponent<GizmoRenderer>();
     }
 }
@@ -425,10 +429,16 @@ void Importer::loadCameras() {
 #pragma region nodes
 
 void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
-    if (node->mNumMeshes == 0) return; // TODO: habria que traer info sobre que usa fisicas y que no desde el .glb
-
-    //auto *physicsComponent = new PhysicsComponent(10, true);
-    //entity->addComponent(physicsComponent);
+    if (node->mMetaData && node->mMetaData->HasKey("weight")) {
+        double weight;
+        node->mMetaData->Get("weight", weight);
+        double hitboxType = 0; // 0 = box, 1 = sphere, 2 = player(box), 3 = ground (mesh)
+        if (node->mMetaData->HasKey("hitbox")) {
+            node->mMetaData->Get("hitbox", hitboxType);
+        }
+        auto *physicsComponent = new PhysicsComponent(weight, weight != 0, hitboxType);
+        entity->addComponent(physicsComponent);
+    }
 }
 
 Entity *Importer::getEntity(aiNode *node) {
@@ -458,6 +468,8 @@ void Importer::loadNodes(aiNode *node, Transform *parent) {
 
     auto transform = toTransform(node->mTransformation);
     entity->addComponent(transform);
+    entity->addComponent(new GizmoRenderer(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+    addPhysicsComponents(node, entity);
 
     if (parent) {
         parent->addChild(transform);

@@ -102,7 +102,7 @@ void Renderer::renderForward() {
 }
 
 void Renderer::renderGizmos() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, ppBuffer);
 
     glDisable(GL_DEPTH_TEST);
 
@@ -198,6 +198,7 @@ void Renderer::onWindowResize(int width, int height) {
 void Renderer::uploadPrimitiveMeshes() {
     Mesh::QUAD->upload();
     Mesh::CUBE->upload();
+    Mesh::SPHERE->upload();
 }
 
 void Renderer::uploadStandardShaders() {

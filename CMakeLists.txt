@@ -61,6 +61,7 @@ set(sources
         src/rendering/skybox.cpp
         src/data/stb_impl.cpp
         src/core/dayTimer.cpp
+        src/core/volumes.cpp
 )
 
 add_executable(opengl_scene ${sources})
