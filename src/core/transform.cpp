@@ -128,6 +128,12 @@ glm::vec3 Transform::getWorldPosition() const {
     return getModelMatrix() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+glm::vec3 Transform::getWorldScale() const {
+    return glm::vec3(glm::length(glm::vec3(getModelMatrix() * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f))),
+                     glm::length(glm::vec3(getModelMatrix() * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f))),
+                     glm::length(glm::vec3(getModelMatrix() * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f))));
+}
+
 glm::vec3 Transform::getForward() {
     return glm::normalize(glm::vec3(getModelMatrix() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
 }

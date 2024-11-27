@@ -88,6 +88,8 @@ static Mesh *readMesh(aiMesh *mesh) {
         }
     }
 
+    result->calculateBounds();
+
     return result;
 }
 
@@ -466,6 +468,7 @@ void Importer::loadNodes(aiNode *node, Transform *parent) {
 
     auto transform = toTransform(node->mTransformation);
     entity->addComponent(transform);
+    entity->addComponent(new GizmoRenderer(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
     addPhysicsComponents(node, entity);
 
     if (parent) {

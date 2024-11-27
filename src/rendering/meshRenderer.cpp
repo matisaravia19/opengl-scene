@@ -28,12 +28,17 @@ void MeshRenderer::setUniforms(Shader *shader, glm::mat4 projectionMatrix, glm::
 }
 
 void MeshRenderer::render() {
-    material->bind();
-    auto shader = material->getShader();
-
     auto camera = Renderer::getActive()->getCamera();
+
+    if (!camera->getFrustum().intersects(getBoundingSphere())) {
+        return;
+    }
+
     auto viewMatrix = camera->getView();
     auto projectionMatrix = camera->getProjection();
+
+    material->bind();
+    auto shader = material->getShader();
 
     setUniforms(shader, projectionMatrix, viewMatrix);
 
@@ -86,4 +91,11 @@ void MeshRenderer::setMesh(std::shared_ptr<Mesh> mesh) {
     if (getLifeState() == ComponentLifeState::INITIALIZED) {
         mesh->upload();
     }
+}
+
+Sphere MeshRenderer::getBoundingSphere() {
+    auto scale = transform->getWorldScale();
+    float radius = mesh->radius * glm::max(scale.x, glm::max(scale.y, scale.z));
+    
+    return Sphere(transform->getWorldPosition(), radius);
 }

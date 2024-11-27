@@ -29,4 +29,6 @@ public:
 
     std::shared_ptr<Mesh> getMesh();
     void setMesh(std::shared_ptr<Mesh> mesh);
+
+    Sphere getBoundingSphere();
 };
