@@ -32,8 +32,11 @@ public:
     void applyForce(const glm::vec3& force, const glm::vec3& relativePos = glm::vec3(0.0f));
     void applyImpulse(const glm::vec3& impulse, const glm::vec3& relativePos = glm::vec3(0.0f));
 
+    bool isGrounded();
+
     void setFriction(float friction);
     void setRestitution(float restitution);
 
+    glm::vec3 getLinearVelocity();
     btRigidBody* getRigidBody() { return rigidBody; }
 };

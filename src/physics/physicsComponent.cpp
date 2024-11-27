@@ -48,7 +48,7 @@ void PhysicsComponent::init() {
         auto maxVertexFromBoundingBox = glm::max(glm::max(boundingBox.x * scale.x, boundingBox.y * scale.y), boundingBox.z * scale.z);
         collisionShape = new btSphereShape(maxVertexFromBoundingBox);
     } else if (hitboxType == 2) {
-        collisionShape = new btCapsuleShape(2, 3);
+        collisionShape = new btBoxShape(btVector3(1, 1, 1));
     }
 
     btVector3 localInertia(0.0f, 0.0f, 0.0f);
@@ -67,7 +67,6 @@ void PhysicsComponent::init() {
     rigidBody->setUserPointer(getEntity());
 
     if (getEntity()->getComponent<Controllable>()) {
-        rigidBody->setCollisionFlags(rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
         rigidBody->setActivationState(DISABLE_DEACTIVATION);
     }
 
@@ -79,31 +78,17 @@ void PhysicsComponent::update() {
 
     if (!rigidBody) return;
 
-    if (rigidBody->isKinematicObject()) {
-        glm::vec3 position = transform->getPosition();
-        glm::vec3 rotation = transform->getEulerAngles();
+    btTransform trans;
+    rigidBody->getMotionState()->getWorldTransform(trans);
 
-        btTransform newTransform;
-        newTransform.setIdentity();
-        newTransform.setOrigin(btVector3(position.x, position.y, position.z));
-        newTransform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z));
+    btVector3 position = trans.getOrigin();
+    btQuaternion rotation = trans.getRotation();
 
-        rigidBody->setWorldTransform(newTransform);
-        rigidBody->getMotionState()->setWorldTransform(newTransform);
+    transform->setPosition(glm::vec3(position.x(), position.y(), position.z()));
 
-        rigidBody->setLinearVelocity(btVector3(0, 0, 0));
-        rigidBody->setAngularVelocity(btVector3(0, 0, 0));
-    } else {
-        btTransform trans;
-        rigidBody->getMotionState()->getWorldTransform(trans);
-
-        btVector3 position = trans.getOrigin();
-        btQuaternion rotation = trans.getRotation();
-
-        transform->setPosition(glm::vec3(position.x(), position.y(), position.z()));
-
-        glm::vec3 euler;
-        rotation.getEulerZYX(euler[2], euler[1], euler[0]);
+    glm::vec3 euler;
+    rotation.getEulerZYX(euler[2], euler[1], euler[0]);
+    if (hitboxType != 2) {
         transform->setRotation(euler);
     }
 }
@@ -151,6 +136,29 @@ void PhysicsComponent::applyImpulse(const glm::vec3 &impulse, const glm::vec3 &r
     }
 }
 
+bool PhysicsComponent::isGrounded() {
+    if (!rigidBody) return false;
+
+    btTransform transform;
+    rigidBody->getMotionState()->getWorldTransform(transform);
+    btVector3 playerPosition = transform.getOrigin();
+
+    btVector3 rayStart = playerPosition;
+    btVector3 rayEnd = playerPosition - btVector3(0, 1.1f, 0); // Adjust 1.1f for player's height and a small offset
+
+    btCollisionWorld::ClosestRayResultCallback rayCallback(rayStart, rayEnd);
+    PhysicsWorld::getInstance()->getDynamicsWorld()->rayTest(rayStart, rayEnd, rayCallback);
+
+    if (rayCallback.hasHit()) {
+        btRigidBody *hitBody = (btRigidBody *)btRigidBody::upcast(rayCallback.m_collisionObject);
+        if (hitBody && hitBody != rigidBody) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void PhysicsComponent::setFriction(float friction) {
     if (rigidBody) {
         rigidBody->activate();
@@ -163,4 +171,12 @@ void PhysicsComponent::setRestitution(float restitution) {
         rigidBody->activate();
         rigidBody->setRestitution(restitution);
     }
+}
+
+glm::vec3 PhysicsComponent::getLinearVelocity() {
+    if (rigidBody) {
+        btVector3 velocity = rigidBody->getLinearVelocity();
+        return glm::vec3(velocity.x(), velocity.y(), velocity.z());
+    }
+    return glm::vec3(0);
 }

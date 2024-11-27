@@ -3,10 +3,12 @@
 #include "component.h"
 #include "input.h"
 #include "entity.h"
+#include "../physics/physicsComponent.h"
 
 class Controllable : public Component {
     Input *input;
     Transform *transform;
+    PhysicsComponent *physicsComponent;
 
     double runSpeed = 10.0f;
     double mouseSensitivity = 0.5f;

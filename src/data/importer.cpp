@@ -416,7 +416,7 @@ void Importer::loadCameras() {
                 camera->mClipPlaneFar
         ));
         entity->addComponent(new Controllable());
-        auto *physicsComponent = new PhysicsComponent(1, true, 2);
+        auto *physicsComponent = new PhysicsComponent(50, true, 2);
         entity->addComponent(physicsComponent);
         entity->removeComponent<GizmoRenderer>();
     }
