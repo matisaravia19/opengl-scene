@@ -104,3 +104,14 @@ Sphere MeshRenderer::getBoundingSphere() {
 
     return Sphere(transform->getWorldPosition(), radius);
 }
+
+std::shared_ptr<Material> MeshRenderer::getMaterial() {
+    return material;
+}
+
+void MeshRenderer::setMaterial(std::shared_ptr<Material> material) {
+    this->material = material;
+    if (getLifeState() == ComponentLifeState::INITIALIZED) {
+        material->upload();
+    }
+}

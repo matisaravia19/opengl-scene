@@ -62,6 +62,7 @@ set(sources
         src/data/stb_impl.cpp
         src/core/dayTimer.cpp
         src/core/volumes.cpp
+        src/rendering/treeRenderer.cpp
 )
 
 add_executable(opengl_scene ${sources})

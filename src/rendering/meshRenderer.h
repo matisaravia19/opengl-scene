@@ -9,7 +9,7 @@
 #include "armature.h"
 
 class MeshRenderer : public Component, public Renderable {
-private:
+protected:
     std::shared_ptr<Mesh> mesh;
     std::shared_ptr<Material> material;
     bool castShadows = true;
@@ -29,6 +29,9 @@ public:
 
     std::shared_ptr<Mesh> getMesh();
     void setMesh(std::shared_ptr<Mesh> mesh);
+
+    std::shared_ptr<Material> getMaterial();
+    void setMaterial(std::shared_ptr<Material> material);
 
     Sphere getBoundingSphere();
 };

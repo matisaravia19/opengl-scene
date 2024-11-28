@@ -12,6 +12,7 @@
 #include "../debug/gizmoRenderer.h"
 #include "../rendering/armature.h"
 #include "../rendering/animationController.h"
+#include "../rendering/treeRenderer.h"
 
 #pragma region conversions
 
@@ -113,9 +114,31 @@ std::shared_ptr<Mesh> Importer::getMesh(const std::string &name) {
 void Importer::addMeshRenderer(Entity *entity, aiNode *node) {
     auto mesh = meshes[node->mMeshes[0]];
     auto material = materials[scene->mMeshes[node->mMeshes[0]]->mMaterialIndex];
-    auto meshRenderer = new MeshRenderer(mesh, material);
 
-    entity->addComponent(meshRenderer);
+    if (node->mMetaData && node->mMetaData->HasKey("treeBillboard")) {
+        aiMetadata billboardTextureProp;
+        node->mMetaData->Get("treeBillboard", billboardTextureProp);
+
+        aiString textureName;
+        billboardTextureProp.Get("name", textureName);
+
+        auto billboardMaterial = std::make_shared<PbrMaterial>("tree_billboard");
+        billboardMaterial->setAlbedo(std::make_shared<ImageTexture>("textures/" + std::string(textureName.C_Str())));
+
+        aiMetadata billboardMeshProp;
+        node->mMetaData->Get("treeBillboardMesh", billboardMeshProp);
+
+        aiString meshName;
+        billboardMeshProp.Get("name", meshName);
+
+        auto billboardMesh = getMesh(meshName.C_Str());
+
+        auto treeRenderer = new TreeRenderer(mesh, material, billboardMesh, billboardMaterial);
+        entity->addComponent(treeRenderer);
+    } else {
+        auto meshRenderer = new MeshRenderer(mesh, material);
+        entity->addComponent(meshRenderer);
+    }
 }
 
 void Importer::addLOD(Entity *entity, aiNode *node) {
@@ -460,6 +483,10 @@ Entity *Importer::getEntity(const std::string &name) {
 }
 
 void Importer::loadNodes(aiNode *node, Transform *parent) {
+    if (node->mMetaData && node->mMetaData->HasKey("discard")) {
+        return;
+    }
+
     auto entity = new Entity(node->mName.C_Str());
     entities.push_back(entity);
 

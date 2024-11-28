@@ -14,6 +14,10 @@ Shader *Material::getShader() {
 
 PbrMaterial::PbrMaterial(std::string name) : Material(name) {
     shader = Shader::PBR;
+    albedo = std::make_shared<ColorTexture>(glm::vec3(1.0f));
+    normal = std::make_shared<ColorTexture>(glm::vec3(0.5f, 0.5f, 1.0f));
+    metallicRoughness = std::make_shared<ColorTexture>(glm::vec3(0.0f, 0.0f, 1.0f));
+    ao = std::make_shared<ColorTexture>(glm::vec3(1.0f));
 }
 
 void PbrMaterial::upload() {
@@ -52,7 +56,7 @@ void PbrMaterial::bind() {
     if (normal) {
         normal->bind(1);
     }
-    
+
     if (metallicRoughness) {
         metallicRoughness->bind(2);
     }

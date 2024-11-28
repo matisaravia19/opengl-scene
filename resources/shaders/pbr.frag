@@ -19,8 +19,13 @@ layout (binding = 2) uniform sampler2D metallicRoughness;
 layout (binding = 3) uniform sampler2D ao;
 
 void main() {
+    vec4 fragAlbedo = texture(albedo, fTexCoords);
+    if (fragAlbedo.a < 0.5) {
+        discard;
+    }
+
     oWorldPosition = vec4(fWorldPosition, 1.0);
-    oAlbedo = texture(albedo, fTexCoords);
+    oAlbedo = fragAlbedo;
     oNormal = vec4(normalMap(fNormal, fTangent, fBitangent, normal, fTexCoords), 1.0);
     oMetallicRoughness = texture(metallicRoughness, fTexCoords);
 }
