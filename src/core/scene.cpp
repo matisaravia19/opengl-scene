@@ -55,7 +55,7 @@ void Scene::open() {
     initGui();
     initSky();
 
-    Importer importer("..\\resources\\scene5.gltf");
+    Importer importer("..\\resources\\scene4.gltf");
     importer.load();
     for (auto &entity: importer.getEntities()) {
         spawn(entity);

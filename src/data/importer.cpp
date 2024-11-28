@@ -438,7 +438,6 @@ int getHitboxType(aiNode *node) {
             return hitboxType;
         }
         if (node->mMetaData->HasKey("treeBillboard")) {
-            std::cout << "treeBillboard" << std::endl;
             return 4;
         }
     }

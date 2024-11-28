@@ -48,7 +48,7 @@ void PhysicsComponent::init() {
         auto maxVertexFromBoundingBox = glm::max(glm::max(boundingBox.x * scale.x, boundingBox.y * scale.y), boundingBox.z * scale.z);
         collisionShape = new btSphereShape(maxVertexFromBoundingBox);
     } else if (hitboxType == 2) {
-        collisionShape = new btCapsuleShape(1, 2);
+        collisionShape = new btCapsuleShape(0.5, 2);
     } else if (hitboxType == 3) {
         auto mesh = meshRenderer->getMesh();
         auto vertices = mesh->vertices;
