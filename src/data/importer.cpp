@@ -1,6 +1,8 @@
 #include "importer.h"
 
 #include <filesystem>
+#include <iostream>
+
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "../rendering/meshRenderer.h"
@@ -451,14 +453,26 @@ void Importer::loadCameras() {
 
 #pragma region nodes
 
+int getHitboxType(aiNode *node) {
+    if (node->mMetaData) {
+        if (node->mMetaData->HasKey("hitbox")) {
+            double hitboxType = 0;
+            node->mMetaData->Get("hitbox", hitboxType);
+            return hitboxType;
+        }
+        if (node->mMetaData->HasKey("treeBillboard")) {
+            return 4;
+        }
+    }
+
+    return 0;
+}
+
 void Importer::addPhysicsComponents(aiNode *node, Entity *entity) {
     if (node->mMetaData && node->mMetaData->HasKey("weight")) {
         double weight;
         node->mMetaData->Get("weight", weight);
-        double hitboxType = 0; // 0 = box, 1 = sphere, 2 = player(box), 3 = ground (mesh)
-        if (node->mMetaData->HasKey("hitbox")) {
-            node->mMetaData->Get("hitbox", hitboxType);
-        }
+        int hitboxType = getHitboxType(node);
         auto *physicsComponent = new PhysicsComponent(weight, weight != 0, hitboxType);
         entity->addComponent(physicsComponent);
     }
