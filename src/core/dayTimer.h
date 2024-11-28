@@ -17,7 +17,7 @@ public:
     static constexpr double DUSK_START = DUSK - TRANSITION * .5;
     static constexpr double DUSK_END = DUSK_START + TRANSITION;
 
-    DayTimer() : currentTime(DAWN), timeStep(0.5f) {}
+    DayTimer() : currentTime(DAWN), timeStep(0.25f) {}
 
     void init() override;
     void update() override;

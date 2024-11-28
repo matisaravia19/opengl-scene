@@ -58,7 +58,7 @@ void Scene::open() {
     renderer->init();
     addDefaultEntities();
 
-    Importer importer("..\\resources\\scene4.gltf");
+    Importer importer("..\\resources\\scene6.gltf");
     importer.load();
     for (auto &entity: importer.getEntities()) {
         spawn(entity);
