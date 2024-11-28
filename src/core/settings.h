@@ -14,6 +14,12 @@ struct Settings {
 
     bool showShadows;
     float directionalShadowDistance;
+
+    float treeDistance;
+
+    bool dayNightCycle;
+    float dayLength;
+    float dayTime;
 };
 
 class SettingsManager {
@@ -22,5 +28,6 @@ private:
 
 public:
     static Settings &getSettings();
+
     static void notifyChanges();
 };

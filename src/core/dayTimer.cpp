@@ -6,6 +6,10 @@ void DayTimer::init() {
 }
 
 void DayTimer::update() {
-    currentTime += Time::getDeltaTime() * timeStep;
-    currentTime = fmod(currentTime, DAY_LENGTH);
+    auto settings = &SettingsManager::getSettings();
+    if (!settings->dayNightCycle) {
+        return;
+    }
+
+    settings->dayTime = fmod(settings->dayTime + Time::getDeltaTime() * timeStep, settings->dayLength);
 }

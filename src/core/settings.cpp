@@ -10,6 +10,10 @@ Settings SettingsManager::settings = {
         .fogDensity = 0.01f,
         .showShadows = true,
         .directionalShadowDistance = 100.0f,
+        .treeDistance = 100.0f,
+        .dayNightCycle = true,
+        .dayLength = 24.0f,
+        .dayTime = 0.0f,
 };
 
 Settings &SettingsManager::getSettings() {

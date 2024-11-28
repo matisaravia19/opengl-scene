@@ -6,7 +6,7 @@
 Camera::Camera(float fov, float near, float far) {
     this->fov = fov;
     this->near = near;
-    this->far = far;
+    this->far = 1000.0f;
 }
 
 void Camera::init() {

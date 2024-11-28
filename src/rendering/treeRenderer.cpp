@@ -2,11 +2,11 @@
 #include "../core/entity.h"
 #include "../core/constants.h"
 
-TreeRenderer::TreeRenderer(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> baseMaterial, std::shared_ptr<Mesh> billboardMesh, std::shared_ptr<Material> billboardMaterial)
+TreeRenderer::TreeRenderer(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> baseMaterial,
+                           std::shared_ptr<Mesh> billboardMesh, std::shared_ptr<Material> billboardMaterial)
         : MeshRenderer(mesh, baseMaterial) {
     this->billboardMesh = billboardMesh;
     this->billboardMaterial = billboardMaterial;
-    this->distanceThreshold = 100;
 }
 
 void TreeRenderer::init() {
@@ -21,7 +21,7 @@ void TreeRenderer::update() {
     auto camera = Renderer::getActive()->getCamera();
     auto position = getEntity()->getTransform()->getWorldPosition();
     auto distance = glm::distance(camera->getPosition(), position);
-    isInBillboardMode = distance > distanceThreshold;
+    isInBillboardMode = distance > SettingsManager::getSettings().treeDistance;
 }
 
 void TreeRenderer::render() {

@@ -45,6 +45,12 @@ void GuiRenderer::showSettingsWindow() {
     ImGui::Checkbox("Shadows", &settings->showShadows);
     ImGui::SliderFloat("Directional Shadow Distance", &settings->directionalShadowDistance, 0.0f, 1000.0f);
 
+    ImGui::SliderFloat("Tree Render Distance", &settings->treeDistance, 10.0f, 1000.0f);
+
+    ImGui::Checkbox("Day/Night Cycle", &settings->dayNightCycle);
+    ImGui::SliderFloat("Day Length", &settings->dayLength, 1.0f, 48.0f);
+    ImGui::SliderFloat("Day Time", &settings->dayTime, 0.0f, settings->dayLength);
+
     ImGui::End();
 }
 

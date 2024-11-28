@@ -20,11 +20,8 @@ public:
     DayTimer() : currentTime(DAWN), timeStep(0.25f) {}
 
     void init() override;
+
     void update() override;
 
-    [[nodiscard]] double getTimeStep() const { return timeStep; }
-
-    [[nodiscard]] double getCurrentTime() const { return currentTime; }
-
-    void setDayLength(double minutes);
+    [[nodiscard]] double getCurrentTime() const { return SettingsManager::getSettings().dayTime; }
 };
