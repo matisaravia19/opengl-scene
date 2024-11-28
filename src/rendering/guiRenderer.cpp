@@ -6,7 +6,7 @@
 #include <backends/imgui_impl_opengl3.h>
 
 GuiRenderer::GuiRenderer(Window *window, Input *input)
-        : window(window), input(input), visible(false), full_screen(false) {
+        : window(window), input(input), settingsVisible(false) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -21,25 +21,44 @@ void GuiRenderer::init() {
     Component::init();
 
     Renderer::getActive()->registerRenderable(this, RenderPass::GUI);
+
+    settings = &SettingsManager::getSettings();
+}
+
+void GuiRenderer::showFPS() {
+    ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
+    ImGui::Text("FPS: %.1f", Time::getFPS());
+
+    ImGui::End();
 }
 
 void GuiRenderer::showSettingsWindow() {
     ImGui::Begin("Settings");
 
-    ImGui::Checkbox("Fullscreen", &full_screen);
+    ImGui::Checkbox("Fullscreen", &settings->fullscreen);
+
+    ImGui::ColorPicker3("Ambient Light", &settings->ambientLight.r);
+    ImGui::ColorPicker3("Fog Color", &settings->fogColor.r);
+    ImGui::SliderFloat("Fog Density", &settings->fogDensity, 0.0f, 1.0f);
+
+    ImGui::Checkbox("Shadows", &settings->showShadows);
+    ImGui::SliderFloat("Directional Shadow Distance", &settings->directionalShadowDistance, 0.0f, 1000.0f);
 
     ImGui::End();
 }
 
 void GuiRenderer::render() {
-    if (!visible) return;
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    //ImGui::ShowDemoWindow();
-    showSettingsWindow();
+    showFPS();
+
+    if (settingsVisible) {
+        showSettingsWindow();
+    }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -49,23 +68,16 @@ void GuiRenderer::update() {
     Component::update();
 
     static bool debounce = false;
-    const auto cfg = Settings::ActiveSettings;
 
     if (input->wasKeyPressed(KeyCode::Escape)) {
         if (!debounce) {
-            visible = !visible;
+            settingsVisible = !settingsVisible;
             debounce = true;
-            Time::setTimeScale(visible ? 0 : 1);
-            input->setCursorVisibility(visible);
+            Time::setTimeScale(settingsVisible ? 0 : 1);
+            input->setCursorVisibility(settingsVisible);
         }
     } else { // debounce is reset only when the key is released
         debounce = false;
-    }
-
-    if (full_screen) {
-        cfg->setFullscreen(true);
-    } else {
-        cfg->setFullscreen(false);
     }
 }
 

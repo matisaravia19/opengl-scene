@@ -11,13 +11,12 @@
 #define SHADOW_FAR_PLANE 200.0f
 #define SHADOW_NEAR_PLANE 0.1f
 
-#define DIRECTIONAL_LIGHT_SHADOW_DISTANCE 40.0f
-
 class Light : public Component {
 protected:
     glm::vec3 color;
     Shader *deferredShader;
 
+    bool castShadows = true;
     glm::vec<2, int> shadowMapSize = {SHADOW_MAP_SIZE, SHADOW_MAP_SIZE};
     unsigned int shadowMap;
     unsigned int shadowMapFBO;
@@ -27,19 +26,18 @@ protected:
     Frustum shadowFrustum;
 
     void createShadowMap();
-    virtual void updateProjectionMatrix() = 0;
-    virtual void updateViewMatrix() = 0;
+    virtual void updateProjectionMatrix();
+    virtual void updateViewMatrix();
     void updateShadowFrustum();
 
     virtual void setUniforms();
 
 public:
-
     explicit Light(glm::vec3 color);
     void init() override;
     void update() override;
     void remove() override;
-    virtual void renderDeferred();
+    void renderDeferred();
     void renderShadow(const std::unordered_set<Renderable *> &renderables);
 
     glm::mat4 getProjectionMatrix() const;

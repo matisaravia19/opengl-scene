@@ -19,6 +19,7 @@ private:
 
     static Scene *active;
 
+    void addDefaultEntities();
     void initGui();
     void initSky();
 

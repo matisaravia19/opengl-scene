@@ -49,6 +49,7 @@ static unsigned int createProgram(unsigned int vertexShader, unsigned int fragme
 Shader *Shader::PBR = new Shader("shaders/standard.vert", "shaders/pbr.frag");
 Shader *Shader::GIZMO = new Shader("shaders/standard.vert", "shaders/gizmo.frag");
 
+Shader *Shader::DEFERRED_AMBIENT_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/ambient.frag");
 Shader *Shader::DEFERRED_POINT_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/point.frag");
 Shader *Shader::DEFERRED_DIRECTIONAL_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/directional.frag");
 Shader *Shader::DEFERRED_SPOT_LIGHT = new Shader("shaders/shared/screen.vert", "shaders/deferred/spot.frag");

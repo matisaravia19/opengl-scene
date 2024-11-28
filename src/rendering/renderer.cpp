@@ -23,6 +23,11 @@ void Renderer::render() {
     renderGBuffer();
     renderLighting();
     renderForward();
+
+    if (SettingsManager::getSettings().renderGizmos) {
+        renderGizmos();
+    }
+
     renderPostProcessing();
 
     glDisable(GL_DEPTH_TEST);
@@ -54,15 +59,17 @@ void Renderer::renderGBuffer() {
 }
 
 void Renderer::renderLighting() {
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
+    if (SettingsManager::getSettings().showShadows) {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
 
-    for (Light *light: lights) {
-        light->renderShadow(deferredRenderables);
+        for (Light *light: lights) {
+            light->renderShadow(deferredRenderables);
+        }
+
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_DEPTH_TEST);
     }
-
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
 
     glBindFramebuffer(GL_FRAMEBUFFER, ppBuffer);
     glViewport(0, 0, window->getWidth(), window->getHeight());
@@ -84,6 +91,11 @@ void Renderer::renderLighting() {
 
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, gMetallicRoughness);
+
+    Shader::DEFERRED_AMBIENT_LIGHT->bind();
+    Shader::DEFERRED_AMBIENT_LIGHT->setUniform("ambientColor", SettingsManager::getSettings().ambientLight);
+    Shader::DEFERRED_AMBIENT_LIGHT->setUniform("windowSize", window->getSize());
+    drawFrameQuad();
 
     for (Light *light: lights) {
         light->renderDeferred();
@@ -128,8 +140,8 @@ void Renderer::renderPostProcessing() {
 
     Shader::POSTPROCESSING->bind();
     Shader::POSTPROCESSING->setUniform("windowSize", window->getSize());
-    Shader::POSTPROCESSING->setUniform("fogColor", glm::vec4(0.23f, 0.44f, 0.71f, 1.0f));
-    Shader::POSTPROCESSING->setUniform("fogDensity", 0.001f);
+    Shader::POSTPROCESSING->setUniform("fogColor", SettingsManager::getSettings().fogColor);
+    Shader::POSTPROCESSING->setUniform("fogDensity", SettingsManager::getSettings().fogDensity);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ppColor);
@@ -220,6 +232,7 @@ void Renderer::uploadPrimitiveMeshes() {
 }
 
 void Renderer::uploadStandardShaders() {
+    Shader::DEFERRED_AMBIENT_LIGHT->upload();
     Shader::DEFERRED_POINT_LIGHT->upload();
     Shader::DEFERRED_DIRECTIONAL_LIGHT->upload();
     Shader::DEFERRED_SPOT_LIGHT->upload();

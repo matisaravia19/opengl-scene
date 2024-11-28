@@ -7,11 +7,12 @@
 #include "GLFW/glfw3.h"
 #include "glm/vec2.hpp"
 
-class Window : public SettingsObserver {
+class Window {
 private:
     int width;
     int height;
     std::string title;
+    bool fullscreen;
 
     GLFWwindow *window = nullptr;
 
@@ -34,5 +35,5 @@ public:
     int getHeight() const;
     float getAspectRatio() const;
 
-    void notify(Settings *settings) override;
+    void setFullscreen(bool fullscreen);
 };

@@ -8,6 +8,7 @@ private:
 
 public:
     static double getDeltaTime();
+    static double getFPS();
     static void endFrame();
     static void setTimeScale(double timeScale);
 };

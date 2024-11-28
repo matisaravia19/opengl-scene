@@ -8,12 +8,16 @@ layout (binding = 2) uniform sampler2D worldPosition;
 layout (binding = 3) uniform sampler2D depth;
 
 uniform vec2 windowSize;
-uniform vec4 fogColor;
+uniform vec3 fogColor;
 uniform float fogDensity;
 
 vec4 distanceFog(vec4 color, float distance) {
-    float fogFactor = exp((distance - 1) / fogDensity);
-    return mix(color, fogColor, fogFactor);
+    if (fogDensity == 0.0) {
+        return color;
+    }
+
+    float fogFactor = exp((distance - 1) * 100 / fogDensity);
+    return mix(color, vec4(fogColor, 1.0), fogFactor);
 }
 
 vec4 hdr(vec4 color) {

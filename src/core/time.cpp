@@ -10,6 +10,10 @@ double Time::getDeltaTime() {
     return deltaTime * timeScale;
 }
 
+double Time::getFPS() {
+    return 1.0 / deltaTime;
+}
+
 void Time::endFrame() {
     double currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;

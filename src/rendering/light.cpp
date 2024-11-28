@@ -34,6 +34,14 @@ void Light::remove() {
     Renderer::getActive()->removeLight(this);
 }
 
+void Light::updateProjectionMatrix() {
+    projectionMatrix = glm::mat4(1.f);
+}
+
+void Light::updateViewMatrix() {
+    viewMatrix = glm::mat4(1.f);
+}
+
 void Light::updateShadowFrustum() {
     shadowFrustum = Frustum(projectionMatrix * viewMatrix);
 }
@@ -61,6 +69,10 @@ void Light::createShadowMap() {
 }
 
 void Light::renderShadow(const std::unordered_set<Renderable *> &renderables) {
+    if (!castShadows) {
+        return;
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
     glViewport(0, 0, shadowMapSize.x, shadowMapSize.y);
 
@@ -103,8 +115,7 @@ Frustum Light::getShadowFrustum() const {
     return shadowFrustum;
 }
 
-DirectionalLight::DirectionalLight(const glm::vec3 color)
-        : Light(color) {}
+DirectionalLight::DirectionalLight(const glm::vec3 color) : Light(color) {}
 
 void DirectionalLight::setDirection(const glm::vec3 direction) {
     const auto quat = glm::quatLookAt(glm::normalize(direction), glm::vec3(0.f, 1.f, 0.f));
@@ -122,31 +133,31 @@ void DirectionalLight::init() {
 }
 
 void DirectionalLight::updateProjectionMatrix() {
+    const float shadowDistance = SettingsManager::getSettings().directionalShadowDistance;
     projectionMatrix = glm::ortho(
-            -DIRECTIONAL_LIGHT_SHADOW_DISTANCE,
-            DIRECTIONAL_LIGHT_SHADOW_DISTANCE,
-            -DIRECTIONAL_LIGHT_SHADOW_DISTANCE,
-            DIRECTIONAL_LIGHT_SHADOW_DISTANCE,
+            -shadowDistance,
+            shadowDistance,
+            -shadowDistance,
+            shadowDistance,
             SHADOW_NEAR_PLANE,
-            SHADOW_FAR_PLANE
+            shadowDistance
     );
 }
 
 void DirectionalLight::updateViewMatrix() {
     auto transform = getEntity()->getTransform();
     auto cameraPosition = Renderer::getActive()->getCamera()->getPosition();
-    auto position = cameraPosition - transform->getForward() * DIRECTIONAL_LIGHT_SHADOW_DISTANCE;
+    auto position = cameraPosition - transform->getForward() * (SettingsManager::getSettings().directionalShadowDistance / 2);
     viewMatrix = glm::lookAt(position, cameraPosition, transform->getUp());
 }
 
 PointLight::PointLight(glm::vec3 color) : Light(color) {
-
+    castShadows = false;
 }
 
 void PointLight::init() {
     Light::init();
     deferredShader = Shader::DEFERRED_POINT_LIGHT;
-    deferredShader->upload();
 }
 
 void PointLight::setUniforms() {
@@ -173,7 +184,6 @@ SpotLight::SpotLight(glm::vec3 color, float innerAngle, float outerAngle) : Ligh
 void SpotLight::init() {
     Light::init();
     deferredShader = Shader::DEFERRED_SPOT_LIGHT;
-    deferredShader->upload();
 }
 
 void SpotLight::setUniforms() {

@@ -9,10 +9,11 @@
 class GuiRenderer : public Component, public Renderable {
     Window *window;
     Input *input;
+    Settings *settings;
 
-    bool visible;
-    bool full_screen;
+    bool settingsVisible;
 
+    void showFPS();
     void showSettingsWindow();
 public:
     explicit GuiRenderer(Window *window, Input *input);

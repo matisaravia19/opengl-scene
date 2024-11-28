@@ -40,6 +40,7 @@ public:
     static Shader *PBR;
     static Shader *GIZMO;
 
+    static Shader *DEFERRED_AMBIENT_LIGHT;
     static Shader *DEFERRED_POINT_LIGHT;
     static Shader *DEFERRED_DIRECTIONAL_LIGHT;
     static Shader *DEFERRED_SPOT_LIGHT;

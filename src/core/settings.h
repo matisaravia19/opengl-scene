@@ -1,32 +1,26 @@
 #pragma once
 
 #include <vector>
+#include "glm/vec3.hpp"
 
-class SettingsObserver;
+struct Settings {
+    bool fullscreen;
+    bool showDebugData;
+    bool renderGizmos;
 
-// Plain class implementing Observer pattern.
-class Settings {
-  std::vector<SettingsObserver*> subscribers;
+    glm::vec3 ambientLight;
+    glm::vec3 fogColor;
+    float fogDensity;
 
-  struct SetingsData {
-    bool full_screen = false;
-  } settingsData;
-
-public:
-  void subscribe(SettingsObserver* observer);
-  void unsubscribe(SettingsObserver* observer);
-  void notify();
-
-  SetingsData& getSettingsData() { return settingsData; }
-
-  void setFullscreen(bool fs);
-
-  static Settings *ActiveSettings;
+    bool showShadows;
+    float directionalShadowDistance;
 };
 
-// Interface implemented by oberver subscribers.
-class SettingsObserver {
+class SettingsManager {
+private:
+    static Settings settings;
+
 public:
-  virtual ~SettingsObserver() = default;
-  virtual void notify(Settings* settings) = 0;
+    static Settings &getSettings();
+    static void notifyChanges();
 };

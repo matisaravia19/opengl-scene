@@ -15,12 +15,16 @@ Scene::Scene() {
     window = new Window(800, 600, "OpenGL scene");
     renderer = new Renderer(window);
     input = new Input(window);
-    Settings::ActiveSettings->subscribe(window);
 }
 
 void Scene::load() {
     physicsWorld = PhysicsWorld::getInstance();
     dynamicsWorld = physicsWorld->getDynamicsWorld();
+}
+
+void Scene::addDefaultEntities() {
+    initGui();
+    initSky();
 }
 
 void Scene::initGui() {
@@ -52,8 +56,7 @@ void Scene::open() {
     window->open();
     input->init();
     renderer->init();
-    initGui();
-    initSky();
+    addDefaultEntities();
 
     Importer importer("..\\resources\\light.gltf");
     importer.load();
@@ -71,6 +74,7 @@ void Scene::open() {
 
         renderer->render();
 
+        SettingsManager::notifyChanges();
         Time::endFrame();
     }
 

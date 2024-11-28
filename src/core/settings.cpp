@@ -1,23 +1,21 @@
 #include "settings.h"
+#include "window.h"
 
-Settings *Settings::ActiveSettings = new Settings();
+Settings SettingsManager::settings = {
+        .fullscreen = false,
+        .showDebugData = false,
+        .renderGizmos = false,
+        .ambientLight = glm::vec3(0.1f),
+        .fogColor = glm::vec3(1.0f),
+        .fogDensity = 0.01f,
+        .showShadows = true,
+        .directionalShadowDistance = 100.0f,
+};
 
-void Settings::subscribe(SettingsObserver* observer) {
-    subscribers.push_back(observer);
+Settings &SettingsManager::getSettings() {
+    return settings;
 }
 
-void Settings::unsubscribe(SettingsObserver* observer) {
-    std::erase(subscribers, observer);
-}
-
-void Settings::notify() {
-    for (const auto observer : subscribers) {
-        observer->notify(this);
-    }
-}
-
-void Settings::setFullscreen(const bool fs) {
-    const bool changed = settingsData.full_screen != fs;
-    settingsData.full_screen = fs;
-    if (changed) notify();
+void SettingsManager::notifyChanges() {
+    Window::getActive()->setFullscreen(settings.fullscreen);
 }
