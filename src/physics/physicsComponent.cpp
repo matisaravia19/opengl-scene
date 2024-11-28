@@ -6,7 +6,8 @@
 
 
 PhysicsComponent::PhysicsComponent(float mass, bool isDynamic, int hitboxType)
-        : mass(mass), hitboxType(hitboxType), isDynamic(isDynamic), rigidBody(nullptr), collisionShape(nullptr), motionState(nullptr) {
+        : mass(mass), hitboxType(hitboxType), isDynamic(isDynamic), rigidBody(nullptr), collisionShape(nullptr),
+          motionState(nullptr) {
 }
 
 PhysicsComponent::~PhysicsComponent() {
@@ -43,9 +44,11 @@ void PhysicsComponent::init() {
 
     glm::vec3 boundingBox = meshRenderer ? meshRenderer->getMesh()->bounds : glm::vec3(1.0f);
     if (hitboxType == 0) {
-        collisionShape = new btBoxShape(btVector3(boundingBox.x * scale.x, boundingBox.y * scale.y, boundingBox.z * scale.z));
+        collisionShape = new btBoxShape(
+                btVector3(boundingBox.x * scale.x, boundingBox.y * scale.y, boundingBox.z * scale.z));
     } else if (hitboxType == 1) {
-        auto maxVertexFromBoundingBox = glm::max(glm::max(boundingBox.x * scale.x, boundingBox.y * scale.y), boundingBox.z * scale.z);
+        auto maxVertexFromBoundingBox = glm::max(glm::max(boundingBox.x * scale.x, boundingBox.y * scale.y),
+                                                 boundingBox.z * scale.z);
         collisionShape = new btSphereShape(maxVertexFromBoundingBox);
     } else if (hitboxType == 2) {
         collisionShape = new btCapsuleShape(0.5, 2);
@@ -71,6 +74,8 @@ void PhysicsComponent::init() {
         collisionShape = new btBvhTriangleMeshShape(triangleMesh, true);
     } else if (hitboxType == 4) { // tree
         collisionShape = new btCapsuleShape(0.3, 5);
+        isDynamic = false;
+        mass = 0.0f;
     }
 
     btVector3 localInertia(0.0f, 0.0f, 0.0f);
@@ -80,7 +85,7 @@ void PhysicsComponent::init() {
 
     initialTransform.setIdentity();
     initialTransform.setOrigin(btVector3(position.x, position.y, position.z));
-    initialTransform.setRotation(btQuaternion(rotation.x, rotation.y, rotation.z));
+    initialTransform.setRotation(btQuaternion(rotation.y, rotation.x, rotation.z));
 
     motionState = new btDefaultMotionState(initialTransform);
 
@@ -173,7 +178,7 @@ bool PhysicsComponent::isGrounded() {
     PhysicsWorld::getInstance()->getDynamicsWorld()->rayTest(rayStart, rayEnd, rayCallback);
 
     if (rayCallback.hasHit()) {
-        btRigidBody *hitBody = (btRigidBody *)btRigidBody::upcast(rayCallback.m_collisionObject);
+        btRigidBody *hitBody = (btRigidBody *) btRigidBody::upcast(rayCallback.m_collisionObject);
         if (hitBody && hitBody != rigidBody) {
             return true;
         }
