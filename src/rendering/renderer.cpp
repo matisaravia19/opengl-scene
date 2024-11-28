@@ -102,6 +102,7 @@ void Renderer::renderForward() {
 }
 
 void Renderer::renderGizmos() {
+    return;
     glBindFramebuffer(GL_FRAMEBUFFER, ppBuffer);
 
     glDisable(GL_DEPTH_TEST);

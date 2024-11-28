@@ -1,6 +1,8 @@
 #include "importer.h"
 
 #include <filesystem>
+#include <iostream>
+
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 #include "../rendering/meshRenderer.h"
@@ -436,6 +438,7 @@ int getHitboxType(aiNode *node) {
             return hitboxType;
         }
         if (node->mMetaData->HasKey("treeBillboard")) {
+            std::cout << "treeBillboard" << std::endl;
             return 4;
         }
     }

@@ -41,7 +41,7 @@ void PhysicsComponent::init() {
     glm::vec3 scale = transform->getScale();
     glm::vec3 rotation = transform->getEulerAngles();
 
-    glm::vec3 boundingBox = meshRenderer ? meshRenderer->getMesh()->getBoundingBox() : glm::vec3(1.0f);
+    glm::vec3 boundingBox = meshRenderer ? meshRenderer->getMesh()->bounds : glm::vec3(1.0f);
     if (hitboxType == 0) {
         collisionShape = new btBoxShape(btVector3(boundingBox.x * scale.x, boundingBox.y * scale.y, boundingBox.z * scale.z));
     } else if (hitboxType == 1) {
