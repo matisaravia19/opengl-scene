@@ -9,6 +9,10 @@
 #include "../core/dayTimer.h"
 #include "../core/entity.h"
 
+#define DAYLIGHT_COLOR glm::vec3(1.0f, 1.0f, 0.9f) * 5.0f
+#define MOONLIGHT_COLOR glm::vec3(0.2f, 0.2f, 0.3f)
+#define DAWN_COLOR glm::vec3(1.0f, 0.6f, 0.4f) * 2.0f
+
 SkyLight::SkyLight()
         : DirectionalLight(glm::vec3(1.f)) {}
 
@@ -19,7 +23,7 @@ void SkyLight::update() {
 
     // Moonlight has a constant direction
     if (tm < DayTimer::DAWN_START || tm > DayTimer::DUSK_END) {
-        color = glm::vec3(0.2f, 0.2f, 0.3f); // Blue-ish moonlight
+        color = MOONLIGHT_COLOR; // Blue-ish moonlight
         setDirection(glm::vec3(0.f, -1.f, 0.f));
         return;
     }
@@ -36,8 +40,8 @@ void SkyLight::update() {
     )));
 
     if (tm < DayTimer::DAWN_END || tm > DayTimer::DUSK_START) {
-        color = glm::vec3(1.f, .6f, .4f);
+        color = DAWN_COLOR;
     } else { // Full daylight
-        color = glm::vec3(1.0f, 1.0f, 0.9f);
+        color = DAYLIGHT_COLOR;
     }
 }
